@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">查询</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default">
+                <table class="table-condensed" id="search_tb">
+                    <tr>
+                        <td id="paymentStatus"><label>常用SQL</label></td>
+                        <td>
+    						<select id="sql_temp" name="database" class="form-control">
+                                <option value="">请选择</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="paymentStatus"><label>数据库</label></td>
+                        <td>
+    						<select id="database" name="database" class="form-control">
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>query sql</label></td>
+                        <td colspan="5">
+                            <textarea id="query_sql" spellcheck="false" class="form-control" rows="4" style="margin: 0px; width: 552px; height: 225px;"></textarea>
+                        </td>
+                        <td>sql注意事项：<br>
+                            1.需写明是哪个库的哪张表<br>
+                            2.不要全表查询，尽量加limit、where<br>
+                            3.字段名不要用中文<br>
+                            4.只能查询，不能增、改、删除数据<br>
+                        </td>
+                    </tr>
+                </table>
+
+				<div class="form-inline">
+					<button id="search" class="btn btn-sm btn-success ">搜索</button>
+					<button id="save_sql" class="btn btn-sm btn-success ">保存SQL</button>
+                    <a type="button" id="download" class="btn btn-sm btn-default pull-right">
+                        <i class="fa fa-download"></i> Download</a>
+                    <label class="pull-right">注意：数据量超过5万条时下载时间会很长，请尽量下载1万条以内。服务器同一时间只能运行一个大批量的下载任务</label>
+                </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+$(document).ready(function(){
+    Init_Sql_temp();
+    Init_Database();
+});
+
+
+/*
+*初始化常用SQl
+*/
+function Init_Sql_temp() {
+    var url = '/dtmt/init_sql_temp/';
+    $.post(url, function (jdata) {
+        var _data = $.parseJSON(jdata);
+        $.each(_data, function (k, v) {
+            var cont = "<option value='"+ v.name +"'>" + v.name +"</option>";
+            $("#sql_temp").append(cont);
+        });
+    })
+}
+
+/*
+*初始化数据库
+*/
+function Init_Database() {
+    var url = '/scheduled_tasks/get_database/';
+    $.post(url, function (jdata) {
+        var _data = $.parseJSON(jdata);
+        $.each(_data, function (k, v) {
+            var cont = "<option value='"+ k +"'>" + v.name + ' ' + v.host  +"</option>";
+            $("#database").append(cont);
+        });
+    })
+}
+
+
+//得到查询的参数
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        order: params.order,  //排序
+        time: $('#time').val(),
+        orderNum: $('#orderNum').val(),
+        createTime_start: $('#createTime_start').val(),
+        createTime_end: $('#createTime_end').val(),
+        query_sql: $('#query_sql ').val().trim(),
+        database: $('#database ').val(),
+    };
+    return temp;
+}
+
+
+/*
+*初始化表格
+*/
+function Initialization_table(columns) {
+    var bst = $('#table').bootstrapTable({
+{#    url: '/dtmt/query/get_data/',#}
+        pagination: true,                   //是否显示分页（*）
+        sortable: false,                     //是否启用排序
+        sortOrder: "asc",                   //排序方式
+        showColumns: true,
+        queryParams: queryParams,           //传递参数（*）
+        sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+        pageNumber: 1,                       //初始化加载第一页，默认第一页
+        pageSize: 10,                       //每页的记录行数（*）
+        pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+{#        showRefresh: true,                  //是否显示刷新按钮#}
+        search: true,                  //是否显示搜索 --前端搜索
+        columns:columns
+    });
+    return bst
+}
+
+
+/*
+*获取bootstraptable 的列columns
+*/
+function get_columns(fields) {
+    var columns = [];
+    $.each(fields, function (k, val) {
+        var column ={field:val, title:val};
+        columns.push(column);
+    });
+    return columns
+}
+
+
+/*
+*搜索
+*/
+$('#search').click(function(){
+    var index = layer.load();
+    var url = '/dtmt/query/get_data/';
+    var para = {query_sql: $('#query_sql ').val().trim(), database: $('#database ').val(),};
+    $.post(url, para, function (data) {
+        var data = $.parseJSON(data);
+        var fields = data.shift();
+        var columns = get_columns(fields);
+        $('#table').bootstrapTable('destroy');
+        var bst = Initialization_table(columns);
+        $('#table').bootstrapTable('load', data);
+        layer.close(index);
+    })
+
+});
+
+
+/*
+*导出结果
+*/
+$("#download").click(function () {
+    var url = "/dtmt/query/download/";
+    var params = {
+        limit: 0,
+        offset: 0
+    };
+    var data = queryParams(params);
+    var index = layer.load();
+    $.post(url, data, function (res) {
+        filepath = $.parseJSON(res);
+
+        var msg = '下载成功';
+        if (filepath==1){
+            msg = '服务器正在运行一个大批量的下载任务，请稍后下载';
+        }
+        else {
+            var downloadfileurl = "/dtmt/query/downloadfile?resfile=" + filepath;
+            window.location.href = downloadfileurl;
+        }
+        layer.close(index);
+        ajax_callback1(msg);
+    })
+});
+
+/*
+*保存常用SQL语句
+*/
+$("#save_sql").click(function () {
+    var url = "/dtmt/save_sql/";
+    var data = {};
+    var sql_name = $("#sql_temp").val();
+    data['sql_name'] = sql_name.trim();
+    data ['query_sql'] = $('#query_sql ').val().trim();
+    if (sql_name.length == 0){
+        layer.prompt(function(val, index, elem){
+            data['sql_name'] = val.trim();
+            post_sql(url, data);
+            layer.close(index);
+        });
+    }
+    else {
+        post_sql(url, data);
+    }
+});
+
+
+/*
+*保存常用SQL语句 post
+*/
+function post_sql(url, data) {
+    $.post(url, data, function (res) {
+        var msg = $.parseJSON(res);
+        ajax_callback1(msg);
+    });
+}
+
+
+/*
+*设置常用SQL语句
+*/
+$("#sql_temp").change(function () {
+    var url = "/dtmt/seach_sql_temp/";
+    var sql_name = $(this).val();
+    if (sql_name.length == 0){
+        $("#query_sql").val('');
+    }
+    else{
+        $.post(url, {'sql_name': sql_name}, function (res) {
+            var data = $.parseJSON(res);
+            $("#query_sql").val(data);
+        });
+    }
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+</script>
+{% endblock %}

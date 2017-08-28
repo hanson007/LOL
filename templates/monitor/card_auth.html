@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">绑卡认证中</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default">
+            <form action="/monitor/card_auth/" class="panel-body">
+                <table class="table-condensed" id="search_tb">
+                    <tr>
+                        <td><label>时间</label></td>
+                        <td>
+    						<select id="time" name="time" class="form-control">
+                                {% for t in times %}
+                                    <option value="{{ t|date:"Y-m-d H:i:s" }}">{{ t|date:"Y-m-d H:i:s" }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+
+				<div class="form-inline">
+					<button type="submit" class="btn btn-sm btn-success">搜索</button>
+				</div>
+			</form>
+            <div class="table-responsive text-center">
+				<table class="table table-hover table-bordered" id="dataTable">
+					<thead>
+						<tr>
+							<th>序号</th>
+                            <th>tid</th>
+                            <th>user_id</th>
+                            <th>bank_card_id</th>
+                            <th>bank_user_name</th>
+                            <th>bank_name</th>
+                            <th>phonenumber</th>
+                            <th>create_time</th>
+                            <th>status</th>
+                            <th>is_quick</th>
+                            <th>bind_id</th>
+                            <th>sequence_id</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for obj in card_auths%}
+						<tr>
+							<td>{{forloop.counter}}</td>
+                            <td>{{ obj.tid }}</td>
+                            <td>{{ obj.user_id }}</td>
+                            <td>{{ obj.bank_card_id }}</td>
+                            <td>{{ obj.bank_user_name }}</td>
+                            <td>{{ obj.bank_name }}</td>
+                            <td>{{ obj.phonenumber }}</td>
+                            <td>{{ obj.create_time|date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ obj.status }}</td>
+                            <td>{{ obj.is_quick }}</td>
+                            <td>{{ obj.bind_id }}</td>
+                            <td>{{ obj.sequence_id }}</td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+/*
+*设置搜索初始值
+*/
+$('#time').val("{{time|date:"Y-m-d H:i:s"}}"); //时间
+$('#area').val("{{data.area}}"); //区域
+$('#city').val("{{data.city}}"); //城市
+$('#store').val("{{data.store}}"); //门店
+$('#account_manager').val("{{data.account_manager}}"); //客户经理
+$('#emp_num').val("{{data.emp_num}}"); //员工工号
+$('#invite_code').val("{{data.invite_code}}"); //邀请码
+$('#account_manager_cn').val("{{data.account_manager_cn}}"); //客户经理身份证
+$('#investor_id').val("{{data.investor_id}}"); //投资人ID
+$('#investor').val("{{data.investor}}"); //投资人
+$('#is_employee').val("{{data.is_employee}}"); //是否公司员工
+$('#investor_cn').val("{{data.investor_cn}}"); //投资人身份证
+$('#start_date').val("{{data.start_date}}"); //投资时间 --开始
+$('#end_date').val("{{data.end_date}}"); //投资时间 --结束
+$('#product').val("{{data.product}}"); //购买产品
+$('#investment_amount').val("{{data.investment_amount}}"); //投资金额
+
+/*
+*初始化表格
+*/
+$('#time').chosen();
+
+
+/*
+*删除机器信息
+*/
+$("table tbody tr td button[id^='caifu_delete']").click(function(){
+	var id_val = $(this).attr('id');
+	var id = id_val.split('_')[2];
+    var data = {"id":id};
+    data = JSON.stringify(data);
+    var url = "/people/caifu_delete/";
+
+	var index = layer.confirm('确定删除吗？', {
+	  btn: ['确定','取消'] //按钮
+	}, function(){
+		$.post(url,{data:data},function(msg){
+			ajax_callback(msg);
+		 });
+	}, function(){
+	  layer.close(index)
+	});
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback(msg){
+    var msg =  $.parseJSON(msg);
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        if (msg == '成功'){
+            window.location="/people/caifu/";
+        }
+        else{
+           layer.close(index)
+        }
+    });
+}
+
+
+//缩略显示表格
+$('#breviary').click(function () {
+    var hide_td = [1,2,3,7,9,11,15,16,17,19,20,21,22,23];
+    $('#dataTable').find('tr').each(function () {
+        var td = $(this).children();
+        $.each(hide_td,function (k,v) {
+           td.eq(v).hide()
+        });
+    })
+});
+
+
+//显示所有表格
+$('#show_all').click(function () {
+    var hide_td = [1,2,3,7,9,11,15,16,17,19,20,21,22,23];
+    $('#dataTable').find('tr').each(function () {
+        var td = $(this).children();
+        $.each(hide_td,function (k,v) {
+           td.eq(v).show()
+        });
+    })
+});
+
+
+//高级搜索
+$('#search_tb').find('tr').eq(2).nextAll().hide();
+$('#advanced_search').click(function () {
+    $('#search_tb').find('tr').eq(2).nextAll().fadeToggle('slow');
+});
+
+$('.datepicker').datepicker({
+    format: "yyyy-mm-dd",//日期格式
+    language: 'zh-CN',
+    closeText: "Close",
+    autoclose:true
+});
+</script>
+{% endblock %}

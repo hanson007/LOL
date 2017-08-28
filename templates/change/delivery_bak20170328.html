@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th > div{
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">交割</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default">
+					<div class="panel-heading">
+						文件格式：客户姓名 客户身份证号 员工姓名 员工身份证号
+					</div>
+					<div class="panel-body">
+						<fieldset class="form-horizontal form-border">
+							<div class="form-group">
+								<label class="col-lg-2 control-label">Default</label>
+								<div class="col-lg-6">
+									<input id='file' type="file">
+								</div><!-- /.col -->
+								<div class="col-lg-3">
+									<button id="up_file" class="btn btn-xs btn-success" type="button">
+                                        <i class="fa fa-cloud-upload"></i>上传</button>
+								</div>
+							</div><!-- /form-group -->
+
+						</fieldset>
+					</div>
+            <div class="col-md-6">
+                <table class="table table-hover table-bordered" id="table"></table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+/*
+*批量上传交割名单
+*/
+$('#up_file').click(function () {
+	var formData = new FormData();
+	formData.append('file', $('#file')[0].files[0]);
+    var index = layer.load();
+	$.ajax({
+			url: '/change/upload_delivery/',
+			type: 'POST',
+			cache: false,
+			data: formData,
+			processData: false,
+			contentType: false
+		}).done(function(res) {
+		    layer.close(index);
+			ajax_callback(res)
+	});
+});
+
+/*
+*初始化表格
+*/
+$('#status1').chosen();
+
+
+/*
+*删除机器信息
+*/
+$("table tbody tr td button[id^='caifu_delete']").click(function(){
+	var id_val = $(this).attr('id');
+	var id = id_val.split('_')[2];
+    var data = {"id":id};
+    data = JSON.stringify(data);
+    var url = "/people/caifu_delete/";
+
+	var index = layer.confirm('确定删除吗？', {
+	  btn: ['确定','取消'] //按钮
+	}, function(){
+		$.post(url,{data:data},function(msg){
+			ajax_callback(msg);
+		 });
+	}, function(){
+	  layer.close(index)
+	});
+});
+
+
+//得到查询的参数
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        time: $('#time').val(),
+        orderNum: $('#orderNum').val(),
+        createTime_start: $('#createTime_start').val(),
+        createTime_end: $('#createTime_end').val(),
+        status: get_status(),
+        paymentStatus: get_paymentStatus(),
+        channelCode: get_channelCode()
+    };
+    return temp;
+}
+
+
+/*
+*ajax get callback
+*/
+$('#table').bootstrapTable({
+    url: '/change/get_delivery_data/',
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "asc",                   //排序方式
+    showColumns: true,
+    clickToSelect: true,
+    search: true,
+    queryParams: queryParams,           //传递参数（*）
+    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 10,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    showRefresh: true,                  //是否显示刷新按钮
+    columns: [{
+        field: 'time',
+        title: '时间'
+    }, {
+        field: 'delivery_id',
+        title: '交割编号',
+        formatter: operateFormatter
+    }, {
+        field: 'total',
+        title: '总数'
+    }]
+});
+
+/*
+*获取选中的状态值 checkbox
+*/
+function get_status() {
+    var status=[];
+    $('#status').find('input').each(function () {
+        if ($(this).prop('checked')){
+            status.push($(this).val())
+        }
+    });
+    return JSON.stringify(status);
+}
+
+
+/*
+*获取选中的状态值 checkbox
+*/
+function get_paymentStatus() {
+    var paymentStatus=[];
+    $('#paymentStatus').nextUntil("td[id='channelCode']").find('input').each(function () {
+        if ($(this).prop('checked')){
+            paymentStatus.push($(this).val())
+        }
+    });
+    return JSON.stringify(paymentStatus);
+}
+
+/*
+*获取选中的渠道编码值 checkbox
+*/
+function get_channelCode () {
+    var channelCode =[];
+    $('#channelCode ').nextAll().find('input').each(function () {
+        if ($(this).prop('checked')){
+            channelCode .push($(this).val())
+        }
+    });
+    return JSON.stringify(channelCode );
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback(msg){
+    var msg =  $.parseJSON(msg);
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        if (msg == '成功'){
+            window.location="/people/caifu/";
+        }
+        else{
+           layer.close(index)
+        }
+    });
+}
+
+
+$('.datepicker').datepicker({
+    format: "yyyy-mm-dd",//日期格式
+    language: 'zh-CN',
+    closeText: "Close",
+    autoclose:true
+});
+
+function operateFormatter(value, row, index) {
+    return [
+        '<a class="like" target="_black" href="/change/delivery_details/', value, '" title="Like">',
+        value,
+        '</a>'
+    ].join('');
+}
+
+
+</script>
+{% endblock %}

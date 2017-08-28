@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">银谷在线客户状态查询</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default">
+                <table class="table-condensed" id="search_tb">
+                    <tr>
+                        <td><label>电话号码</label></td>
+                        <td colspan="5">
+                            <textarea id="query_sql" spellcheck="false" class="form-control" rows="4" style="margin: 0px; width: 552px; height: 225px;"></textarea>
+                        </td>
+                        <td>注意事项：<br>
+                            每行一个<br>
+                        </td>
+                    </tr>
+                </table>
+
+				<div class="form-inline">
+					<button id="search" class="btn btn-sm btn-success ">搜索</button>
+                    <a type="button" id="download" class="btn btn-sm btn-default pull-right">
+                        <i class="fa fa-download"></i> Download</a>
+                    <label class="pull-right">注意：数据量超过5万条时下载时间会很长，请尽量下载1万条以内。服务器同一时间只能运行一个大批量的下载任务</label>
+                </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+$(document).ready(function(){
+
+});
+
+
+//得到查询的参数
+function queryParams(params) {
+    var phonenumbers =  $('#query_sql ').val().trim().split('\n');
+    var pns = [];
+    $.each(phonenumbers, function (k,v) {
+        var pn = "'" + v + "'";
+        pns.push(pn);
+    });
+    var query_sql = sql + "(" + pns.join(',') + ")";
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        order: params.order,  //排序
+        time: $('#time').val(),
+        orderNum: $('#orderNum').val(),
+        createTime_start: $('#createTime_start').val(),
+        createTime_end: $('#createTime_end').val(),
+        query_sql: query_sql,
+        database: "ygproperty",
+    };
+    return temp;
+}
+
+
+/*
+*初始化表格
+*/
+function Initialization_table(columns) {
+    var bst = $('#table').bootstrapTable({
+{#    url: '/dtmt/query/get_data/',#}
+        pagination: true,                   //是否显示分页（*）
+        sortable: false,                     //是否启用排序
+        sortOrder: "asc",                   //排序方式
+        showColumns: true,
+        queryParams: queryParams,           //传递参数（*）
+        sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+        pageNumber: 1,                       //初始化加载第一页，默认第一页
+        pageSize: 10,                       //每页的记录行数（*）
+        pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+{#        showRefresh: true,                  //是否显示刷新按钮#}
+        search: true,                  //是否显示搜索 --前端搜索
+        columns:columns
+    });
+    return bst
+}
+
+
+/*
+*获取bootstraptable 的列columns
+*/
+function get_columns(fields) {
+    var columns = [];
+    $.each(fields, function (k, val) {
+        var column ={field:val, title:val};
+        columns.push(column);
+    });
+    return columns
+}
+
+
+/*
+*查询SQL
+*/
+var sql= "SELECT\
+	cus.`cellphoneno`,\
+	ifnull(con. SCHEDULE, '100') SCHEDULE,\
+	IFNULL(\
+		shc.`schedule_name`,\
+		'当前无借款合同'\
+	) schedule_name \
+FROM \
+	ygproperty.jsd_customer cus \
+LEFT JOIN (\
+	SELECT\
+		*\
+	FROM\
+		ygproperty.`jsd_contract`\
+	GROUP BY\
+		jsd_id2\
+	ORDER BY\
+		createdate\
+) con ON con.jsd_id2 = cus.`id` \
+LEFT JOIN ygproperty.`jsd_contractschedule` shc ON shc.id = con. SCHEDULE \
+WHERE\
+	cus.`cellphoneno` IN ";
+
+
+function get_para() {
+    var phonenumbers =  $('#query_sql ').val().trim().split('\n');
+    var pns = [];
+    $.each(phonenumbers, function (k,v) {
+        var pn = "'" + v + "'";
+        pns.push(pn);
+    });
+    var query_sql = sql + "(" + pns.join(',') + ")";
+    var para = {query_sql: query_sql, database: "ygproperty",};
+    return para
+}
+
+/*
+*搜索
+*/
+$('#search').click(function(){
+    var index = layer.load();
+    var url = '/business_query/get_customer_status_query/';
+    var para = get_para();
+    $.post(url, para, function (data) {
+        var data = $.parseJSON(data);
+        var fields = data.shift();
+        var columns = get_columns(fields);
+        $('#table').bootstrapTable('destroy');
+        var bst = Initialization_table(columns);
+        $('#table').bootstrapTable('load', data);
+        layer.close(index);
+    })
+});
+
+
+/*
+*导出结果
+*/
+$("#download").click(function () {
+    var url = "/business_query/download_customer_status_query/";
+    var params = {
+        limit: 0,
+        offset: 0
+    };
+    var data = get_para();
+    var index = layer.load();
+    $.post(url, data, function (res) {
+        filepath = $.parseJSON(res);
+        var msg = '下载成功';
+        if (filepath==1){
+            msg = '服务器正在运行一个大批量的下载任务，请稍后下载';
+        }
+        else {
+            var downloadfileurl = "/dtmt/query/downloadfile?resfile=" + filepath;
+            window.location.href = downloadfileurl;
+        }
+        layer.close(index);
+        ajax_callback1(msg);
+    })
+});
+
+/*
+*保存常用SQL语句
+*/
+$("#save_sql").click(function () {
+    var url = "/dtmt/save_sql/";
+    var data = {};
+    var sql_name = $("#sql_temp").val();
+    data['sql_name'] = sql_name.trim();
+    data ['query_sql'] = $('#query_sql ').val().trim();
+    if (sql_name.length == 0){
+        layer.prompt(function(val, index, elem){
+            data['sql_name'] = val.trim();
+            post_sql(url, data);
+            layer.close(index);
+        });
+    }
+    else {
+        post_sql(url, data);
+    }
+});
+
+
+/*
+*保存常用SQL语句 post
+*/
+function post_sql(url, data) {
+    $.post(url, data, function (res) {
+        var msg = $.parseJSON(res);
+        ajax_callback1(msg);
+    });
+}
+
+
+/*
+*设置常用SQL语句
+*/
+$("#sql_temp").change(function () {
+    var url = "/dtmt/seach_sql_temp/";
+    var sql_name = $(this).val();
+    if (sql_name.length == 0){
+        $("#query_sql").val('');
+    }
+    else{
+        $.post(url, {'sql_name': sql_name}, function (res) {
+            var data = $.parseJSON(res);
+            $("#query_sql").val(data);
+        });
+    }
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+</script>
+{% endblock %}

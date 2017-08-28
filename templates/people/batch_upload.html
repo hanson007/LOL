@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">银谷财富人员批量添加</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="row">
+			<div class="col-lg-8">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						文件格式：工号 姓名 省份 城市 大区 中心 区域 组别 营业部	身份证号码 状态
+					</div>
+					<div class="panel-body">
+						<fieldset class="form-horizontal form-border">
+							<div class="form-group">
+								<label class="col-lg-2 control-label">Default</label>
+								<div class="col-lg-6">
+									<input id='file' type="file">
+								</div><!-- /.col -->
+								<div class="col-lg-3">
+									<button id="up_file" class="btn btn-xs btn-success" type="button">上传</button>
+								</div>
+							</div><!-- /form-group -->
+
+						</fieldset>
+					</div>
+				</div><!-- /panel -->
+			</div> <!-- 银谷 -->
+
+
+		</div>
+		<div class="row">
+			<div class="col-md-8">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						上传历史记录
+					</div>
+					<table id="dataTable" class="table table-hover table-striped"></table>
+				</div><!-- /panel -->
+			</div><!-- /.col -->
+		</div>
+	</div>
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+<script type="text/javascript">
+$('#up_file').click(function () {
+    var index = layer.load();
+	var formData = new FormData();
+	formData.append('file', $('#file')[0].files[0]);
+	$.ajax({
+			url: '/people/upload/',
+			type: 'POST',
+			cache: false,
+			data: formData,
+			processData: false,
+			contentType: false
+		}).done(function(res) {
+		    layer.close(index);
+			ajax_callback(res)
+	});
+});
+
+
+/*
+*初始化表格
+*/
+$('#dataTable').bootstrapTable({
+    url: '/people/batch_upload_file/',
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "desc",                   //排序方式
+    showColumns: true,
+    clickToSelect: true,
+    search: true,                       //启用搜索
+    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 10,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    showRefresh: true,                  //是否显示刷新按钮
+    columns: [{
+        title: 'ID',//标题  可不加
+        formatter: function (value, row, index) {
+            return index+1;
+            }
+        },{
+        field: 'filename',
+        title: '文件名'
+    },{
+        field: 'datetime',
+        title: '时间'
+    },{
+        field: 'size',
+        title: '文件大小'
+    }]
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback(msg){
+    var msg =  $.parseJSON(msg);
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        if (msg == '成功'){
+            window.location="/people/caifu/";
+        }
+        else{
+           layer.close(index)
+        }
+    });
+}
+</script>
+{% endblock %}

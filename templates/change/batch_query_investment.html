@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th > div{
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">批量查询投资信息  出借编号</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+	<div class="padding-md">
+		<div class="panel panel-default">
+					<div class="panel-heading">
+                        文件格式：出借编号
+					</div>
+					<div class="panel-body">
+						<fieldset class="form-horizontal form-border">
+							<div class="form-group">
+								<label class="col-lg-2 control-label">Default</label>
+								<div class="col-lg-6">
+									<input id='file' type="file">
+								</div><!-- /.col -->
+								<div class="col-lg-3">
+									<button id="up_file" class="btn btn-xs btn-success" type="button">上传</button>
+								</div>
+							</div><!-- /form-group -->
+						</fieldset>
+					</div>
+            <div>
+                <table class="table table-hover table-bordered NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+/*
+*批量上传补录名单
+*/
+$('#up_file').click(function () {
+	var formData = new FormData();
+	formData.append('file', $('#file')[0].files[0]);
+    var index = layer.load();
+	$.ajax({
+			url: '/change/investment/query/upload/',
+			type: 'POST',
+			cache: false,
+			data: formData,
+			processData: false,
+			contentType: false
+		}).done(function(res) {
+		    layer.close(index);
+		    resfile = $.parseJSON(res);
+		    var msg = '成功';
+		    if (resfile == 1) {
+		        msg = '上传失败'
+            }
+            else {
+                var url = "/change/investment/query/downloadfile?resfile=" + resfile;
+                window.location.href=url;
+            }
+            ajax_callback1(msg);
+		    console.log(resfile);
+
+	});
+});
+
+
+//得到查询的参数
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        delivery_id: get_delivery_id()
+    };
+    return temp;
+}
+
+
+/*
+*ajax get callback
+*/
+{#$('#table').bootstrapTable({#}
+{#    url: '/change/get_delivery_details_data/',#}
+{#    pagination: true,                   //是否显示分页（*）#}
+{#    sortable: false,                     //是否启用排序#}
+{#    sortOrder: "asc",                   //排序方式#}
+{#    showColumns: true,#}
+{#    clickToSelect: true,#}
+{#    search: true,#}
+{#    queryParams: queryParams,           //传递参数（*）#}
+{#    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）#}
+{#    pageNumber: 1,                       //初始化加载第一页，默认第一页#}
+{#    pageSize: 10,                       //每页的记录行数（*）#}
+{#    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）#}
+{#    showRefresh: true,                  //是否显示刷新按钮#}
+{#    columns: [{#}
+{#        field: 'delivery_id_id',#}
+{#        title: '交割编号'#}
+{#    }, {#}
+{#        field: 'customer',#}
+{#        title: '客户姓名'#}
+{#    }, {#}
+{#        field: 'customer_cn',#}
+{#        title: '客户身份证号'#}
+{#    }, {#}
+{#        field: 'employee',#}
+{#        title: '员工姓名'#}
+{#    }, {#}
+{#        field: 'employee_cn',#}
+{#        title: '员工身份证号'#}
+{#    }, {#}
+{#        field: 'large_area',#}
+{#        title: '大区'#}
+{#    }, {#}
+{#        field: 'area',#}
+{#        title: '区域'#}
+{#    }, {#}
+{#        field: 'center',#}
+{#        title: '中心'#}
+{#    }, {#}
+{#        field: 'store',#}
+{#        title: '营业部'#}
+{#    }, {#}
+{#        field: 'former_employee',#}
+{#        title: '交割前员工'#}
+{#    }, {#}
+{#        field: 'former_employee_cn',#}
+{#        title: '交割前员工身份证号'#}
+{#    }, {#}
+{#        field: 'result',#}
+{#        title: '交割结果'#}
+{#    }]#}
+{#});#}
+
+/*
+*导出结果
+*/
+$("#export").click(function(){
+    var curl = window.location.href;
+    var data = curl.split('/');
+    var id = data[data.length -2];
+    var url = "/change/export/" + id;
+    window.location.href=url;
+});
+
+
+/*
+*获取选中的状态值 checkbox
+*/
+$('#sync_uf_invk').click(function (){
+    var url = '/change/sync_uf_invk/';
+    var index = layer.load();
+    $.post(url,function (msg) {
+        layer.close(index);
+        ajax_callback(msg);
+    });
+});
+
+/*
+*获取选中的渠道编码值 checkbox
+*/
+function get_channelCode () {
+    var channelCode =[];
+    $('#channelCode ').nextAll().find('input').each(function () {
+        if ($(this).prop('checked')){
+            channelCode .push($(this).val())
+        }
+    });
+    return JSON.stringify(channelCode );
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback(msg){
+    var msg =  $.parseJSON(msg);
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        if (msg == '成功'){
+            window.location="/people/caifu/";
+        }
+        else{
+           layer.close(index)
+        }
+    });
+}
+
+
+$('.datepicker').datepicker({
+    format: "yyyy-mm-dd",//日期格式
+    language: 'zh-CN',
+    closeText: "Close",
+    autoclose:true
+});
+
+function operateFormatter(value, row, index) {
+    return [
+        '<a class="like" target="_black" href="/change/delivery_detail/" title="Like">', value,
+        '</a>'
+    ].join('');
+}
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+</script>
+{% endblock %}

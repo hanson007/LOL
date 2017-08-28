@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">充值异常订单</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default">
+            <form action="/monitor/rao/" class="panel-body">
+                <table class="table-condensed" id="search_tb">
+                    <tr>
+                        <td><label>时间</label></td>
+                        <td>
+    						<select id="time" name="time" class="form-control">
+                                {% for t in etimes %}
+                                    <option value="{{ t.time|date:"Y-m-d H:i:s" }}">{{ t.time|date:"Y-m-d H:i:s" }} {{t.number}}条记录</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+
+				<div class="form-inline">
+					<button type="submit" class="btn btn-sm btn-success">搜索</button>
+				</div>
+			</form>
+            <div class="text-center">
+				<table class="table table-hover table-bordered" id="dataTable">
+					<thead>
+						<tr>
+							<th>序号</th>
+                            <th>user_id</th>
+                            <th>global_id</th>
+                            <th>order_no</th>
+                            <th>amount</th>
+                            <th>amount2</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for obj in raos%}
+						<tr>
+							<td>{{forloop.counter}}</td>
+                            <td>{{ obj.user_id }}</td>
+                            <td>{{ obj.global_id }}</td>
+                            <td>{{ obj.order_no }}</td>
+                            <td>{{ obj.amount }}</td>
+                            <td>{{ obj.amount2 }}</td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+/*
+*设置搜索初始值
+*/
+console.log("{{time|date:'Y-m-d H:i:s'}}")
+
+$('#time').val("{{time|date:'Y-m-d H:i:s'}}"); //时间
+
+/*
+*初始化表格
+*/
+$('#time').chosen();
+
+
+/*
+*删除机器信息
+*/
+$("table tbody tr td button[id^='caifu_delete']").click(function(){
+	var id_val = $(this).attr('id');
+	var id = id_val.split('_')[2];
+    var data = {"id":id};
+    data = JSON.stringify(data);
+    var url = "/people/caifu_delete/";
+
+	var index = layer.confirm('确定删除吗？', {
+	  btn: ['确定','取消'] //按钮
+	}, function(){
+		$.post(url,{data:data},function(msg){
+			ajax_callback(msg);
+		 });
+	}, function(){
+	  layer.close(index)
+	});
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback(msg){
+    var msg =  $.parseJSON(msg);
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        if (msg == '成功'){
+            window.location="/people/caifu/";
+        }
+        else{
+           layer.close(index)
+        }
+    });
+}
+
+
+//缩略显示表格
+$('#breviary').click(function () {
+    var hide_td = [1,2,3,7,9,11,15,16,17,19,20,21,22,23];
+    $('#dataTable').find('tr').each(function () {
+        var td = $(this).children();
+        $.each(hide_td,function (k,v) {
+           td.eq(v).hide()
+        });
+    })
+});
+
+
+//显示所有表格
+$('#show_all').click(function () {
+    var hide_td = [1,2,3,7,9,11,15,16,17,19,20,21,22,23];
+    $('#dataTable').find('tr').each(function () {
+        var td = $(this).children();
+        $.each(hide_td,function (k,v) {
+           td.eq(v).show()
+        });
+    })
+});
+
+
+//高级搜索
+$('#search_tb').find('tr').eq(2).nextAll().hide();
+$('#advanced_search').click(function () {
+    $('#search_tb').find('tr').eq(2).nextAll().fadeToggle('slow');
+});
+
+$('.datepicker').datepicker({
+    format: "yyyy-mm-dd",//日期格式
+    language: 'zh-CN',
+    closeText: "Close",
+    autoclose:true
+});
+</script>
+{% endblock %}

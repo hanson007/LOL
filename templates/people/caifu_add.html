@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center {
+ text-align: center;
+}
+</style>
+<!-- Datatable -->
+<link href="/static/plugins/datatables/css/jquery.dataTables_themeroller.css" rel="stylesheet">
+{% endblock %}
+
+
+
+{% block container %}
+<div id="main-container">
+	<div class="padding-md">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="panel panel-default">
+					<div class="no-margin" id="formValidate1" data-validate="parsley" novalidate="">
+						<div class="panel-heading">
+							添加财富员工
+						</div>
+						<div class="panel-body">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">工号</label>
+										<input type="text" class="form-control input-sm parsley-validated" id="emp_num">
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">姓名</label>
+										<input type="text" class="form-control input-sm parsley-validated" id="card_name" data-required="true">
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+							</div><!-- /.row -->
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">省份</label>
+										<input type="text" class="form-control input-sm parsley-validated" id="province">
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">城市</label>
+										<input type="text" class="form-control input-sm parsley-validated" id="city">
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+							</div><!-- /.row -->
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">大区</label>
+										<input type="text" class="form-control input-sm parsley-validated" id="large_area">
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">中心</label>
+										<input type="text" class="form-control input-sm parsley-validated" id="center">
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+							</div><!-- /.row -->
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">区域</label>
+										<input type="text" class="form-control input-sm parsley-validated" id="area">
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">团队</label>
+										<input type="text" class="form-control input-sm parsley-validated" id="team">
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+							</div><!-- /.row -->
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">门店</label>
+										<input type="text" class="form-control input-sm parsley-validated" id="store">
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label">状态</label>
+										<!--<input type="text" class="form-control input-sm parsley-validated" id="status" data-required="true">-->
+										<select id="status" class="form-control parsley-validated" data-required="true">
+											<option value="">请选择</option>
+											<option value="在职">在职</option>
+											<option value="离职">离职</option>
+										</select>
+									</div><!-- /form-group -->
+								</div><!-- /.col -->
+							</div><!-- /.row -->
+
+							<div class="form-group">
+								<label class="control-label">身份证号码</label>
+								<input type="text" class="form-control input-sm parsley-validated" data-minlength="18" id="card_number" data-required="true">
+							</div><!-- /form-group -->
+						</div>
+						<div class="panel-footer text-right">
+							<button id="save" type="button" class="btn btn-success">保存</button>
+						</div>
+					</div>
+				</div><!-- /panel -->
+			</div><!-- /.col-->
+		</div>
+	</div>
+</div><!-- /main-container -->
+{% endblock %}
+
+
+{% block footer_content %}
+<script src="/static/plugins/layer/layer.js"></script> {# 加载layer控件，实现弹出框 #}
+<!-- Parsley表单验证 -->
+<script src="/static/template/js/parsley.min.js"></script>
+<script>
+/*
+*保存数据
+*/
+$('#save').click(function(){
+    var emp_num = $("#emp_num").val();//获取回收备注input元素
+    var card_name = $("#card_name").val();
+    var province = $("#province").val();
+	var city = $("#city").val();
+	var large_area = $("#large_area").val();
+	var center = $("#center").val();
+	var area = $("#area").val();
+	var team = $("#team").val();
+	var store = $("#store").val();
+	var card_number = $("#card_number").val();
+	var status = $("#status").val();
+    var data = {"emp_num":emp_num,"card_name":card_name,"province":province,"city":city,
+			"large_area":large_area,"center":center,"area":area,"team":team,
+			"store":store,"card_number":card_number,"status":status
+			};
+    data = JSON.stringify(data);
+    var url = "/people/caifu_add_data/";
+    var index = layer.load();
+    $.get(url,{data:data},function(msg){
+        layer.close(index);
+    	ajax_callback(msg);
+     });
+});
+
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback(msg){
+    var msg =  $.parseJSON(msg);
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        if (msg == '成功'){
+            window.location="/people/caifu/";
+        }
+        else{
+           layer.close(index)
+        }
+    });
+}
+</script>
+{% endblock %}

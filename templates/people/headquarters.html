@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center {
+ text-align: center;
+}
+</style>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">总部人员</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default table-responsive">
+			<!--<div class="panel-heading">-->
+				<!--Data Table-->
+				<!--<span class="label label-info pull-right">790 Items</span>-->
+			<!--</div>-->
+	<!--		<form action="/people/caifu/" class="panel-body">
+				<div class="form-inline" style="margin-bottom: 12px">
+					<div class="form-group">
+						<label>工号</label>
+						<input type="text" id="emp_num" name="emp_num" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+					<div class="form-group">
+						<label>姓名</label>
+						<input type="text" id="card_name" name="card_name" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+					<div class="form-group">
+						<label>省份</label>
+						<input type="text" id="province" name="province" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+					<div class="form-group">
+						<label>城市</label>
+						<input type="text" id="city" name="city" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+					<div class="form-group">
+						<label>大区</label>
+						<input type="text" id="large_area" name="large_area" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+				</div>
+				<div class="form-inline" style="margin-bottom: 12px">
+					<div class="form-group">
+						<label>中心</label>
+						<input type="text" id="center" name="center" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+					<div class="form-group">
+						<label>区域</label>
+						<input type="text" id="area" name="area" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+					<div class="form-group">
+						<label>组别</label>
+						<input type="text" id="team" name="team" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+					<div class="form-group">
+						<label>营业部</label>
+						<input type="text" id="store" name="store" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+					<div class="form-group">
+						<label>身份证号码</label>
+						<input type="text" id="card_number" name="card_number" class="form-control input-sm">
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+				</div>
+				<div class="form-inline">
+					<div class="form-group">
+						<label>状态</label>
+						<select id="status" name="status" class="form-control">
+							<option value="">请选择</option>
+							<option value="在职">在职</option>
+							<option value="离职">离职</option>
+						</select>
+					</div>&lt;!&ndash; /form-group &ndash;&gt;
+					<button type="submit" class="btn btn-sm btn-success">搜索</button>
+					<a type="button" href="/people/caifu_add/" target="_black" class="btn btn-sm btn-info">新增</a>
+				</div>
+			</form>-->
+
+				<div class="padding-md clearfix">
+				<table class="table table-striped" id="dataTable">
+					<thead>
+						<tr>
+							<th>序号</th>
+							<th>姓名</th>
+							<th>大区</th>
+							<th>身份证号码</th>
+							<th>状态</th>
+							<!--<th>操作</th>-->
+						</tr>
+					</thead>
+					<tbody>
+						{% for user in users%}
+						<tr>
+							<td>{{forloop.counter}}</td>
+							<td>{{user.card_name}}</td>
+							<td>{{user.large_area}}</td>
+							<td>{{user.card_number}}</td>
+							<td>{{user.status}}</td>
+<!--							<td>
+								<a class="btn btn-xs btn-success" target="_blank" href="/people/caifu_edit/{{user.id}}">
+									<i class="fa fa-edit fa-lg"></i>
+								</a>
+								<button class="btn btn-xs btn-danger" id="caifu_delete_{{cfe.id}}">
+									<i class="fa fa-times fa-lg"></i>
+								</button>
+							</td>-->
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
+<!--				<div class="panel-footer clearfix">
+					<ul class="pagination pagination-sm center">
+					{% if paginator.current_page.has_previous %}
+						<li><a href="?{{paginator.qstr}}&p=1">First</a></li>
+						<li><a href="?{{paginator.qstr}}&p={{paginator.current_page.previous_page_number}}">Previos</a></li>
+					{% else %}
+						<li class="disabled"><a href="?{{paginator.qstr}}&p=1">First</a></li>
+						<li class="disabled"><a>Previous</a></li>
+					{% endif %}
+
+					{% for num in paginator.page_range %}
+						{% if num == paginator.current_page.number %}
+							<li class="active"><a>{{num}}</a></li>
+						{% else %}
+							<li><a href="?{{paginator.qstr}}&p={{num}}">{{num}}</a></li>
+						{% endif %}
+					{% endfor %}
+
+					{% if paginator.current_page.has_next %}
+						<li><a href="?{{paginator.qstr}}&p={{paginator.current_page.next_page_number}}">Next</a></li>
+						<li><a href="?{{paginator.qstr}}&p={{paginator.pages.num_pages}}">Last</a></li>
+					{% else %}
+						<li class="disabled"><a href="?{{paginator.qstr}}&p={{paginator.pages.num_pages}}">Last</a></li>
+						<li class="disabled"><a>Next</a></li>
+					{% endif %}
+					</ul>
+				</div>-->
+			</div><!-- /.padding-md -->
+
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!--<script src='/static/template/js/jquery.dataTables.min.js'></script>-->
+<script>
+/*
+*设置搜索初始值
+*/
+/*$('#emp_num').val("{{data.emp_num}}"); //员工工号
+$('#card_name').val("{{data.card_name}}"); //姓名
+$('#province').val("{{data.province}}"); //省份
+$('#city').val("{{data.city}}"); //城市
+$('#large_area').val("{{data.large_area}}"); //大区
+$('#center').val("{{data.center}}"); //中心
+$('#area').val("{{data.area}}"); //区域
+$('#team').val("{{data.team}}"); //团队
+$('#store').val("{{data.store}}"); //门店
+$('#card_number').val("{{data.card_number}}"); //身份证号码
+$('#status').val("{{data.status}}"); //员工状态*/
+
+/*
+*初始化表格
+*/
+	$(function	()	{
+		$('#dataTable').dataTable( {
+			"bJQueryUI": true,
+			"sPaginationType": "full_numbers",
+		});
+	});
+
+
+/*
+*删除机器信息
+*/
+$("table tbody tr td button[id^='caifu_delete']").click(function(){
+	var id_val = $(this).attr('id');
+	var id = id_val.split('_')[2];
+    var data = {"id":id};
+    data = JSON.stringify(data);
+    var url = "/people/caifu_delete/";
+
+	var index = layer.confirm('确定删除吗？', {
+	  btn: ['确定','取消'] //按钮
+	}, function(){
+		$.post(url,{data:data},function(msg){
+			ajax_callback(msg);
+		 });
+	}, function(){
+	  layer.close(index)
+	});
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback(msg){
+    var msg =  $.parseJSON(msg);
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        if (msg == '成功'){
+            window.location="/people/caifu/";
+        }
+        else{
+           layer.close(index)
+        }
+    });
+}
+</script>
+{% endblock %}

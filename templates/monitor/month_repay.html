@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">月还查询</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default">
+                <table class="table-condensed" id="search_tb">
+                    <tr>
+                        <td id="paymentStatus"><label>支付状态</label></td>
+                        <td>
+                            <input type="checkbox" value="1">
+                            <span class="custom-checkbox"></span>成功
+                        </td>
+                        <td>
+                            <input type="checkbox" value="2">
+                            <span class="custom-checkbox"></span>处理中
+                        </td>
+                        <td>
+                            <input type="checkbox" value="3">
+                            <span class="custom-checkbox"></span>失败
+                        </td>
+                        <td>
+                            <input type="checkbox" value="5">
+                            <span class="custom-checkbox"></span>验证失败
+                        </td>
+                        <td>
+                            <input type="checkbox" value="6">
+                            <span class="custom-checkbox"></span>已提交
+                        </td>
+                        <td>
+                            <input type="checkbox" value="11">
+                            <span class="custom-checkbox"></span>手工处理
+                        </td>
+                        <td id="channelCode"><label>渠道类型</label></td>
+                        <td>
+                            <input type="checkbox" value="CPCNPAY">
+                            <span class="custom-checkbox"></span>中金
+                        </td>
+                        <td>
+                            <input type="checkbox" value="CHANPAY">
+                            <span class="custom-checkbox"></span>畅捷
+                        </td>
+                        <td>
+                            <input type="checkbox" value="PAYEASE">
+                            <span class="custom-checkbox"></span>首信易
+                        </td>
+                        <td>
+                            <input type="checkbox" value="ATOBOPAY">
+                            <span class="custom-checkbox"></span>金运通
+                        </td>
+                        <td>
+                            <input type="checkbox" value="UNSPAY">
+                            <span class="custom-checkbox"></span>银生宝
+                        </td>
+                        <td>
+                            <input type="checkbox" value="AOFOO">
+                            <span class="custom-checkbox"></span>宝付支付
+                        </td>
+                        <td>
+                            <input type="checkbox" value="HNAPAY">
+                            <span class="custom-checkbox"></span>新生支付
+                        </td>
+                    </tr>
+                    <tr id="status">
+                        <td><label>交易状态</label></td>
+                        <td>
+                            <input type="checkbox" value="0">
+                            <span class="custom-checkbox"></span>初始
+                        </td>
+                        <td>
+                            <input type="checkbox" value="1">
+                            <span class="custom-checkbox"></span>成功
+                        </td>
+                        <td>
+                            <input type="checkbox" value="2">
+                            <span class="custom-checkbox"></span>处理中
+                        </td>
+                        <td>
+                            <input type="checkbox" value="3">
+                            <span class="custom-checkbox"></span>失败
+                        </td>
+                        <td>
+                            <input type="checkbox" value="5">
+                            <span class="custom-checkbox"></span>验证失败
+                        </td>
+                        <td>
+                            <input type="checkbox" value="6">
+                            <span class="custom-checkbox"></span>已提交
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>orderNum</label></td>
+                        <td colspan="4"><input type="text" id="orderNum" name="store" class="form-control input-sm"></td>
+                        <td><label>createTime</label></td>
+                        <td colspan="2">
+                            <input type="text" id="createTime_start" name="createTime" class="datepicker form-control">
+                        </td>
+                        <td style="text-align:center">至</td>
+                        <td colspan="2">
+                            <input type="text" id="createTime_end" name="end_date" class="datepicker form-control">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>globalId</label></td>
+                        <td colspan="5"><textarea id="globalId" spellcheck="false" class="form-control" rows="3"></textarea></td>
+                        <td colspan="2">批量查询，每行一个</td>
+                    </tr>
+                </table>
+
+				<div class="form-inline">
+					<button id="search" class="btn btn-sm btn-success ">搜索</button>
+                    <a type="button" id="download" class="btn btn-sm btn-default pull-right">
+                        <i class="fa fa-download"></i> Download</a>
+                    <label class="pull-right">注意：数据量超过10万条时下载时间会很长，请尽量下载1万条以内。</label>
+                </div>
+            <div class="text-center">
+                <table class="table table-hover table-bordered table-responsive NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+/*
+*设置搜索初始值
+*/
+$('#time').val("{{time|date:'Y-m-d H:i:s'}}"); //时间
+
+/*
+*初始化表格
+*/
+$('#status1').chosen();
+
+
+/*
+*删除机器信息
+*/
+$("table tbody tr td button[id^='caifu_delete']").click(function(){
+	var id_val = $(this).attr('id');
+	var id = id_val.split('_')[2];
+    var data = {"id":id};
+    data = JSON.stringify(data);
+    var url = "/people/caifu_delete/";
+
+	var index = layer.confirm('确定删除吗？', {
+	  btn: ['确定','取消'] //按钮
+	}, function(){
+		$.post(url,{data:data},function(msg){
+			ajax_callback(msg);
+		 });
+	}, function(){
+	  layer.close(index)
+	});
+});
+
+
+//得到查询的参数
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        time: $('#time').val(),
+        orderNum: $('#orderNum').val(),
+        createTime_start: $('#createTime_start').val(),
+        createTime_end: $('#createTime_end').val(),
+        status: get_status(),
+        paymentStatus: get_paymentStatus(),
+        channelCode: get_channelCode(),
+        globalId: get_globalId()
+    };
+    return temp;
+}
+
+
+/*
+*ajax get callback
+*/
+$('#table').bootstrapTable({
+    url: '/monitor/get_month_repay_data/',
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "asc",                   //排序方式
+    showColumns: true,
+    queryParams: queryParams,           //传递参数（*）
+    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 10,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    showRefresh: true,                  //是否显示刷新按钮
+    columns: [{
+        field: 'orderNum',
+        title: 'orderNum'
+    }, {
+        field: 'NAME',
+        title: 'NAME'
+    }, {
+        field: 'bankCode',
+        title: 'bankCode'
+    }, {
+        field: 'bankBranch',
+        title: 'bankBranch'
+    }, {
+        field: 'amount',
+        title: 'amount'
+    }, {
+        field: 'STATUS',
+        title: 'STATUS'
+    }, {
+        field: 'paymentStatus',
+        title: 'paymentStatus'
+    }, {
+        field: 'createTime',
+        title: 'createTime'
+    }, {
+        field: 'requestId',
+        title: 'requestId'
+    }, {
+        field: 'channelCode',
+        title: 'channelCode'
+    }, {
+        field: 'returnCode',
+        title: 'returnCode'
+    }, {
+        field: 'returnNote',
+        title: 'returnNote'
+    }, {
+        field: 'paymentTime',
+        title: 'paymentTime'
+    }, {
+        field: 'modifyTime',
+        title: 'modifyTime'
+    }, {
+        field: 'paymentType',
+        title: 'paymentType'
+    }, {
+        field: 'globalId',
+        title: 'globalId'
+    }]
+});
+
+
+/*
+*获取选中的状态值 checkbox
+*/
+function get_status() {
+    var status=[];
+    $('#status').find('input').each(function () {
+        if ($(this).prop('checked')){
+            status.push($(this).val())
+        }
+    });
+    return JSON.stringify(status);
+}
+
+
+/*
+*获取选中的状态值 checkbox
+*/
+function get_paymentStatus() {
+    var paymentStatus=[];
+    $('#paymentStatus').nextUntil("td[id='channelCode']").find('input').each(function () {
+        if ($(this).prop('checked')){
+            paymentStatus.push($(this).val())
+        }
+    });
+    return JSON.stringify(paymentStatus);
+}
+
+/*
+*获取选中的渠道编码值 checkbox
+*/
+function get_channelCode () {
+    var channelCode =[];
+    $('#channelCode ').nextAll().find('input').each(function () {
+        if ($(this).prop('checked')){
+            channelCode .push($(this).val())
+        }
+    });
+    return JSON.stringify(channelCode );
+}
+
+/*
+*获取批量输入的globalId
+*/
+function get_globalId () {
+    var globalId = [];
+    var val = $('#globalId ').val().trim();
+    if (val.length != 0) {
+        globalId = val.split("\n");
+    }
+    return JSON.stringify(globalId);
+}
+
+
+$('#search').click(function(){
+    var opt = {
+        url: '/monitor/get_month_repay_data/',
+        silent: true
+    };
+    $('#table').bootstrapTable('refresh', opt)
+});
+
+
+$('.datepicker').datepicker({
+    format: "yyyy-mm-dd",//日期格式
+    language: 'zh-CN',
+    closeText: "Close",
+    autoclose:true
+});
+
+
+/*
+*导出结果
+*/
+$("#download").click(function () {
+    var url = "/monitor/download/";
+    var params = {
+        limit: 0,
+        offset: 0
+    };
+    var data = queryParams(params);
+    var index = layer.load();
+    $.get(url, data, function (res) {
+        filepath = $.parseJSON(res);
+
+        var msg = '下载成功';
+        if (filepath==1){
+            msg = '未输入搜索条件';
+        }
+        else {
+            var downloadfileurl = "/monitor/downloadfile?resfile=" + filepath;
+            window.location.href = downloadfileurl;
+        }
+        layer.close(index);
+        ajax_callback1(msg);
+    })
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+</script>
+{% endblock %}

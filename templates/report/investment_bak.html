@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">投资</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+
+	<div class="padding-md">
+		<div class="panel panel-default table-responsive">
+			<form action="/report/investment/" class="panel-body">
+                <table class="table-condensed" id="search_tb">
+                    <tr>
+                        <td><label>营业部</label></td>
+                        <td><input type="text" id="store" name="store" class="form-control input-sm"></td>
+                        <td><label>客户经理</label></td>
+                        <td><input type="text" id="account_manager" name="account_manager" class="form-control input-sm"></td>
+                        <td><label>员工编号</label></td>
+                        <td><input type="text" id="emp_num" name="emp_num" class="form-control input-sm"></td>
+                        <td><label>客户经理身份证</label></td>
+                        <td><input type="text" id="account_manager_cn" name="account_manager_cn" class="form-control input-sm"></td>
+                    </tr>
+                    <tr>
+                        <td><label>投资人姓名</label></td>
+                        <td><input type="text" id="investor" name="investor" class="form-control input-sm"></td>
+                        <td><label>购买产品</label></td>
+                        <td><input type="text" id="product" name="product" class="form-control input-sm"></td>
+                        <td><label>投资金额</label></td>
+                        <td><input type="text" id="investment_amount" name="investment_amount" class="form-control input-sm"></td>
+                        <td><label>投资人身份证号</label></td>
+                        <td><input type="text" id="investor_cn" name="investor_cn" class="form-control input-sm"></td>
+                    </tr>
+                    <tr>
+                        <td><label>投资时间</label></td>
+                        <td>
+                            <input type="text" id="start_date" name="start_date" class="datepicker form-control">
+                        </td>
+                        <td style="text-align:center">至</td>
+                        <td>
+                            <input type="text" id="end_date" name="end_date" class="datepicker form-control">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>大区</label></td>
+                        <td><input type="text" id="large_area" name="large_area" class="form-control input-sm"></td>
+                        <td><label>区域</label></td>
+                        <td><input type="text" id="area" name="area" class="form-control input-sm"></td>
+                        <td><label>城市</label></td>
+                        <td><input type="text" id="city" name="city" class="form-control input-sm"></td>
+                        <td><label>邀请码</label></td>
+                        <td><input type="text" id="invite_code" name="invite_code" class="form-control input-sm"></td>
+                    </tr>
+                    <tr>
+                        <td><label>折标金额</label></td>
+                        <td><input type="text" id="discount_amount" name="discount_amount" class="form-control input-sm"></td>
+                        <td><label>用户ID</label></td>
+                        <td><input type="text" id="investor_id" name="investor_id" class="form-control input-sm"></td>
+                        <td><label>收益率</label></td>
+                        <td><input type="text" id="return_rate" name="return_rate" class="form-control input-sm"></td>
+                        <td><label>起息时间</label></td>
+                        <td><input type="text" id="interest_bearing_time" name="interest_bearing_time" class="form-control input-sm"></td>
+                    </tr>
+                    <tr>
+                        <td><label>到期时间</label></td>
+                        <td><input type="text" id="close_time" name="close_time" class="form-control input-sm"></td>
+                        <td><label>赎回利息</label></td>
+                        <td><input type="text" id="redemption_interest" name="redemption_interest" class="form-control input-sm"></td>
+                        <td><label>赎回金额</label></td>
+                        <td><input type="text" id="redemption_amount" name="redemption_amount" class="form-control input-sm"></td>
+                    </tr>
+                    <tr>
+                        <td><label>新老客户</label></td>
+                        <td>
+    						<select id="is_new_customer" name="is_new_customer" class="form-control">
+                                <option value="">请选择</option>
+                                <option value="新">新</option>
+                                <option value="老">老</option>
+                            </select>
+                        </td>
+                        <td><label>公司员工</label></td>
+                        <td>
+    						<select id="is_employee" name="is_employee" class="form-control">
+                                <option value="">请选择</option>
+                                <option value="是">是</option>
+                                <option value="否">否</option>
+                            </select>
+                        </td>
+                        <td><label>投资期限</label></td>
+                        <td>
+    						<select id="investment_term" name="investment_term" class="form-control">
+                                <option value="">请选择</option>
+                                <option value="1">1月</option>
+                                <option value="2">2月</option>
+                                <option value="3">3月</option>
+                                <option value="4">4月</option>
+                                <option value="5">5月</option>
+                                <option value="6">6月</option>
+                                <option value="7">7月</option>
+                                <option value="8">8月</option>
+                                <option value="9">9月</option>
+                                <option value="10">10月</option>
+                                <option value="11">11月</option>
+                                <option value="12">12月</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+
+				<div class="form-inline">
+					<button type="submit" class="btn btn-sm btn-success">搜索</button>
+					<button type="button" target="_black" id="advanced_search" class="btn btn-xs btn-default">高级搜索</button>
+                    <label class="label-radio inline">
+                        <input type="radio" name="inline-radio" id="breviary">
+                        <span class="custom-radio"></span>
+                        缩略
+                    </label>
+                    <label class="label-radio inline">
+                        <input type="radio" name="inline-radio" id="show_all">
+                        <span class="custom-radio"></span>
+                        所有
+                    </label>
+				</div>
+			</form>
+
+            <div class="table-responsive text-center">
+				<table class="table table-hover table-bordered"   id="dataTable">
+					<thead>
+						<tr>
+							<th>序号</th>
+							<th>大区</th>
+							<th>区域</th>
+							<th>城市</th>
+							<th>营业部</th>
+							<th>客户经理</th>
+							<th>客户经理员工编号</th>
+							<th>邀请码</th>
+							<th>客户经理身份证</th>
+							<th>用户ID</th>
+							<th>投资人姓名</th>
+							<th>是否公司员工</th>
+							<th>投资人身份证号</th>
+							<th>投资时间</th>
+							<th>投资金额</th>
+							<th>折标金额</th>
+							<th>起息时间</th>
+							<th>封闭期到期日</th>
+							<th>购买产品</th>
+							<th>投资期限（月）</th>
+							<th>收益率</th>
+							<th>赎回利息</th>
+							<th>赎回金额</th>
+							<th>新老客户</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for obj in paginator.current_page.object_list%}
+						<tr>
+							<td>{{forloop.counter0|add:paginator.current_page.start_index}}</td>
+                            <td>{{obj.large_area}}</td>
+                            <td>{{obj.area}}</td>
+                            <td>{{obj.city}}</td>
+                            <td>{{obj.store}}</td>
+                            <td>{{obj.account_manager}}</td>
+                            <td>{{obj.emp_num}}</td>
+                            <td>{{obj.invite_code}}</td>
+                            <td>{{obj.account_manager_cn}}</td>
+                            <td>{{obj.investor_id}}</td>
+                            <td>{{obj.investor}}</td>
+                            <td>{{obj.is_employee | format_bool:"是,否"}}</td>
+                            <td>{{obj.investor_cn}}</td>
+                            <td>{{obj.investment_time|date:"Y-m-d H:i:s"}}</td>
+                            <td>{{obj.investment_amount}}</td>
+                            <td>{{obj.discount_amount}}</td>
+                            <td>{{obj.interest_bearing_time|date:"Y-m-d"}}</td>
+                            <td>{{obj.close_time|date:"Y-m-d"}}</td>
+							<td>{{obj.product}}</td>
+							<td>{{obj.investment_term}}</td>
+							<td>{{obj.return_rate}}</td>
+							<td>{{obj.redemption_interest}}</td>
+							<td>{{obj.redemption_amount|default:""}}</td>
+							<td>{{obj.is_new_customer| format_bool:"新,老"}}</td>
+							<td>
+								<a class="btn btn-xs btn-success" target="_blank" href="/people/caifu_edit/{{obj.id}}">
+									<i class="fa fa-edit fa-lg"></i>
+								</a>
+								<button class="btn btn-xs btn-danger" id="caifu_delete_{{obj.id}}">
+									<i class="fa fa-times fa-lg"></i>
+								</button>
+							</td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
+				<div class="panel-footer clearfix">
+					<ul class="pagination pagination-sm center">
+					{% if paginator.current_page.has_previous %}
+						<li><a href="?{{paginator.qstr}}&p=1">First</a></li>
+						<li><a href="?{{paginator.qstr}}&p={{paginator.current_page.previous_page_number}}">Previos</a></li>
+					{% else %}
+						<li class="disabled"><a href="?{{paginator.qstr}}&p=1">First</a></li>
+						<li class="disabled"><a>Previous</a></li>
+					{% endif %}
+
+					{% for num in paginator.page_range %}
+						{% if num == paginator.current_page.number %}
+							<li class="active"><a>{{num}}</a></li>
+						{% else %}
+							<li><a href="?{{paginator.qstr}}&p={{num}}">{{num}}</a></li>
+						{% endif %}
+					{% endfor %}
+
+					{% if paginator.current_page.has_next %}
+						<li><a href="?{{paginator.qstr}}&p={{paginator.current_page.next_page_number}}">Next</a></li>
+						<li><a href="?{{paginator.qstr}}&p={{paginator.pages.num_pages}}">Last</a></li>
+					{% else %}
+						<li class="disabled"><a href="?{{paginator.qstr}}&p={{paginator.pages.num_pages}}">Last</a></li>
+						<li class="disabled"><a>Next</a></li>
+					{% endif %}
+					</ul>
+				</div>
+			</div><!-- /.padding-md -->
+
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script>
+/*
+*设置搜索初始值
+*/
+$('#large_area').val("{{data.large_area}}"); //大区
+$('#area').val("{{data.area}}"); //区域
+$('#city').val("{{data.city}}"); //城市
+$('#store').val("{{data.store}}"); //门店
+$('#account_manager').val("{{data.account_manager}}"); //客户经理
+$('#emp_num').val("{{data.emp_num}}"); //员工工号
+$('#invite_code').val("{{data.invite_code}}"); //邀请码
+$('#account_manager_cn').val("{{data.account_manager_cn}}"); //客户经理身份证
+$('#investor_id').val("{{data.investor_id}}"); //投资人ID
+$('#investor').val("{{data.investor}}"); //投资人
+$('#is_employee').val("{{data.is_employee}}"); //是否公司员工
+$('#investor_cn').val("{{data.investor_cn}}"); //投资人身份证
+$('#start_date').val("{{data.start_date}}"); //投资时间 --开始
+$('#end_date').val("{{data.end_date}}"); //投资时间 --结束
+$('#product').val("{{data.product}}"); //购买产品
+$('#investment_amount').val("{{data.investment_amount}}"); //投资金额
+
+/*
+*初始化表格
+*/
+{#	$(function	()	{#}
+{#		$('#dataTable').dataTable( {#}
+{#    	paging: false,#}
+{#//    "ordering": false,#}
+{#    "info":     false,#}
+{#//			"lengthChange": false,#}
+{#			"bJQueryUI": true,#}
+{#//			"sPaginationType": "full_numbers",#}
+{#			"searching": false#}
+{##}
+{#		});#}
+{#	});#}
+
+
+/*
+*删除机器信息
+*/
+$("table tbody tr td button[id^='caifu_delete']").click(function(){
+	var id_val = $(this).attr('id');
+	var id = id_val.split('_')[2];
+    var data = {"id":id};
+    data = JSON.stringify(data);
+    var url = "/people/caifu_delete/";
+
+	var index = layer.confirm('确定删除吗？', {
+	  btn: ['确定','取消'] //按钮
+	}, function(){
+		$.post(url,{data:data},function(msg){
+			ajax_callback(msg);
+		 });
+	}, function(){
+	  layer.close(index)
+	});
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback(msg){
+    var msg =  $.parseJSON(msg);
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        if (msg == '成功'){
+            window.location="/people/caifu/";
+        }
+        else{
+           layer.close(index)
+        }
+    });
+}
+
+
+//缩略显示表格
+$('#breviary').click(function () {
+    var hide_td = [1,2,3,7,9,11,15,16,17,19,20,21,22,23];
+    $('#dataTable').find('tr').each(function () {
+        var td = $(this).children();
+        $.each(hide_td,function (k,v) {
+           td.eq(v).hide()
+        });
+    })
+});
+
+
+//显示所有表格
+$('#show_all').click(function () {
+    var hide_td = [1,2,3,7,9,11,15,16,17,19,20,21,22,23];
+    $('#dataTable').find('tr').each(function () {
+        var td = $(this).children();
+        $.each(hide_td,function (k,v) {
+           td.eq(v).show()
+        });
+    })
+});
+
+
+//高级搜索
+$('#search_tb').find('tr').eq(2).nextAll().hide();
+$('#advanced_search').click(function () {
+    $('#search_tb').find('tr').eq(2).nextAll().fadeToggle('slow');
+});
+
+$('.datepicker').datepicker({
+    format: "yyyy-mm-dd",//日期格式
+    language: 'zh-CN',
+    closeText: "Close",
+    autoclose:true
+});
+</script>
+{% endblock %}

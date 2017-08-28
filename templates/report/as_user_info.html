@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">用户</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+
+	<div class="padding-md">
+		<div class="panel panel-default table-responsive">
+			<form action="/report/investment/" class="panel-body">
+                <table class="table-condensed" id="search_tb">
+                    <tr>
+                        <td><label>姓名</label></td>
+                        <td><input type="text" id="card_name" name="store" class="form-control input-sm"></td>
+                        <td><label>身份证号</label></td>
+                        <td><input type="text" id="card_number" name="account_manager" class="form-control input-sm"></td>
+                        <td><label>用户ID</label></td>
+                        <td><input type="text" id="user_id" name="emp_num" class="form-control input-sm"></td>
+                        <td><label>邀请码</label></td>
+                        <td><input type="text" id="invite_code" name="account_manager_cn" class="form-control input-sm"></td>
+                    </tr>
+                    <tr>
+                        <td><label>手机号</label></td>
+                        <td><input type="text" id="phonenumber" name="investment_amount" class="form-control input-sm"></td>
+                        <td><label>自己的邀请码</label></td>
+                        <td><input type="text" id="self_invite_code" name="investor_cn" class="form-control input-sm"></td>
+                    </tr>
+                    <tr>
+                        <td><label>注册时间</label></td>
+                        <td>
+                            <input type="text" id="start_join_time" name="start_date" class="datepicker form-control">
+                        </td>
+                        <td style="text-align:center">至</td>
+                        <td>
+                            <input type="text" id="end_join_time" name="end_date" class="datepicker form-control">
+                        </td>
+                        <td><label>实名时间</label></td>
+                        <td>
+                            <input type="text" id="start_auth_time" name="start_date" class="datepicker form-control">
+                        </td>
+                        <td style="text-align:center">至</td>
+                        <td>
+                            <input type="text" id="end_auth_time" name="end_date" class="datepicker form-control">
+                        </td>
+                    </tr>
+
+                </table>
+
+				<div class="form-inline">
+					<button id="search" type="button" class="btn btn-sm btn-success">搜索</button>
+					<button type="button" target="_black" id="advanced_search" class="btn btn-xs btn-default">高级搜索</button>
+                    <label class="label-radio inline">
+                        <input type="radio" name="inline-radio" id="breviary">
+                        <span class="custom-radio"></span>
+                        缩略
+                    </label>
+                    <label class="label-radio inline">
+                        <input type="radio" name="inline-radio" id="show_all">
+                        <span class="custom-radio"></span>
+                        所有
+                    </label>
+				</div>
+			</form>
+
+            <div class="table-responsive">
+				<table class="table table-hover table-bordered NoNewline"   id="table"></table>
+			</div><!-- /.padding-md -->
+
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script>
+/*
+*得到查询的参数
+*/
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        card_name: $('#card_name').val(),
+        card_number: $('#card_number').val(),
+        user_id: $('#user_id').val(),
+        invite_code: $('#invite_code').val(),
+        phonenumber: $('#phonenumber').val(),
+        self_invite_code: $('#self_invite_code').val(),
+        start_join_time: $('#start_join_time').val(),
+        end_join_time: $('#end_join_time').val(),
+        start_auth_time: $('#start_auth_time').val(),
+        end_auth_time: $('#end_auth_time').val()
+    };
+    return temp;
+}
+
+
+var fields=[
+    {title: '序号',//标题  可不加
+        formatter: function (value, row, index) {
+            return index+1;
+            }
+        },
+    {field:'card_name', title:'姓名'},
+    {field:'card_number', title:'身份证号'},
+    {field:'user_id', title:'用户ID'},
+    {field:'invite_code', title:'邀请码'},
+    {field:'join_time', title:'注册时间'},
+    {field:'auth_time', title:'实名时间'},
+    {field:'phonenumber', title:'手机号'},
+    {field:'self_invite_code', title:'自己的邀请码'},
+];
+
+
+
+
+/*
+*初始化表格
+*/
+$('#table').bootstrapTable({
+    url: '/report/get_as_user_info_data/',
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "asc",                   //排序方式
+    showColumns: true,
+    queryParams: queryParams,           //传递参数（*）
+    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 10,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    showRefresh: true,                  //是否显示刷新按钮
+    columns: fields
+});
+
+
+/*
+*删除机器信息
+*/
+$("table tbody tr td button[id^='caifu_delete']").click(function(){
+	var id_val = $(this).attr('id');
+	var id = id_val.split('_')[2];
+    var data = {"id":id};
+    data = JSON.stringify(data);
+    var url = "/people/caifu_delete/";
+
+	var index = layer.confirm('确定删除吗？', {
+	  btn: ['确定','取消'] //按钮
+	}, function(){
+		$.post(url,{data:data},function(msg){
+			ajax_callback(msg);
+		 });
+	}, function(){
+	  layer.close(index)
+	});
+});
+
+
+var showcolumn = ['客户经理',
+'客户经理身份证',
+'用户ID',
+'投资人姓名',
+'投资人身份证号',
+'投资时间',
+'投资金额',
+'购买产品'];
+
+//缩略显示表格
+$('#breviary').click(function () {
+    $.each(fields, function (k, v) {
+        if (showcolumn.indexOf(v) <= -1){
+            $('#table').bootstrapTable('hideColumn', v)
+        }
+    });
+});
+
+//显示所有表格
+$('#show_all').click(function () {
+    $.each(fields, function (k, v) {
+        if (showcolumn.indexOf(v) <= -1){
+            $('#table').bootstrapTable('showColumn', v)
+        }
+    });
+});
+
+
+//高级搜索
+$('#search_tb').find('tr').eq(2).nextAll().hide();
+$('#advanced_search').click(function () {
+    $('#search_tb').find('tr').eq(2).nextAll().fadeToggle('slow');
+});
+
+$('.datepicker').datepicker({
+    format: "yyyy-mm-dd",//日期格式
+    language: 'zh-CN',
+    closeText: "Close",
+    autoclose:true
+});
+
+$('#search').click(function(){
+    var opt = {
+        url: '/report/get_as_user_info_data/',
+        silent: true
+    };
+    $('#table').bootstrapTable('refresh', opt)
+});
+
+
+/*
+*同步生产投资明细数据
+*/
+$("#sync").click(function () {
+    var url = '/report/invest_script/';
+    $.post(url, function (data) {
+        var msg = $.parseJSON(data);
+        var is_downloading = msg.indexOf('正在下载');
+        if (is_downloading>=0){
+            ajax_callback1(msg)
+        }
+        console.log(msg);
+    });
+});
+
+
+
+/*
+*设置同步时间
+*/
+function get_syncstatus() {
+    var url = "/report/get_syncstatus/";
+    $.post(url, function (res) {
+        data = $.parseJSON(res);
+        var text = ['上一次同步时间：', data.synctime].join('');
+        if (data.status == 1){
+            text = '正在同步';
+        }
+        $("#sync").next().text(text);
+    });
+
+}
+
+
+/*
+*Download result
+*/
+{#$("#download").click(function () {#}
+{#    var url = "/report/invest_download/";#}
+{#    var params = {#}
+{#        limit: 0,#}
+{#        offset: 0#}
+{#    };#}
+{#    var data = queryParams(params);#}
+{#    var index = layer.load();#}
+{#    $.get(url, data, function (res) {#}
+{#        filepath = $.parseJSON(res);#}
+{#        console.log(filepath, typeof(filepath));#}
+{#        var msg = '下载成功';#}
+{#        if (filepath==1){#}
+{#            msg = '正在同步数据请稍后导出文件';#}
+{#        }#}
+{#        else{#}
+{#            var downloadfileurl = "/report/downloadfile?resfile=" + filepath;#}
+{#            console.log(downloadfileurl);#}
+{#            window.location.href=downloadfileurl;#}
+{##}
+{#        }#}
+{#        layer.close(index);#}
+{#        ajax_callback1(msg)#}
+{#    })#}
+{#});#}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+
+</script>
+{% endblock %}

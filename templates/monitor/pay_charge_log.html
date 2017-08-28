@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">pay_charge_log 支付日志查询</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default">
+                <table class="table-condensed" id="search_tb">
+                    <tr>
+                        <td><label>serial_no</label></td>
+                        <td><input id="serial_no" spellcheck="false" class="form-control"></td>
+{#                        <td colspan="2">批量查询，每行一个</td>#}
+                    </tr>
+                </table>
+                <div class="form-inline">
+					<button id="search" class="btn btn-sm btn-success ">搜索</button>
+                </div>
+            <div class="text-center">
+                <table class="table table-hover table-bordered table-responsive NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+//得到查询的参数
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        serial_no: $('#serial_no ').val().trim()
+    };
+    return temp;
+}
+
+
+/*
+*初始化表格
+*/
+function Initialization_table(columns) {
+    var bst = $('#table').bootstrapTable({
+        pagination: true,                   //是否显示分页（*）
+        sortable: false,                     //是否启用排序
+        sortOrder: "asc",                   //排序方式
+        showColumns: true,
+        queryParams: queryParams,           //传递参数（*）
+        sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+        pageNumber: 1,                       //初始化加载第一页，默认第一页
+        pageSize: 10,                       //每页的记录行数（*）
+        pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+        search: true,                  //是否显示搜索 --前端搜索
+        columns:columns
+    });
+    return bst
+}
+
+
+/*
+*搜索
+*/
+$('#search').click(function(){
+    var index = layer.load();
+    var url = '/monitor/get_pay_charge_log/';
+    var para = {serial_no: $('#serial_no ').val().trim()};
+    $.post(url, para, function (data) {
+        var data = $.parseJSON(data);
+        var fields = data.shift();
+        var columns = get_columns(fields);
+        $('#table').bootstrapTable('destroy');
+        var bst = Initialization_table(columns);
+        $('#table').bootstrapTable('load', data);
+        layer.close(index);
+    })
+
+});
+
+
+/*
+*获取批量输入的serial_no
+*/
+{#function get_serial_no () {#}
+{#    var serial_no = [];#}
+{#    var val = $('#serial_no ').val().trim();#}
+{#    if (val.length != 0) {#}
+{#        serial_no = val.split("\n");#}
+{#    }#}
+{#    return JSON.stringify(serial_no);#}
+{#}#}
+
+
+/*
+*获取bootstraptable 的列columns
+*/
+function get_columns(fields) {
+    var columns = [];
+    $.each(fields, function (k, val) {
+        var column ={field:val, title:val};
+        columns.push(column);
+    });
+    return columns
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+</script>
+{% endblock %}

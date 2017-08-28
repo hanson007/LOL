@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th > div{
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">补录历史记录</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default">
+					<div class="panel-heading">
+                        文件格式：客户姓名 客户身份证号 员工姓名 员工身份证号
+					</div>
+					<div class="panel-body">
+							<div class="form-group">
+                                <table class="table-condensed" id="search_tb">
+                                    <tr>
+                                        <td><label>工号</label></td>
+                                        <td>
+                                            <input id="emp_num" type="text" class="form-control input-sm">
+                                        </td>
+                                        </td>
+                                    </tr>
+                                    <tr id="status">
+                                        <td id="paymentStatus"><label>客户姓名</label></td>
+                                        <td>
+                                            <input id="customer" type="text" class="form-control input-sm">
+                                        </td>
+                                        <td><label>客户身份证</label></td>
+                                        <td>
+                                            <input id="customer_cn" type="text" class="form-control input-sm">
+                                        </td>
+                                        <td><label>员工姓名</label></td>
+                                        <td>
+                                            <input id="employee" type="text" class="form-control input-sm">
+                                        </td>
+                                        </td>
+                                        <td id="channelCode"><label>员工身份证</label></td>
+                                        <td>
+                                            <input id="employee_cn" type="text" class="form-control input-sm">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><label>投资时间</label></td>
+                                        <td colspan="1">
+                                            <input type="text" id="start_investment_time" name="createTime" class="datepicker form-control">
+                                        </td>
+                                        <td style="text-align:center">至</td>
+                                        <td colspan="1">
+                                            <input type="text" id="end_investment_time" name="end_date" class="datepicker form-control">
+                                        </td>
+                                        <td><label>投资产品</label></td>
+                                        <td>
+                                            <input id="product" type="text" class="form-control input-sm">
+                                        </td>
+                                        <td><label>投资金额</label></td>
+                                        <td>
+                                            <input id="investment_amount" type="text" class="form-control input-sm">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><label>时间</label></td>
+                                        <td colspan="1">
+                                            <input type="text" id="start_time" name="createTime" class="datepicker form-control">
+                                        </td>
+                                        <td style="text-align:center">至</td>
+                                        <td colspan="1">
+                                            <input type="text" id="end_time" name="end_date" class="datepicker form-control">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><button id="search" class="btn btn-xs btn-success ">搜索</button></td>
+                                        <td colspan="3"><input id='file' type="file"></td>
+                                        <td>
+                                            <button id="up_file" class="btn btn-xs btn-success" type="button">
+                                            <i class="fa fa-cloud-upload"></i>上传</button>
+                                        </td>
+                                        <td><button id="export" class="btn btn-xs btn-success" type="button">导出结果</button></td>
+                                    </tr>
+                                </table>
+
+
+                                </div>
+
+							</div><!-- /form-group -->
+					</div>
+            <div>
+                <table class="table table-hover table-bordered NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+/*
+*批量上传交割名单
+*/
+$('#up_file').click(function () {
+	var formData = new FormData();
+	formData.append('file', $('#file')[0].files[0]);
+    var index = layer.load();
+	$.ajax({
+			url: '/change/performance/upload/',
+			type: 'POST',
+			cache: false,
+			data: formData,
+			processData: false,
+			contentType: false
+		}).done(function(res) {
+		    layer.close(index);
+			ajax_callback(res)
+	});
+});
+
+
+//得到查询的参数
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        large_area: $("#large_area").val(),
+        store: $("#store").val(),
+        emp_num: $("#emp_num").val(),
+        performance_id: $("#performance_id").val(),
+        customer: $("#customer").val(),
+        customer_cn: $("#customer_cn").val(),
+        start_investment_time: $("#start_investment_time").val(),
+        end_investment_time: $("#end_investment_time").val(),
+        product: $("#product").val(),
+        investment_amount: $("#investment_amount").val(),
+        employee: $("#employee").val(),
+        employee_cn: $("#employee_cn").val(),
+        former_employee: $("#former_employee").val(),
+        former_employee_cn: $("#former_employee_cn").val(),
+        start_time: $("#start_time").val(),
+        end_time: $("#end_time").val(),
+        result: $("#result").val()
+    };
+    return temp;
+}
+
+
+/*
+*ajax get callback
+*/
+$('#table').bootstrapTable({
+    url: '/change/get_performance_history/',
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "desc",                   //排序方式
+    showColumns: true,
+    clickToSelect: true,
+    queryParams: queryParams,           //传递参数（*）
+    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 10,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    showRefresh: true,                  //是否显示刷新按钮
+    columns: [{
+        field: 'change_time',
+        title: '补录时间'
+    }, {
+        field: 'emp_num',
+        title: '员工工号'
+    },{
+        field: 'employee',
+        title: '员工姓名'
+    }, {
+        field: 'employee_cn',
+        title: '员工身份证号'
+    }, {
+        field: 'customer',
+        title: '客户姓名'
+    }, {
+        field: 'customer_cn',
+        title: '客户身份证号'
+    }, {
+        field: 'investment_time',
+        title: '投资时间'
+    }, {
+        field: 'product',
+        title: '出借模式'
+    }, {
+        field: 'investment_amount',
+        title: '出借金额/元'
+    }]
+});
+
+
+$('#search').click(function(){
+    var opt = {
+        url: '/change/get_performance_history/',
+        silent: true
+    };
+    $('#table').bootstrapTable('refresh', opt)
+});
+
+
+
+/*
+*导出结果
+*/
+$("#export").click(function () {
+    var url = "/change/performance/download/";
+    var params = {
+        limit: 0,
+        offset: 0
+    };
+    var data = queryParams(params);
+    var index = layer.load();
+    $.get(url, data, function (res) {
+        filepath = $.parseJSON(res);
+        var downloadfileurl = "/change/performance/downloadfile?resfile=" + filepath;
+        window.location.href=downloadfileurl;
+        layer.close(index);
+        ajax_callback1('下载成功')
+    })
+});
+
+
+
+/*
+*获取选中的状态值 checkbox
+*/
+$('#sync_uf_invk').click(function (){
+    var url = '/change/sync_uf_invk/';
+    var index = layer.load();
+    $.post(url,function (msg) {
+        layer.close(index);
+        ajax_callback(msg);
+    });
+});
+
+/*
+*获取选中的渠道编码值 checkbox
+*/
+function get_channelCode () {
+    var channelCode =[];
+    $('#channelCode ').nextAll().find('input').each(function () {
+        if ($(this).prop('checked')){
+            channelCode .push($(this).val())
+        }
+    });
+    return JSON.stringify(channelCode );
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback(msg){
+    var msg =  $.parseJSON(msg);
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        if (msg == '成功'){
+            window.location="/people/caifu/";
+        }
+        else{
+           layer.close(index)
+        }
+    });
+}
+
+
+$('.datepicker').datepicker({
+    format: "yyyy-mm-dd",//日期格式
+    language: 'zh-CN',
+    closeText: "Close",
+    autoclose:true
+});
+
+function operateFormatter(value, row, index) {
+    return [
+        '<a class="like" target="_black" href="/change/delivery_detail/" title="Like">', value,
+        '</a>'
+    ].join('');
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+</script>
+{% endblock %}
