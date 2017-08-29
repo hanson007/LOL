@@ -27,9 +27,39 @@ def add_server(request):
     obj = Server()
     obj.ip = ip
     obj.desc = desc
-    obj.creater = cur.nowuser
-    obj.ModifyUser = cur.nowuser
+    obj.creater = cur.nowuser.username
+    obj.ModifyUser = cur.nowuser.username
     obj.save()
+    response = HttpResponse()
+    response.write(json.dumps('成功'))
+    return response
+
+
+@login_required
+def edit_server(request):
+    # 编辑机器
+    cur = Currency(request)
+    ip = cur.rq_post('ip')
+    desc = cur.rq_post('desc')
+    _id = cur.rq_post('id')
+    obj = Server.objects.get(pk=int(_id))
+    obj.ip = ip
+    obj.desc = desc
+    obj.ModifyUser = cur.nowuser.username
+    obj.save()
+    response = HttpResponse()
+    response.write(json.dumps('成功'))
+    return response
+
+
+@login_required
+def delete_server(request):
+    # 删除机器
+    cur = Currency(request)
+    data = cur.rq_post('data')
+    data = json.loads(data)
+    for _id in data:
+        Server.objects.get(pk=int(_id)).delete()
     response = HttpResponse()
     response.write(json.dumps('成功'))
     return response
@@ -41,7 +71,6 @@ def get_index(request):
     data = Server.objects.all().values()
     cur = Currency(request)
     data_str = [cur.transfor(d) for d in data]
-    print data_str
     response = HttpResponse()
     response.write(json.dumps(data_str))
     return response

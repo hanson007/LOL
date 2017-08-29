@@ -25,7 +25,9 @@ urlpatterns = [
 
     url(r'^index/$', index),  # 首页
     url(r'^add_server/$', add_server),  # 新增机器
+    url(r'^edit_server/$', edit_server),  # 编辑机器
     url(r'^get_index/$', get_index),  # 服务器列表
+    url(r'^delete_server/$', delete_server),  # 删除服务器
 
 
 ]

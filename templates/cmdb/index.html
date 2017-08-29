@@ -63,7 +63,7 @@ white-space: nowrap;
                 <div class="form-inline">
 					<a href="#add_server" role="button" data-toggle="modal" id="add" type="button" class="btn btn-xs btn-info">
                         <i class="fa fa-plus"></i> 新增</a>
-					<a href="#add_server" role="button" data-toggle="modal" id="add" type="button" class="btn btn-xs btn-danger">
+					<a href="#" role="button" data-toggle="modal" id="delete" type="button" class="btn btn-xs btn-danger">
                         <i class="fa fa-trash-o"></i> 删除</a>
 				</div>
             <div class="table-responsive">
@@ -100,8 +100,44 @@ white-space: nowrap;
 				    </div>
 				    <div class="modal-footer">
 				        <button class="btn btn-success btn-sm" data-dismiss="modal" aria-hidden="true">Close</button>
-						<button id="save" class="btn btn-danger btn-sm">确定</button>
+						<button id="save" class="btn btn-danger btn-sm" data-dismiss="modal">确定</button>
 				    </div>
+			  	</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+        <div class="modal fade" id="edit_server">
+  			<div class="modal-dialog">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4>编辑服务器</h4>
+      				</div>
+                    <form>
+				    <div class="modal-body">
+							<div class="row">
+                                <div class="col-md-6">
+									<div class="form-group">
+										<label>IP</label>
+                                        <input name="id" class="hide">
+										<input name="ip" type="text" class="form-control input-sm" placeholder="服务器IP地址">
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /form-group -->
+							<div class="row">
+								<div class="col-md-11">
+									<div class="form-group">
+										<label>描述</label>
+										<textarea name="desc" class="form-control" rows="3"></textarea>
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /.row -->
+
+				    </div>
+				    <div class="modal-footer">
+				        <button class="btn btn-success btn-sm" data-dismiss="modal" aria-hidden="true">Close</button>
+						<button name="save" type="button" class="btn btn-danger btn-sm" data-dismiss="modal">确定</button>
+				    </div>
+                    </form>
 			  	</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
@@ -136,13 +172,14 @@ function queryParams(params) {
 /*
 *初始化表格
 */
-$('#table').bootstrapTable({
+var option = $('#table').bootstrapTable({
     url: '/cmdb/get_index/',
     pagination: true,                   //是否显示分页（*）
     sortable: false,                     //是否启用排序
     sortOrder: "asc",                   //排序方式
     showColumns: true,
     clickToSelect: true,
+    uniqueId: "id",
     queryParams: queryParams,           //传递参数（*）
     sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
     pageNumber: 1,                       //初始化加载第一页，默认第一页
@@ -158,6 +195,7 @@ $('#table').bootstrapTable({
 */
 function get_columns() {
     var columns =[{
+         field: 'checkbox',
          checkbox: true
     },{
         title: '序号',//标题  可不加
@@ -174,12 +212,10 @@ function get_columns() {
         formatter: subjectFormatter
     }, {
         field: 'desc',
-        title: '服务器描述',
-        formatter: receiversFormatter
+        title: '服务器描述'
     }, {
         field: 'creater',
-        title: '创建人',
-        formatter: receiversFormatter
+        title: '创建人'
     }, {
         field: 'createTime',
         title: '创建时间'
@@ -210,9 +246,10 @@ function receiversFormatter(value, row, index) {
 *超链接显示邮件标题
 */
 function subjectFormatter(value, row, index) {
-{#    var url = "/scheduled_tasks/mod_periodic_task/" + row.id;#}
     return [
-        '<div><a href="#edit_server" role="button" data-toggle="modal" id="add" class="mod">',
+        "<div><a href='#edit_server' role='button' data-toggle='modal' onclick="+ '"' +"edit("
+        + row.id + ",'" + row.ip + "','" + row.desc +
+        "')"+ '"' +" class='mod'>",
         value,
         '</a></div>'
     ].join('');
@@ -227,9 +264,68 @@ $('#save').click(function () {
     var url = '/cmdb/add_server/';
     var index = layer.load();
     $.post(url, data, function (msg) {
-    var _msg = $.parseJSON(msg);
-    layer.close(index);
-    ajax_callback1(_msg);
+        var _msg = $.parseJSON(msg);
+        layer.close(index);
+        layer.msg(_msg);
+        $('#table').bootstrapTable('refresh');
+    });
+});
+
+
+/*
+*删除
+*/
+$('#delete').click(function () {
+    var _delete = [];
+    var Total_data = $('#table').bootstrapTable('getData');
+    $.each(Total_data, function (k, v) {
+        if (v.checkbox){
+            _delete.push(v.id)
+        }
+    });
+    var url = '/cmdb/delete_server/';
+    var data = {'data': JSON.stringify(_delete)};
+    //询问框
+    layer.confirm('确认删除吗？', {
+      btn: ['确定','取消'] //按钮
+    }, function () {
+            var index = layer.load();
+            $.post(url, data, function (msg) {
+                var _msg = $.parseJSON(msg);
+                layer.close(index);
+                layer.msg(_msg);
+                $('#table').bootstrapTable('refresh');
+            });
+        }
+    );
+});
+
+
+/*
+*编辑服务器
+*/
+function edit(id,ip,desc) {
+    $('#edit_server').find("input[name='id']").val(id);
+    $('#edit_server').find("input[name='ip']").val(ip);
+    $('#edit_server').find("textarea[name='desc']").val(desc);
+}
+
+
+/*
+*提交编辑服务器的数据
+*/
+$('#edit_server').find("button[name='save']").click(function () {
+    var id = $('#edit_server').find("input[name='id']").val();
+    var ip = $('#edit_server').find("input[name='ip']").val();
+    var desc = $('#edit_server').find("textarea[name='desc']").val();
+    var url = '/cmdb/edit_server/';
+    var data = {'id':id, 'ip':ip, 'desc':desc};
+    var index = layer.load();
+    $.post(url, data, function (msg) {
+        var _msg = $.parseJSON(msg);
+        layer.close(index);
+        layer.msg(_msg);
+        $('#table').bootstrapTable('refresh');
     });
 });
 
