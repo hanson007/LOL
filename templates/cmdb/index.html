@@ -61,14 +61,50 @@ white-space: nowrap;
 	<div class="padding-md">
 		<div class="panel panel-default table-responsive">
                 <div class="form-inline">
-					<a href="/scheduled_tasks/add_periodic_task/" id="add" type="button" class="btn btn-sm btn-info">
+					<a href="#add_server" role="button" data-toggle="modal" id="add" type="button" class="btn btn-xs btn-info">
                         <i class="fa fa-plus"></i> 新增</a>
+					<a href="#add_server" role="button" data-toggle="modal" id="add" type="button" class="btn btn-xs btn-danger">
+                        <i class="fa fa-trash-o"></i> 删除</a>
 				</div>
             <div class="table-responsive">
 				<table class="table table-hover table-bordered NoNewline" id="table"></table>
 			</div><!-- /.padding-md -->
 
 		</div><!-- /panel -->
+		<div class="modal fade" id="add_server">
+  			<div class="modal-dialog">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4>新增服务器</h4>
+      				</div>
+				    <div class="modal-body">
+						<form>
+							<div class="row">
+                                <div class="col-md-6">
+									<div class="form-group">
+										<label>IP</label>
+										<input id="ip" type="text" class="form-control input-sm" placeholder="服务器IP地址">
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /form-group -->
+							<div class="row">
+								<div class="col-md-11">
+									<div class="form-group">
+										<label>描述</label>
+										<textarea id="desc" class="form-control" rows="3"></textarea>
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /.row -->
+						</form>
+				    </div>
+				    <div class="modal-footer">
+				        <button class="btn btn-success btn-sm" data-dismiss="modal" aria-hidden="true">Close</button>
+						<button id="save" class="btn btn-danger btn-sm">确定</button>
+				    </div>
+			  	</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
 	</div><!-- /padding-md -->
 </div><!-- /main-container -->
 {% endblock %}
@@ -106,6 +142,7 @@ $('#table').bootstrapTable({
     sortable: false,                     //是否启用排序
     sortOrder: "asc",                   //排序方式
     showColumns: true,
+    clickToSelect: true,
     queryParams: queryParams,           //传递参数（*）
     sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
     pageNumber: 1,                       //初始化加载第一页，默认第一页
@@ -121,6 +158,8 @@ $('#table').bootstrapTable({
 */
 function get_columns() {
     var columns =[{
+         checkbox: true
+    },{
         title: '序号',//标题  可不加
         formatter: function (value, row, index) {
             return index+1;
@@ -171,13 +210,28 @@ function receiversFormatter(value, row, index) {
 *超链接显示邮件标题
 */
 function subjectFormatter(value, row, index) {
-    var url = "/scheduled_tasks/mod_periodic_task/" + row.id;
+{#    var url = "/scheduled_tasks/mod_periodic_task/" + row.id;#}
     return [
-        '<div><a class="mod" href='+ url +'>',
+        '<div><a href="#edit_server" role="button" data-toggle="modal" id="add" class="mod">',
         value,
         '</a></div>'
     ].join('');
 }
+
+
+/*
+*新增服务器
+*/
+$('#save').click(function () {
+    var data = {'ip':$('#ip').val(), 'desc':$('#desc').val()};
+    var url = '/cmdb/add_server/';
+    var index = layer.load();
+    $.post(url, data, function (msg) {
+    var _msg = $.parseJSON(msg);
+    layer.close(index);
+    ajax_callback1(_msg);
+    });
+});
 
 
 /*

@@ -24,10 +24,8 @@ urlpatterns = [
     # url(r'^admin/', admin.site.urls),
 
     url(r'^index/$', index),  # 首页
-    # url(r'^$', index, name='index'),
-    # url(r'^accounts/login/$', login, {'template_name': 'login.html'}),
-    # url(r'^accounts/logout/$', logout),
-    # url(r'^get_username/$', get_username),  # 获取当前登陆用户名
+    url(r'^add_server/$', add_server),  # 新增机器
+    url(r'^get_index/$', get_index),  # 服务器列表
 
 
 ]
