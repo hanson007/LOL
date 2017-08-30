@@ -1,0 +1,398 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">账户</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default table-responsive">
+                <div class="form-inline">
+					<a role="button" id="add" type="button" class="btn btn-xs btn-info">
+                        <i class="fa fa-plus"></i> 新增</a>
+					<a href="#" role="button" data-toggle="modal" id="delete" type="button" class="btn btn-xs btn-danger">
+                        <i class="fa fa-trash-o"></i> 删除</a>
+				</div>
+            <div class="table-responsive">
+				<table class="table table-hover table-bordered NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+
+		</div><!-- /panel -->
+		<div class="modal fade" id="add_server">
+  			<div class="modal-dialog">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4>新增服务器</h4>
+      				</div>
+				    <div class="modal-body">
+						<form>
+							<div class="row">
+                                <div class="col-md-6">
+									<div class="form-group">
+										<label>IP</label>
+										<input id="ip" type="text" class="form-control input-sm" placeholder="服务器IP地址">
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /form-group -->
+							<div class="row">
+								<div class="col-md-11">
+									<div class="form-group">
+										<label>描述</label>
+										<textarea id="desc" class="form-control" rows="3"></textarea>
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /.row -->
+						</form>
+				    </div>
+				    <div class="modal-footer">
+				        <button class="btn btn-success btn-sm" data-dismiss="modal" aria-hidden="true">Close</button>
+						<button id="save" class="btn btn-danger btn-sm" data-dismiss="modal">确定</button>
+				    </div>
+			  	</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+        <div class="modal fade" id="edit_server">
+  			<div class="modal-dialog">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4>编辑服务器</h4>
+      				</div>
+                    <form>
+				    <div class="modal-body">
+							<div class="row">
+                                <div class="col-md-6">
+									<div class="form-group">
+										<label>IP</label>
+                                        <input name="id" class="hide">
+										<input name="ip" type="text" class="form-control input-sm" placeholder="服务器IP地址">
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /form-group -->
+							<div class="row">
+								<div class="col-md-11">
+									<div class="form-group">
+										<label>描述</label>
+										<textarea name="desc" class="form-control" rows="3"></textarea>
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /.row -->
+
+				    </div>
+				    <div class="modal-footer">
+				        <button class="btn btn-success btn-sm" data-dismiss="modal" aria-hidden="true">Close</button>
+						<button name="save" type="button" class="btn btn-danger btn-sm" data-dismiss="modal">确定</button>
+				    </div>
+                    </form>
+			  	</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+        <div class="panel-body hide" id="add_account">
+            <form class="form-horizontal" >
+                <div class="form-group">
+                    <label for="inputEmail1" class="col-lg-2 control-label">Email</label>
+                    <div class="col-lg-10">
+                        <input type="email" class="form-control input-sm" id="inputEmail1" placeholder="Email">
+                    </div><!-- /.col -->
+                </div><!-- /form-group -->
+                <div class="form-group">
+                    <label for="inputPassword1" class="col-lg-2 control-label">Password</label>
+                    <div class="col-lg-10">
+                        <input type="password" class="form-control input-sm" id="inputPassword1" placeholder="Password">
+                    </div><!-- /.col -->
+                </div><!-- /form-group -->
+                <div class="form-group">
+                    <div class="col-lg-offset-2 col-lg-10">
+                        <label class="label-checkbox">
+                            <input type="checkbox">
+                            <span class="custom-checkbox"></span>
+                            Remember me
+                        </label>
+                    </div><!-- /.col -->
+                </div><!-- /form-group -->
+            </form>
+        </div>
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script>
+//得到查询的参数
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        order: params.order,  //排序
+        time: $('#time').val(),
+        orderNum: $('#orderNum').val(),
+        createTime_start: $('#createTime_start').val(),
+        createTime_end: $('#createTime_end').val(),
+        database: "ygproperty",
+    };
+    return temp;
+}
+
+
+/*
+*初始化表格
+*/
+var option = $('#table').bootstrapTable({
+    url: '/cmdb/get_index/',
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "asc",                   //排序方式
+    showColumns: true,
+    clickToSelect: true,
+    uniqueId: "id",
+    queryParams: queryParams,           //传递参数（*）
+    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 10,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    search: true,                  //是否显示搜索 --前端搜索
+    columns:get_columns()
+});
+
+
+/*
+*获取bootstraptable 的列columns
+*/
+function get_columns() {
+    var columns =[{
+         field: 'checkbox',
+         checkbox: true
+    },{
+        title: '序号',//标题  可不加
+        formatter: function (value, row, index) {
+            return index+1;
+            }
+    }, {
+        field: 'id',
+        title: 'ID',
+        visible: false
+    }, {
+        field: 'ip',
+        title: '服务器IP地址',
+        formatter: subjectFormatter
+    }, {
+        field: 'desc',
+        title: '服务器描述'
+    }, {
+        field: 'creater',
+        title: '创建人'
+    }, {
+        field: 'createTime',
+        title: '创建时间'
+    }, {
+        field: 'ModifyUser',
+        title: '修改人'
+    }, {
+        field: 'ModifyTime',
+        title: '修改时间'
+    }];
+    return columns
+}
+
+
+/*
+*超链接显示收件人
+*/
+function receiversFormatter(value, row, index) {
+    return [
+        '<div class="text-overflow"><a href="#">',
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+/*
+*超链接显示邮件标题
+*/
+function subjectFormatter(value, row, index) {
+    return [
+        "<div><a href='#edit_server' role='button' data-toggle='modal' onclick="+ '"' +"edit("
+        + row.id + ",'" + row.ip + "','" + row.desc +
+        "')"+ '"' +" class='mod'>",
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+/*
+*新增服务器
+*/
+$('#save').click(function () {
+    var data = {'ip':$('#ip').val(), 'desc':$('#desc').val()};
+    var url = '/cmdb/add_server/';
+    var index = layer.load();
+    $.post(url, data, function (msg) {
+        var _msg = $.parseJSON(msg);
+        layer.close(index);
+        layer.msg(_msg);
+        $('#table').bootstrapTable('refresh');
+    });
+});
+
+
+$('#add').click(function () {
+    $('#add_account').removeClass('hide');
+    //页面层
+    layer.open({
+      type: 1,
+      skin: 'layui-layer-rim', //加上边框
+      area: ['420px', '240px'], //宽高
+      content: $('#add_account')
+      ,btn: ['确定', 'close']
+  ,yes: function(index, layero){
+    //按钮【按钮一】的回调
+  }
+  ,btn2: function(index, layero){
+    //按钮【按钮二】的回调
+
+    //return false 开启该代码可禁止点击该按钮关闭
+  }
+  ,cancel: function(){
+    //右上角关闭回调
+
+    //return false 开启该代码可禁止点击该按钮关闭
+  }
+    });
+});
+
+
+
+
+
+/*
+*删除
+*/
+$('#delete').click(function () {
+    var _delete = [];
+    var Total_data = $('#table').bootstrapTable('getData');
+    $.each(Total_data, function (k, v) {
+        if (v.checkbox){
+            _delete.push(v.id)
+        }
+    });
+    var url = '/cmdb/delete_server/';
+    var data = {'data': JSON.stringify(_delete)};
+    //询问框
+    layer.confirm('确认删除吗？', {
+      btn: ['确定','取消'] //按钮
+    }, function () {
+            var index = layer.load();
+            $.post(url, data, function (msg) {
+                var _msg = $.parseJSON(msg);
+                layer.close(index);
+                layer.msg(_msg);
+                $('#table').bootstrapTable('refresh');
+            });
+        }
+    );
+});
+
+
+/*
+*编辑服务器
+*/
+function edit(id,ip,desc) {
+    $('#edit_server').find("input[name='id']").val(id);
+    $('#edit_server').find("input[name='ip']").val(ip);
+    $('#edit_server').find("textarea[name='desc']").val(desc);
+}
+
+
+/*
+*提交编辑服务器的数据
+*/
+$('#edit_server').find("button[name='save']").click(function () {
+    var id = $('#edit_server').find("input[name='id']").val();
+    var ip = $('#edit_server').find("input[name='ip']").val();
+    var desc = $('#edit_server').find("textarea[name='desc']").val();
+    var url = '/cmdb/edit_server/';
+    var data = {'id':id, 'ip':ip, 'desc':desc};
+    var index = layer.load();
+    $.post(url, data, function (msg) {
+        var _msg = $.parseJSON(msg);
+        layer.close(index);
+        layer.msg(_msg);
+        $('#table').bootstrapTable('refresh');
+    });
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+</script>
+{% endblock %}
