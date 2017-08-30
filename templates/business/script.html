@@ -56,7 +56,7 @@ white-space: nowrap;
         <ul class="breadcrumb">
              <li><i class="fa fa-home"></i><a href="/"> Home</a></li>
              <li>业务管理</li>
-             <li class="active">账号管理</li>
+             <li class="active">脚本管理</li>
         </ul>
     </div><!--breadcrumb-->
 
@@ -75,16 +75,16 @@ white-space: nowrap;
         <div class="panel-body hide" id="add_account">
             <form class="form-horizontal" >
                 <div class="form-group">
-                    <label for="inputEmail1" class="col-lg-2 control-label">名称</label>
+                    <label for="inputEmail1" class="col-lg-2 control-label">脚本名称</label>
                     <div class="col-lg-10">
                         <input name="id" class="hide">
-                        <input type="email" class="form-control input-sm" name="name" placeholder="名称">
+                        <input type="email" class="form-control input-sm" name="name" placeholder="脚本名称">
                     </div><!-- /.col -->
                 </div><!-- /form-group -->
                 <div class="form-group">
                     <label for="inputPassword1" class="col-lg-2 control-label">描述</label>
                     <div class="col-lg-10">
-                        <textarea class="form-control" name="desc" rows="3"></textarea>
+                        <textarea class="form-control" name="desc" rows="16"></textarea>
                     </div><!-- /.col -->
                 </div><!-- /form-group -->
             </form>
@@ -234,7 +234,7 @@ $('#add').click(function () {
     layer.open({
       type: 1,
       skin: 'layui-layer-rim', //加上边框
-      area: ['420px', '240px'], //宽高
+      area: ['820px', '540px'], //宽高
       content: $('#add_account')
       ,btn: ['save', 'close']
   ,yes: function(index1, layero){

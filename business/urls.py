@@ -24,10 +24,11 @@ urlpatterns = [
     # url(r'^admin/', admin.site.urls),
 
     url(r'^account/$', account),  # 首页
-    # url(r'^add_server/$', add_server),  # 新增机器
-    # url(r'^edit_server/$', edit_server),  # 编辑机器
-    # url(r'^get_index/$', get_index),  # 服务器列表
-    # url(r'^delete_server/$', delete_server),  # 删除服务器
+    url(r'^add_account/$', add_account),  # 新增账户
+    url(r'^edit_account/$', edit_account),  # 编辑账户
+    url(r'^get_account/$', get_account),  # 账号信息
+    url(r'^delete_account/$', delete_account),  # 删除账户
 
+    url(r'^script/$', script),  # 脚本
 
 ]

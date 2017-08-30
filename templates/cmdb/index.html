@@ -52,11 +52,13 @@ white-space: nowrap;
 
 {% block container %}
 <div id="main-container">
-	<div class="main-header clearfix">
-		<div class="page-title">
-			<h3 class="no-margin">服务器</h3>
-		</div><!-- /page-title -->
-	</div><!-- /main-header -->
+    <div id="breadcrumb">
+        <ul class="breadcrumb">
+             <li><i class="fa fa-home"></i><a href="/"> Home</a></li>
+             <li>CMDB</li>
+             <li class="active">服务器</li>
+        </ul>
+    </div><!--breadcrumb-->
 
 	<div class="padding-md">
 		<div class="panel panel-default table-responsive">
