@@ -63,7 +63,7 @@ white-space: nowrap;
 #editor {
     margin: 0;
     position: relative;
-    height: 100px;
+    height: 400px;
     top: 0;
     bottom: 0;
     left: 0;
@@ -103,19 +103,43 @@ white-space: nowrap;
                             <div class="form-group">
                                 <label for="inputPassword1" class="col-lg-2 control-label">执行账户</label>
                                 <div class="col-lg-10">
-                                    <input type="password" class="form-control input-sm" id="inputPassword1" placeholder="Password">
+									<select id="account" class="form-control chzn-select"></select>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
+                                <div class="col-lg-10">
+                                    <button type="button" id="add_server" class="btn btn-success btn-sm">Sign in</button>
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
                                 <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
                                 <div class="col-lg-10">
-                                    <pre id="editor">function foo(items) {
-                                        var i;
-                                        for (i = 0; i &lt; items.length; i++) {
-                                            alert("Ace Rocks " + items[i]);
-                                        }
-                                    }</pre>
+                                    <label class="label-radio inline">
+										<input type="radio" name="script_type" value="shell" checked="checked">
+										<span class="custom-radio"></span>
+										shell
+									</label>
+									<label class="label-radio inline">
+										<input type="radio" name="script_type" value="python">
+										<span class="custom-radio"></span>
+										python
+									</label>
+                                    <select class="form-inline" id="font"></select>
+                                    <label class="label-radio inline">
+										字体
+									</label>
+                                    <label class="label-radio inline">
+										F11全屏切换(光标放在文本框里)
+									</label>
+                                    <pre id="editor"></pre>
 								</div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
+                                <div class="col-lg-10">
+                                    <input type="password" class="form-control input-sm" id="inputPassword1" placeholder="para">
+                            </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
                                 <div class="col-lg-offset-2 col-lg-10">
@@ -142,10 +166,93 @@ white-space: nowrap;
 <script src="/static/plugins/ace/ext-themelist.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/plugins/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
 <script>
+$(document).ready(function(){
+  // 在这里写你的代码...
+    init_font();
+    init_account();
+    init_server();
+});
+var shell_tmp = function () {/*
+#!/bin/bash
+
+anynowtime="date +'%Y-%m-%d %H:%M:%S'"
+NOW="echo [\`$anynowtime\`][PID:$$]"
+
+#####可在脚本开始运行时调用，打印当时的时间戳及PID。
+function job_start
+{
+    echo "`eval $NOW` job_start"
+}
+
+#####可在脚本执行成功的逻辑分支处调用，打印当时的时间戳及PID。
+function job_success
+{
+    MSG="$*"
+    echo "`eval $NOW` job_success:[$MSG]"
+    exit 0
+}
+
+#####可在脚本执行失败的逻辑分支处调用，打印当时的时间戳及PID。
+function job_fail
+{
+    MSG="$*"
+    echo "`eval $NOW` job_fail:[$MSG]"
+    exit 1
+}
+
+job_start
+
+######可在此处开始编写您的脚本逻辑代码
+######作业平台中执行脚本成功和失败的标准只取决于脚本最后一条执行语句的返回值
+######如果返回值为0，则认为此脚本执行成功，如果非0，则认为脚本执行失败
+
+*/};
+
+var python_tmp = function () {/*
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+
+import datetime
+import os
+import sys
+
+def _now(format="%Y-%m-%d %H:%M:%S"):
+    return datetime.datetime.now().strftime(format)
+
+#####可在脚本开始运行时调用，打印当时的时间戳及PID。
+def job_start():
+    print "[%s][PID:%s] job_start" % (_now(), os.getpid())
+
+#####可在脚本执行成功的逻辑分支处调用，打印当时的时间戳及PID。
+def job_success(msg):
+    print "[%s][PID:%s] job_success:[%s]" % (_now(), os.getpid(), msg)
+    sys.exit(0)
+
+#####可在脚本执行失败的逻辑分支处调用，打印当时的时间戳及PID。
+def job_fail(msg):
+    print "[%s][PID:%s] job_fail:[%s]" % (_now(), os.getpid(), msg)
+    sys.exit(1)
+
+if __name__ == '__main__':
+
+    job_start()
+
+######可在此处开始编写您的脚本逻辑代码
+######iJobs中执行脚本成功和失败的标准只取决于脚本最后一条执行语句的返回值
+######如果返回值为0，则认为此脚本执行成功，如果非0，则认为脚本执行失败
+
+*/};
+
+//定义一个实现多行字符串的函数multiline
+var multiline = function (fn) {
+    var str = fn.toString().split('\n');
+    return str.slice(1, str.length - 1 ).join('\n');
+};
+
+
 /*
 *等待页面所有图片、js文件加载完再执行，否则ace执行失败
 */
-
 $(window).load(function() {
     var dom = require("ace/lib/dom");
 
@@ -178,11 +285,91 @@ $(window).load(function() {
         enableSnippets: true,
         enableLiveAutocompletion: true
     });
+    //默认shell
+    editor.setValue(multiline(shell_tmp));
+    editor.gotoLine(1);
 });
+
+
+/*
+*初始化字体选择项
+*/
+function init_font() {
+    for (var i=12;i<23;i++)
+    {
+        var cont = "<option value='"+ i +"'>"+ i +"</option>";
+        $('#font').append(cont);
+    }
+    $('#font').val('18');
+}
+$('#font').change(function () {
+    var font_val = $(this).val() + 'px';
+    document.getElementById('editor').style.fontSize=font_val;
+    console.log($(this).val())
+});
+
+
+/*
+*初始化账户
+*/
+function init_account() {
+    var url = '/business/get_account/';
+    var index = layer.load();
+    $.post(url, function (data) {
+        var _data = $.parseJSON(data);
+        var cont0 = "<option value=''>请选择</option>";
+        $('#account').append(cont0);
+        $.each(_data, function (k,v) {
+            var cont = "<option value='"+ v.name +"'>"+ v.name + " " + v.desc +"</option>";
+            $('#account').append(cont);
+        });
+        $("#account").chosen();
+        layer.close(index);
+    });
+}
+
+
+/*
+*初始化机器
+*/
+function init_server() {
+{#    var url = '/cmdb/get_index/';#}
+{#    var index = layer.load();#}
+{#    $.post(url, function (data) {#}
+{#        var _data = $.parseJSON(data);#}
+{#        var cont0 = "<option value=''>请选择</option>";#}
+{#        $('#server').append(cont0);#}
+{#        $.each(_data, function (k,v) {#}
+{#            var cont = "<option value='"+ v.id +"'>"+ v.ip + " " + v.desc +"</option>";#}
+{#            $('#server').append(cont);#}
+{#        });#}
+{#        $("#server").chosen();#}
+{#        layer.close(index);#}
+{#    });#}
+}
 
 $('#run_script').click(function () {
    var value = editor.getValue();
    console.log(value)
+});
+
+
+
+
+/*
+*脚本类型、模板选择
+*/
+$("input:radio[name='script_type']").click(function () {
+    var val = $(this).val();
+    if (val=='shell'){
+        editor.setValue(multiline(shell_tmp));
+        editor.session.setMode("ace/mode/sh");
+    }
+   else {
+        editor.setValue(multiline(python_tmp));
+        editor.session.setMode("ace/mode/python");
+    }
+    editor.gotoLine(1);
 });
 
 
