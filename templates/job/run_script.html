@@ -97,7 +97,7 @@ white-space: nowrap;
                             <div class="form-group">
                                 <label for="inputEmail1" class="col-lg-2 control-label">脚本名称</label>
                                 <div class="col-lg-10">
-                                    <input type="email" class="form-control input-sm" id="inputEmail1" placeholder="name">
+                                    <input type="email" class="form-control input-sm" id="script_name" placeholder="name">
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
@@ -142,7 +142,7 @@ white-space: nowrap;
                             <div class="form-group">
                                 <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
                                 <div class="col-lg-10">
-                                    <input type="password" class="form-control input-sm" id="para" placeholder="para">
+                                    <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
                             </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
@@ -178,7 +178,6 @@ $(document).ready(function(){
   // 在这里写你的代码...
     init_font();
     init_account();
-    init_server();
 });
 var shell_tmp = function () {/*
 #!/bin/bash
@@ -357,11 +356,47 @@ function init_server() {
 }
 
 $('#run_script').click(function () {
-   var value = editor.getValue();
-   console.log(value)
+    var data = get_data();
+    var jdata = JSON.stringify(data);
+   console.log(jdata)
+    var url = '/job/run_script/';
+    var index = layer.load();
+    $.post(url, {'data': jdata}, function (res) {
+        var _data = $.parseJSON(res);
+        console.log(_data)
+{% comment %}        var cont0 = "<option value=''>请选择</option>";
+        $('#server').append(cont0);
+        $.each(_data, function (k,v) {
+            var cont = "<option value='"+ v.id +"'>"+ v.ip + " " + v.desc +"</option>";
+            $('#server').append(cont);
+        });
+        $("#server").chosen();{% endcomment %}
+        layer.close(index);
+    });
 });
 
+function get_data() {
+    var script_name = $('#script_name').val();
+    var account = $('#account').val();
+    var server_data = $('#table_selected').bootstrapTable('getData');
+    var content = editor.getValue();
+    var scriptParam = $('#scriptParam').val();
+    var script_type = $("input:radio[name='script_type']:checked").val();
 
+    var ipList = [];
+    $.each(server_data, function (k, v) {
+       ipList.push(v.ip)
+    });
+    var data = {
+        'script_name': script_name,
+        'account': account,
+        'content': content,
+        'ipList': ipList,
+        'scriptParam': scriptParam,
+        'script_type': script_type
+    };
+    return data
+}
 
 
 /*

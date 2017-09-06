@@ -29,6 +29,7 @@ urlpatterns = [
     # url(r'^get_account/$', get_account),  # 账号信息
     # url(r'^delete_account/$', delete_account),  # 删除账户
 
-    url(r'^run_script/$', run_script),  # 脚本
+    url(r'^script/$', script),  # 脚本
+    url(r'^run_script/$', run_script),  # 运行脚本
 
 ]

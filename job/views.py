@@ -14,8 +14,16 @@ import json
 
 # Create your views here.
 @login_required
-def run_script(request):
+def script(request):
     # 首页
     return render_to_response('job/run_script.html', locals(), context_instance=RequestContext(request))
 
 
+def run_script(request):
+    cur = Currency(request)
+    jdata = cur.rq_post('data')
+    data = json.loads(jdata)
+    print data
+    response = HttpResponse()
+    response.write(json.dumps('ok'))
+    return response
