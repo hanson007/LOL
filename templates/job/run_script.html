@@ -358,19 +358,14 @@ function init_server() {
 $('#run_script').click(function () {
     var data = get_data();
     var jdata = JSON.stringify(data);
-   console.log(jdata)
     var url = '/job/run_script/';
-    var index = layer.load();
+{#    var index = layer.load();#}
     $.post(url, {'data': jdata}, function (res) {
         var _data = $.parseJSON(res);
-        console.log(_data)
-{% comment %}        var cont0 = "<option value=''>请选择</option>";
-        $('#server').append(cont0);
-        $.each(_data, function (k,v) {
-            var cont = "<option value='"+ v.id +"'>"+ v.ip + " " + v.desc +"</option>";
-            $('#server').append(cont);
-        });
-        $("#server").chosen();{% endcomment %}
+        if (_data.status==1){
+            var msg = _data.msg.join('<br>');
+            ajax_callback1(msg);
+        }
         layer.close(index);
     });
 });

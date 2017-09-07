@@ -29,6 +29,12 @@ class Currency(object):
             dict1[k] = v
         return dict1
 
+    def write_file(self, file, content):
+        with open(file, 'a+') as f:
+            for con in content:
+                f.write(con)
+                f.write('\n')
+
 
 class Datetime_help(object):
     # 日期时间帮助
