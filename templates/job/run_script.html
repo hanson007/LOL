@@ -143,7 +143,13 @@ white-space: nowrap;
                                 <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
                                 <div class="col-lg-10">
                                     <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
-                            </div><!-- /.col -->
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
+                                <div class="col-lg-10">
+                                    <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
+                                </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
                                 <div class="col-lg-offset-2 col-lg-10">
@@ -376,6 +382,7 @@ function get_data() {
     var server_data = $('#table_selected').bootstrapTable('getData');
     var content = editor.getValue();
     var scriptParam = $('#scriptParam').val();
+    var scriptTimeout = $('#scriptTimeout').val();
     var script_type = $("input:radio[name='script_type']:checked").val();
 
     var ipList = [];
@@ -388,6 +395,7 @@ function get_data() {
         'content': content,
         'ipList': ipList,
         'scriptParam': scriptParam,
+        'scriptTimeout': scriptTimeout,
         'script_type': script_type
     };
     return data

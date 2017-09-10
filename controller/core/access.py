@@ -54,6 +54,7 @@ class Check_Task(object):
         self.content = data.get('content', '')
         self.ipList = data.get('ipList', [])
         self.scriptParam = data.get('scriptParam', '')
+        self.scriptTimeout = data.get('scriptTimeout', '')
         self.script_type = data.get('script_type', '')
 
     def check_script_name(self):
@@ -92,12 +93,21 @@ class Check_Task(object):
         if self.script_type not in ['shell', 'python']:
             self.error_msg.append(u'脚本类型错误')
 
+    def check_script_timeout(self):
+        # 检测脚本超时时间
+        if not self.scriptTimeout:
+            self.error_msg.append(u'超时时间不能为空')
+        else:
+            if not self.scriptTimeout.isdecimal():
+                self.error_msg.append(u'超时时间必须为十进制数')
+
     def total_check(self):
         self.check_script_name()
         self.check_account()
         self.check_content()
         self.check_ipList()
         self.check_script_type()
+        self.check_script_timeout()
         status = 1 if self.error_msg else 0
 
         return status, self.error_msg
