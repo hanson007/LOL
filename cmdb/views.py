@@ -23,9 +23,11 @@ def add_server(request):
     # 添加机器
     cur = Currency(request)
     ip = cur.rq_post('ip')
+    hostname = cur.rq_post('hostname')
     desc = cur.rq_post('desc')
     obj = Server()
     obj.ip = ip
+    obj.hostname = hostname
     obj.desc = desc
     obj.creater = cur.nowuser.username
     obj.ModifyUser = cur.nowuser.username
@@ -40,10 +42,12 @@ def edit_server(request):
     # 编辑机器
     cur = Currency(request)
     ip = cur.rq_post('ip')
+    hostname = cur.rq_post('hostname')
     desc = cur.rq_post('desc')
     _id = cur.rq_post('id')
     obj = Server.objects.get(pk=int(_id))
     obj.ip = ip
+    obj.hostname = hostname
     obj.desc = desc
     obj.ModifyUser = cur.nowuser.username
     obj.save()

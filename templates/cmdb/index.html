@@ -91,6 +91,14 @@ white-space: nowrap;
 								</div><!-- /.col -->
 							</div><!-- /form-group -->
 							<div class="row">
+                                <div class="col-md-6">
+									<div class="form-group">
+										<label>主机名</label>
+										<input id="hostname" type="text" class="form-control input-sm" placeholder="主机名">
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /form-group -->
+							<div class="row">
 								<div class="col-md-11">
 									<div class="form-group">
 										<label>描述</label>
@@ -122,6 +130,14 @@ white-space: nowrap;
 										<label>IP</label>
                                         <input name="id" class="hide">
 										<input name="ip" type="text" class="form-control input-sm" placeholder="服务器IP地址">
+									</div>
+								</div><!-- /.col -->
+							</div><!-- /form-group -->
+							<div class="row">
+                                <div class="col-md-6">
+									<div class="form-group">
+										<label>主机名</label>
+										<input name="hostname" type="text" class="form-control input-sm" placeholder="主机名">
 									</div>
 								</div><!-- /.col -->
 							</div><!-- /form-group -->
@@ -212,6 +228,9 @@ function get_columns() {
         title: '服务器IP地址',
         formatter: subjectFormatter
     }, {
+        field: 'hostname',
+        title: '主机名'
+    }, {
         field: 'desc',
         title: '服务器描述'
     }, {
@@ -249,7 +268,7 @@ function receiversFormatter(value, row, index) {
 function subjectFormatter(value, row, index) {
     return [
         "<div><a href='#edit_server' role='button' data-toggle='modal' onclick="+ '"' +"edit("
-        + row.id + ",'" + row.ip + "','" + row.desc +
+        + row.id + ",'" + row.ip + "','" + row.hostname + "','" + row.desc +
         "')"+ '"' +" class='mod'>",
         value,
         '</a></div>'
@@ -261,7 +280,10 @@ function subjectFormatter(value, row, index) {
 *新增服务器
 */
 $('#save').click(function () {
-    var data = {'ip':$('#ip').val(), 'desc':$('#desc').val()};
+    var data = {'ip':$('#ip').val(),
+                'desc':$('#desc').val(),
+                'hostname':$('#hostname').val()
+                };
     var url = '/cmdb/add_server/';
     var index = layer.load();
     $.post(url, data, function (msg) {
@@ -305,9 +327,10 @@ $('#delete').click(function () {
 /*
 *编辑服务器
 */
-function edit(id,ip,desc) {
+function edit(id, ip, hostname, desc) {
     $('#edit_server').find("input[name='id']").val(id);
     $('#edit_server').find("input[name='ip']").val(ip);
+    $('#edit_server').find("input[name='hostname']").val(hostname);
     $('#edit_server').find("textarea[name='desc']").val(desc);
 }
 
@@ -318,9 +341,10 @@ function edit(id,ip,desc) {
 $('#edit_server').find("button[name='save']").click(function () {
     var id = $('#edit_server').find("input[name='id']").val();
     var ip = $('#edit_server').find("input[name='ip']").val();
+    var hostname = $('#edit_server').find("input[name='hostname']").val();
     var desc = $('#edit_server').find("textarea[name='desc']").val();
     var url = '/cmdb/edit_server/';
-    var data = {'id':id, 'ip':ip, 'desc':desc};
+    var data = {'id':id, 'ip':ip, 'hostname': hostname, 'desc':desc};
     var index = layer.load();
     $.post(url, data, function (msg) {
         var _msg = $.parseJSON(msg);

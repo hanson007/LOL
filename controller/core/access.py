@@ -153,3 +153,16 @@ class Check_Mod_Periodic_Task(Check_Task):
         status = 1 if self.error_msg else 0
 
         return status, self.error_msg
+
+
+class Server_Help(object):
+    def __init__(self):
+        pass
+
+    def get_servers_dict(self):
+        # 获取作业实例目标机器，字典格式
+        servers_data = Server.objects.all().values()
+        servers = {}
+        for dt in servers_data:
+            servers[dt['hostname']] = dt['ip']
+        return servers
