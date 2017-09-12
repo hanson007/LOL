@@ -12,9 +12,9 @@ from public import *
 
 class Salt_Help(object):
     # salt 通用操作
-    def __init__(self, request):
+    def __init__(self):
         self.dth = Datetime_help()
-        self.cur = Currency(request)
+        self.write_file = getattr(Currency, 'write_file')
 
     def delete_old_file(self, file):
         # 删除原有的文件
@@ -27,8 +27,8 @@ class Salt_Help(object):
         # 文件
         return self.dth.nowtimestrf3 + '.sh'
 
-    def write_file(self, file, content):
-        self.cur.write_file('/srv/salt/%s' % file, content)
+    def create_script_file(self, file, content):
+        self.write_file('/srv/salt/%s' % file, content)
 
     def run_script(self, target, file, scriptParam, account, timeout):
         client = salt.client.LocalClient()

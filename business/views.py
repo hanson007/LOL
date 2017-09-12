@@ -15,7 +15,7 @@ import json
 @login_required
 def account(request):
     # 首页
-    return render_to_response('business/account.html', locals(), context_instance=RequestContext(request))
+    return render_to_response('business/../templates/log_record/account.html', locals(), context_instance=RequestContext(request))
 
 
 @login_required

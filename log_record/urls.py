@@ -14,27 +14,21 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url,include
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.views import logout
 from django.contrib.auth.views import login
 from views import *
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    # url(r'^admin/', admin.site.urls),
 
-    url(r'^index/$', index),  # 首页
-    url(r'^$', index, name='index'),
-    url(r'^accounts/login/$', login, {'template_name': 'login.html'}),
-    url(r'^accounts/logout/$', logout),
-    url(r'^get_username/$', get_username),  # 获取当前登陆用户名
+    url(r'^taskInstanceList/$', taskInstanceList),  # 任务实例列表
+    url(r'^get_taskInstance/$', get_taskInstance),  # 获取任务实例数据
+    # url(r'^edit_account/$', edit_account),  # 编辑账户
+    # url(r'^get_account/$', get_account),  # 账号信息
+    # url(r'^delete_account/$', delete_account),  # 删除账户
 
-    # 机器
-    url(r'^cmdb/', include('cmdb.urls')),
-    # 业务
-    url(r'^business/', include('business.urls')),
-    # 作业平台
-    url(r'^job/', include('job.urls')),
-    # 日志记录
-    url(r'^log_record/', include('log_record.urls')),
+    # url(r'^script/$', script),  # 脚本
+
 ]

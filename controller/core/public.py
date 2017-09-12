@@ -2,6 +2,7 @@
 from django.contrib import auth
 import datetime
 
+
 class Currency(object):
     #  通用帮助
     def __init__(self, request):
@@ -23,13 +24,14 @@ class Currency(object):
 
     def transfor(self, d):
         dict1 = {}
-        for k,v in d.items():
+        for k, v in d.items():
             if isinstance(v, datetime.datetime):
                 v = v.strftime("%Y-%m-%d %H:%M:%S")
             dict1[k] = v
         return dict1
 
-    def write_file(self, file, content):
+    @classmethod
+    def write_file(cls, file, content):
         with open(file, 'a+') as f:
             for con in content:
                 f.write(con)

@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from controller.core.public import *
 from controller.core.salt_operation import Salt_Help
 from controller.core.access import (Check_Task, verification, Server_Help)
+from celery import shared_task
 from models import *
 from cmdb.models import *
 from business.models import Account
@@ -30,26 +31,31 @@ def script(request):
 @login_required
 @verification(Check_Task)
 def run_script(request):
-    run_script_async(request)
+    cur = Currency(request)
+    jdata = cur.rq_post('data')
+    data = json.loads(jdata)
+    data['operator'] = cur.nowuser.username
+    run_script_async.delay(data)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': ['操作成功']}))
     return response
 
 
 class Run_Script_Help(object):
-    def __init__(self, request):
+    def __init__(self, data):
         self.dt = Datetime_help()
-        self.sh = Salt_Help(request)
-        self.cur = Currency(request)
-        self.jdata = self.cur.rq_post('data')
-        self.data = json.loads(self.jdata)
-        self.ipList = self.data['ipList']
-        self.scriptParam = self.data['scriptParam']
-        self.scriptTimeout = self.data['scriptTimeout']
-        self.account = self.data['account']
-        self.script_name = self.data['script_name']
-        self.scriptType = self.data['script_type']
-        self.content = self.data['content']
+        self.sh = Salt_Help()
+        # self.cur = Currency(request)
+        # self.jdata = self.cur.rq_post('data')
+        # self.data = json.loads(self.jdata)
+        self.ipList = data['ipList']
+        self.scriptParam = data['scriptParam']
+        self.scriptTimeout = data['scriptTimeout']
+        self.account = data['account']
+        self.script_name = data['script_name']
+        self.scriptType = data['script_type']
+        self.content = data['content']
+        self.operator = data['operator']
         self.content_list = self.content.split('\n')
         self.target = ' or '.join(['S@' + ip for ip in self.ipList])
 
@@ -59,7 +65,7 @@ class Run_Script_Help(object):
     def instance_start(self):
         # 作业实例 start
         self.instance.name = self.script_name
-        self.instance.operator = self.cur.nowuser.username
+        self.instance.operator = self.operator
         self.instance.status = 2
         self.instance.startTime = self.dt.now_time
         self.instance.save()
@@ -77,7 +83,7 @@ class Run_Script_Help(object):
         self.step_instance.scriptType = 1 if self.scriptType == 'shell' else 4
         self.step_instance.scriptParam = self.scriptParam
         self.step_instance.scriptTimeout = self.scriptTimeout
-        self.step_instance.operator = self.cur.nowuser.username
+        self.step_instance.operator = self.operator
         self.step_instance.status = 2
         self.step_instance.startTime = self.dt.now_time
         self.step_instance.save()
@@ -93,7 +99,7 @@ class Run_Script_Help(object):
     def run_job(self):
         # 执行作业
         self.sh.delete_old_file(self.sh.file)
-        self.sh.write_file(self.sh.file, self.content_list)
+        self.sh.create_script_file(self.sh.file, self.content_list)
         ret = self.sh.run_script(self.target, self.sh.file, self.scriptParam, self.account, self.scriptTimeout)
         return ret
 
@@ -134,9 +140,10 @@ class Run_Script_Help(object):
         self.step_instance.save()
 
 
-def run_script_async(request):
+@shared_task()
+def run_script_async(data):
     # 异步快速运行脚本任务
-    rsh = Run_Script_Help(request)
+    rsh = Run_Script_Help(data)
     rsh.instance_start()
     rsh.stepInstance_start()
     rsh.ipList_start()
