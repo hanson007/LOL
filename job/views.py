@@ -152,3 +152,9 @@ def run_script_async(data):
     rsh.stepInstance_end()
     rsh.save_ret()
     rsh.save_status()
+
+
+@login_required
+def fastPushfile(request):
+    # 首页
+    return render_to_response('job/fastPushfile.html', locals(), context_instance=RequestContext(request))

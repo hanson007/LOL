@@ -31,5 +31,6 @@ urlpatterns = [
 
     url(r'^script/$', script),  # 脚本
     url(r'^run_script/$', run_script),  # 运行脚本
+    url(r'^fastPushfile/$', fastPushfile),  # 快速分发文件
 
 ]
