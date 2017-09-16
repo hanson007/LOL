@@ -158,3 +158,16 @@ def run_script_async(data):
 def fastPushfile(request):
     # 首页
     return render_to_response('job/fastPushfile.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required
+def fastPushfile_upload_file(request):
+    # 上传快速分发文件
+    fileobj = request.FILES.get('file', None)
+    content = fileobj.readlines()
+    print fileobj.name
+    # with open('/tmp/%s' % fileobj.name, 'a+') as f:
+    #     f.writelines(content)
+    response = HttpResponse()
+    response.write(json.dumps('ok'))
+    return response

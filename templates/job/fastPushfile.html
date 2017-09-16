@@ -103,14 +103,11 @@ white-space: nowrap;
                             <div class="form-group">
                                 <label for="inputPassword1" class="col-lg-2 control-label">源文件</label>
                                 <div class="col-lg-10">
-                                    <div class="upload-file">
-                                        <input id='file' type="file"  name="img" multiple="multiple">
-                                        <button type="button" id="push" class="btn btn-success btn-sm">删除</button>
-                                    </div>
-                                    <button type="button" id="push" class="btn btn-success btn-sm">删除</button>
-
+                                    <input id='file' type="file"  name="file" style="padding-left: 0px;" class="col-lg-4" multiple="multiple">
+                                    <button type="button" id="delete_file" class="btn btn-success btn-xs">删除</button>
+                                    <span>（同名文件覆盖，文件大小不要超过500M）</span>
                                     <div class="table-responsive" id="table_selected_div">
-                                        <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
+                                        <table class="table table-hover table-bordered NoNewline" id="table_selected_file"></table>
                                     </div><!-- /.padding-md -->
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
@@ -200,10 +197,82 @@ $(document).ready(function(){
     init_account();
 });
 
-$("#push").click(function () {
+
+/*
+*上传文件
+*/
+$("#file").change(function () {
     var files = $('#file')[0].files;
-    console.log(typeof(files[0]))
+    add_table_file(files);
+    $.each(files, function (k, file) {
+        upload_file(file);
+    });
 });
+
+
+/*
+*将需要上传的文件添加到文件表格
+*/
+function add_table_file(files) {
+    var selected_data = $('#table_selected_file').bootstrapTable('getData');
+    var selected_id = [];
+    $.each(selected_data, function (sk, selected_v) {
+        selected_id.push(selected_v.name);
+    });
+    $.each(files, function (k, file) {
+        var data = {'name': file.name, 'size': file.size, 'lastModified': file.lastModified,
+                    'progress': 0, 'percent': 0, 'id': k};
+        if (selected_id.indexOf(file.name) == -1){
+            $('#table_selected_file').bootstrapTable('append', data);
+        }
+    });
+}
+
+
+/*
+*上传文件到salt master服务器
+*/
+function upload_file(file) {
+    var formData = new FormData();
+    formData.append('file', file);
+    var index = layer.load();
+	$.ajax({
+			url: '/job/fastPushfile_upload_file/',
+			type: 'POST',
+			cache: false,
+			data: formData,
+			processData: false,
+			contentType: false,
+            xhr: function(){
+                myXhr = $.ajaxSettings.xhr();
+                if(myXhr.upload){
+                  myXhr.upload.addEventListener('progress',function(e) {
+                    if (e.lengthComputable) {
+                        var percent = Math.floor(e.loaded/e.total*100);
+                        console.log(percent)
+                        var progress = percent + '%';
+                        var data = $('#table_selected_file').bootstrapTable('getData');
+                        $.each(data, function (k, v) {
+                            if (v.name == file.name){
+                                $('#table_selected_file').bootstrapTable('updateCell', {index: k, field: 'progress', value: percent});
+                                $('#table_selected_file').bootstrapTable('updateCell', {index: k, field: 'percent', value: percent});
+                            }
+                        });
+                    }
+                  }, false);
+                }
+                return myXhr;
+            },
+            success: function (res) {
+                layer.close(index);
+                var data = $('#table_selected_file').bootstrapTable('getData');
+                    resfile = $.parseJSON(res);
+                    console.log(resfile)
+                ajax_callback1('上传成功')
+            }
+		})
+}
+
 
 var shell_tmp = function () {/*
 #!/bin/bash
@@ -362,25 +431,6 @@ function init_account() {
 }
 
 
-/*
-*初始化机器
-*/
-function init_server() {
-{#    var url = '/cmdb/get_index/';#}
-{#    var index = layer.load();#}
-{#    $.post(url, function (data) {#}
-{#        var _data = $.parseJSON(data);#}
-{#        var cont0 = "<option value=''>请选择</option>";#}
-{#        $('#server').append(cont0);#}
-{#        $.each(_data, function (k,v) {#}
-{#            var cont = "<option value='"+ v.id +"'>"+ v.ip + " " + v.desc +"</option>";#}
-{#            $('#server').append(cont);#}
-{#        });#}
-{#        $("#server").chosen();#}
-{#        layer.close(index);#}
-{#    });#}
-}
-
 $('#run_script').click(function () {
     var data = get_data();
     var jdata = JSON.stringify(data);
@@ -460,7 +510,7 @@ function queryParams(params) {
 */
 function init_server_choice() {
     $('#table_choice').bootstrapTable({
-        url: '/cmdb/get_index/',
+{#        url: '/cmdb/get_index/',#}
         pagination: true,                   //是否显示分页（*）
         sortable: false,                     //是否启用排序
         sortOrder: "asc",                   //排序方式
@@ -482,9 +532,9 @@ function init_server_choice() {
 
 
 /*
-*将已选的服务器添加到已选表格
+*初始化文件表格
 */
-$('#table_selected').bootstrapTable({
+$('#table_selected_file').bootstrapTable({
     pagination: true,                   //是否显示分页（*）
     sortable: false,                     //是否启用排序
     sortOrder: "asc",                   //排序方式
@@ -498,15 +548,15 @@ $('#table_selected').bootstrapTable({
     pageSize: 5,                       //每页的记录行数（*）
     pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
     search: true,                  //是否显示搜索 --前端搜索
-    columns:get_columns()
+    columns:get_file_columns()
 });
 
 
 
 /*
-*获取bootstraptable 的列columns
+*获取文件表格 的列columns
 */
-function get_columns() {
+function get_file_columns() {
     var columns =[{
          field: 'checkbox',
          checkbox: true
@@ -517,26 +567,27 @@ function get_columns() {
             }
     }, {
         field: 'id',
-        title: 'ID',
+        title: 'id',
         visible: false
     }, {
-        field: 'ip',
-        title: '服务器IP地址'
+        field: 'name',
+        title: 'name'
     }, {
-        field: 'desc',
-        title: '描述'
+        field: 'size',
+        title: 'size',
+        formatter: sizeFormatter
     }, {
-        field: 'creater',
-        title: '创建人'
+        field: 'lastModified',
+        title: 'lastModified',
+        formatter: lastModifieldFormatter
     }, {
-        field: 'createTime',
-        title: '创建时间'
+        field: 'progress',
+        title: 'Progress',
+        formatter: ProgressFormatter
     }, {
-        field: 'ModifyUser',
-        title: '修改人'
-    }, {
-        field: 'ModifyTime',
-        title: '修改时间'
+        field: 'percent',
+        title: '',
+        formatter: percentFormatter
     }];
     return columns
 }
@@ -617,7 +668,21 @@ $("input:radio[name='server']").click(function () {
 
 
 /*
-*删除
+*删除文件
+*/
+$('#delete_file').click(function () {
+        var names = $.map($('#table_selected_file').bootstrapTable('getSelections'), function (row) {
+            return row.name;
+        });
+        $('#table_selected_file').bootstrapTable('remove', {
+            field: 'name',
+            values: names
+        });
+});
+
+
+/*
+*删除机器
 */
 $('#delete').click(function () {
     var data = $('#table_selected').bootstrapTable('getSelections');
@@ -692,6 +757,80 @@ $('#edit_server').find("button[name='save']").click(function () {
         $('#table').bootstrapTable('refresh');
     });
 });
+
+
+/*
+*格式化文件大小
+*/
+function sizeFormatter(limit){
+    var size = "";
+    if( limit < 0.1 * 1024 ){ //如果小于0.1KB转化成B
+        size = limit.toFixed(2) + "B";
+    }else if(limit < 0.1 * 1024 * 1024 ){//如果小于0.1MB转化成KB
+        size = (limit / 1024).toFixed(2) + "KB";
+    }else if(limit < 0.1 * 1024 * 1024 * 1024){ //如果小于0.1GB转化成MB
+        size = (limit / (1024 * 1024)).toFixed(2) + "MB";
+    }else{ //其他转化成GB
+        size = (limit / (1024 * 1024 * 1024)).toFixed(2) + "GB";
+    }
+
+    var sizestr = size + "";
+    var len = sizestr.indexOf("\.");
+    var dec = sizestr.substr(len + 1, 2);
+    if(dec == "00"){//当小数点后为00时 去掉小数部分
+        return sizestr.substring(0,len) + sizestr.substr(len + 3,2);
+    }
+    return sizestr;
+}
+
+
+/*
+*格式化文件修改时间
+*/
+function lastModifieldFormatter(value, row, index) {
+    return timetrans(value);
+}
+
+
+/*
+*时间转换
+*/
+function timetrans(date){
+    var date = new Date(date);//如果date为13位不需要乘1000
+    var Y = date.getFullYear() + '-';
+    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+    var D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + ' ';
+    var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+    var m = (date.getMinutes() <10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+    var s = (date.getSeconds() <10 ? '0' + date.getSeconds() : date.getSeconds());
+    return Y+M+D+h+m+s;
+}
+
+/*
+*进度条格式化
+*/
+function ProgressFormatter(value, row, index) {
+    var cont = ['<div class="progress" style="height:12px; margin:5px 0 0 0;">',
+                            '<div class="progress-bar" name="progress" style="width: ', value+'%', '">',
+                            '</div>',
+                        '</div>'
+                ].join('');
+    return cont
+}
+
+/*
+*百分比格式化
+*/
+function percentFormatter(value, row, index) {
+    var cont = ['<div name="percent">',
+                    value + '%',
+                '</div>'
+                ].join('');
+    return cont
+}
+
+
+
 
 
 /*
