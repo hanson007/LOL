@@ -4,9 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponse
+from controller.conf.job import *
 from controller.core.public import *
 from controller.core.salt_operation import Salt_Help
-from controller.core.access import (Check_Task, verification, Server_Help)
+from controller.core.access import *
 from celery import shared_task
 from models import *
 from cmdb.models import *
@@ -45,26 +46,23 @@ class Run_Script_Help(object):
     def __init__(self, data):
         self.dt = Datetime_help()
         self.sh = Salt_Help()
-        # self.cur = Currency(request)
-        # self.jdata = self.cur.rq_post('data')
-        # self.data = json.loads(self.jdata)
-        self.ipList = data['ipList']
-        self.scriptParam = data['scriptParam']
-        self.scriptTimeout = data['scriptTimeout']
-        self.account = data['account']
-        self.script_name = data['script_name']
-        self.scriptType = data['script_type']
-        self.content = data['content']
-        self.operator = data['operator']
+        self.ipList = data.get('ipList', '')
+        self.scriptParam = data.get('scriptParam', '')
+        self.scriptTimeout = data.get('scriptTimeout', '')
+        self.account = data.get('account', '')
+        self.script_name = data.get('script_name', '')
+        self.scriptType = data.get('script_type', '')
+        self.content = data.get('content', '')
+        self.operator = data.get('operator', '')
         self.content_list = self.content.split('\n')
         self.target = ' or '.join(['S@' + ip for ip in self.ipList])
 
         self.instance = Nm_Instance()
         self.step_instance = Nm_StepInstance()
 
-    def instance_start(self):
+    def instance_start(self, name):
         # 作业实例 start
-        self.instance.name = self.script_name
+        self.instance.name = name
         self.instance.operator = self.operator
         self.instance.status = 2
         self.instance.startTime = self.dt.now_time
@@ -113,9 +111,8 @@ class Run_Script_Help(object):
         self.step_instance.endTime = datetime.datetime.now()
         self.step_instance.totalTime = (self.step_instance.endTime - self.step_instance.startTime).seconds
 
-    def save_ret(self):
+    def save_ret(self, ret):
         # 保存结果，错误判断 is_error
-        ret = self.run_job()
         server_help = Server_Help()
         servers = server_help.get_servers_dict()
         is_error = True
@@ -130,9 +127,8 @@ class Run_Script_Help(object):
             ipList.save()
         return is_error
 
-    def save_status(self):
+    def save_status(self, is_error):
         # 保存执行状态(2:正在执行 3:成功 4:失败)
-        is_error = self.save_ret()
         status = 3 if is_error else 4
         self.instance.status = status
         self.step_instance.status = status
@@ -144,14 +140,14 @@ class Run_Script_Help(object):
 def run_script_async(data):
     # 异步快速运行脚本任务
     rsh = Run_Script_Help(data)
-    rsh.instance_start()
+    rsh.instance_start(rsh.script_name)
     rsh.stepInstance_start()
     rsh.ipList_start()
-    rsh.run_job()
+    ret = rsh.run_job()
     rsh.instance_end()
     rsh.stepInstance_end()
-    rsh.save_ret()
-    rsh.save_status()
+    is_error = rsh.save_ret(ret)
+    rsh.save_status(is_error)
 
 
 @login_required
@@ -166,8 +162,99 @@ def fastPushfile_upload_file(request):
     fileobj = request.FILES.get('file', None)
     content = fileobj.readlines()
     print fileobj.name
-    # with open('/tmp/%s' % fileobj.name, 'a+') as f:
-    #     f.writelines(content)
+    with open('%s%s' % (UPLOAD_FILE_DIR, fileobj.name), 'a+') as f:
+        f.writelines(content)
     response = HttpResponse()
     response.write(json.dumps('ok'))
     return response
+
+
+@login_required
+@verification(Check_fastPushfile)
+def run_fastPushfile(request):
+    # 异步运行快速分发文件任务
+    cur = Currency(request)
+    jdata = cur.rq_post('data')
+    data = json.loads(jdata)
+    print data
+    # data['operator'] = cur.nowuser.username
+    # run_script_async.delay(data)
+    response = HttpResponse()
+    response.write(json.dumps({'status': 0, 'msg': ['操作成功']}))
+    return response
+
+
+class Run_fastPushfile_Help(Run_Script_Help):
+    def __init__(self, data):
+        super(Run_fastPushfile_Help, self).__init__(data)
+        self.task_name = data.get('task_name', '')
+        self.fileSource = data.get('fileSource', '')
+        self.fileTargetPath = data.get('fileTargetPath', '')
+
+    def stepInstance_start(self):
+        # 作业实例步骤 start
+        self.step_instance.taskInstanceId = self.instance
+        self.step_instance.name = self.task_name
+        self.step_instance.type = 1
+        self.step_instance.ord = 1
+        self.step_instance.blockOrd = 1
+        self.step_instance.blockName = self.task_name
+        self.step_instance.account = self.account
+        self.step_instance.fileSource = json.dumps(self.fileSource)
+        self.step_instance.fileTargetPath = self.fileTargetPath
+        self.step_instance.scriptTimeout = self.scriptTimeout
+        self.step_instance.operator = self.operator
+        self.step_instance.status = 2
+        self.step_instance.startTime = self.dt.now_time
+        self.step_instance.save()
+
+    def run_job(self):
+        # 执行作业
+        rets = []
+        for file in self.fileSource:
+            ret = self.sh.run_fastPushfile(self.target,
+                                           file['name'],
+                                           self.fileTargetPath,
+                                           self.account, self.scriptTimeout)
+            rets.append(ret)
+        return rets
+
+    def save_status(self, instance_status, step_instance_status):
+        # 保存执行状态(2:正在执行 3:成功 4:失败)
+        self.instance.status = instance_status
+        self.step_instance.status = step_instance_status
+        self.instance.save()
+        self.step_instance.save()
+
+    def save_instance_status(self, rets):
+        # 保存执行状态(2:正在执行 3:成功 4:失败)
+        is_errors = [self.save_ret(ret) for ret in rets]
+        status = 3 if all(is_errors) else 4
+        self.instance.status = status
+        self.instance.save()
+
+    def save_step_instance_status(self, rets):
+        # 保存执行状态(2:正在执行 3:成功 4:失败)
+        is_errors = [self.save_ret(ret) for ret in rets]
+        status = 3 if all(is_errors) else 4
+        self.instance.status = status
+        self.instance.save()
+
+
+
+
+def run_fastPushfile_async(data):
+    # 异步快速运行脚本任务
+    rsh = Run_fastPushfile_Help(data)
+    rsh.instance_start(rsh.task_name)
+    rsh.stepInstance_start()
+    rsh.ipList_start()
+    rets = rsh.run_job()
+    rsh.instance_end()
+    rsh.stepInstance_end()
+    is_errors = [rsh.save_ret(ret) for ret in rets]
+    total_ret = {}
+    for ret in rets:
+
+
+    rsh.save_status()

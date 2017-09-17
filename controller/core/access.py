@@ -113,43 +113,38 @@ class Check_Task(object):
         return status, self.error_msg
 
 
-class Check_Mod_Periodic_Task(Check_Task):
+class Check_fastPushfile(Check_Task):
     """
     检测修改周期任务提交的信息
     """
     def __init__(self, request):
-        super(Check_Mod_Periodic_Task, self).__init__(request)
-        self.task_id = self.data.get('_id', '')
+        super(Check_fastPushfile, self).__init__(request)
+        self.task_name = self.data.get('task_name', '')
+        self.fileSource = self.data.get('fileSource', [])
+        self.fileTargetPath = self.data.get('fileTargetPath', '')
 
-    # def check_task_name(self):
-    #     # 检测任务名称
-    #     if not self.task_name:
-    #         self.error_msg.append(u'任务名称不能为空')
-    #     else:
-    #         Q_like = ~Q(id=int(self.task_id)) & Q(name=self.task_name)
-    #         is_have = PeriodicTask.objects.filter(Q_like).exists()
-    #         if is_have:
-    #             self.error_msg.append(u'任务名称已存在')
+    def check_task_name(self):
+        # 检测任务名称
+        if not self.task_name:
+            self.error_msg.append(u'任务名称不能为空')
 
-    def check_task_id(self):
-        # 检测任务ID
-        if not self.task_id:
-            self.error_msg.append(u'任务ID不能为空')
-        else:
-            is_have = PeriodicTask.objects.filter(pk=int(self.task_id)).exists()
-            if not is_have:
-                self.error_msg.append(u'任务ID不存在')
+    def check_fileSource(self):
+        # 检测任务名称
+        if not self.fileSource:
+            self.error_msg.append(u'上传文件不能为空')
+
+    def check_fileTargetPath(self):
+        # 检测任务名称
+        if not self.fileTargetPath:
+            self.error_msg.append(u'目标路径不能为空')
 
     def total_check(self):
         self.check_task_name()
-        # self.check_task_template()
-        self.check_is_enable()
-        self.check_is_encrypt()
-        self.check_mail_header()
-        self.check_receivers_cc()
-        # self.check_crontab()
-        self.check_sql_list()
-        self.check_task_id()
+        self.check_fileSource()
+        self.check_fileTargetPath()
+        self.check_account()
+        self.check_ipList()
+        self.check_script_timeout()
         status = 1 if self.error_msg else 0
 
         return status, self.error_msg

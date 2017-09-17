@@ -112,6 +112,12 @@ white-space: nowrap;
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
+                                <label for="inputPassword1" class="col-lg-2 control-label">目标路径</label>
+                                <div class="col-lg-10">
+                                    <input type="text" class="form-control input-sm" id="fileTargetPath" placeholder="path">
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
                                 <label for="inputPassword1" class="col-lg-2 control-label">执行账户</label>
                                 <div class="col-lg-10">
 									<select id="account" class="form-control chzn-select"></select>
@@ -125,35 +131,6 @@ white-space: nowrap;
                                     <div class="table-responsive" id="table_selected_div">
                                         <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
                                     </div><!-- /.padding-md -->
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
-                                <div class="col-lg-10">
-                                    <label class="label-radio inline">
-										<input type="radio" name="script_type" value="shell" checked="checked">
-										<span class="custom-radio"></span>
-										shell
-									</label>
-									<label class="label-radio inline">
-										<input type="radio" name="script_type" value="python">
-										<span class="custom-radio"></span>
-										python
-									</label>
-                                    <select class="form-inline" id="font"></select>
-                                    <label class="label-radio inline">
-										字体
-									</label>
-                                    <label class="label-radio inline">
-										F11全屏切换(光标放在文本框里)
-									</label>
-                                    <pre id="editor"></pre>
-								</div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
-                                <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
@@ -193,7 +170,6 @@ white-space: nowrap;
 <script>
 $(document).ready(function(){
   // 在这里写你的代码...
-    init_font();
     init_account();
 });
 
@@ -249,7 +225,6 @@ function upload_file(file) {
                   myXhr.upload.addEventListener('progress',function(e) {
                     if (e.lengthComputable) {
                         var percent = Math.floor(e.loaded/e.total*100);
-                        console.log(percent)
                         var progress = percent + '%';
                         var data = $('#table_selected_file').bootstrapTable('getData');
                         $.each(data, function (k, v) {
@@ -274,76 +249,6 @@ function upload_file(file) {
 }
 
 
-var shell_tmp = function () {/*
-#!/bin/bash
-
-anynowtime="date +'%Y-%m-%d %H:%M:%S'"
-NOW="echo [\`$anynowtime\`][PID:$$]"
-
-#####可在脚本开始运行时调用，打印当时的时间戳及PID。
-function job_start
-{
-    echo "`eval $NOW` job_start"
-}
-
-#####可在脚本执行成功的逻辑分支处调用，打印当时的时间戳及PID。
-function job_success
-{
-    MSG="$*"
-    echo "`eval $NOW` job_success:[$MSG]"
-    exit 0
-}
-
-#####可在脚本执行失败的逻辑分支处调用，打印当时的时间戳及PID。
-function job_fail
-{
-    MSG="$*"
-    echo "`eval $NOW` job_fail:[$MSG]"
-    exit 1
-}
-
-job_start
-
-######可在此处开始编写您的脚本逻辑代码
-######作业平台中执行脚本成功和失败的标准只取决于脚本最后一条执行语句的返回值
-######如果返回值为0，则认为此脚本执行成功，如果非0，则认为脚本执行失败
-
-*/};
-
-var python_tmp = function () {/*
-#!/usr/bin/env python
-# -*- coding: utf8 -*-
-
-import datetime
-import os
-import sys
-
-def _now(format="%Y-%m-%d %H:%M:%S"):
-    return datetime.datetime.now().strftime(format)
-
-#####可在脚本开始运行时调用，打印当时的时间戳及PID。
-def job_start():
-    print "[%s][PID:%s] job_start" % (_now(), os.getpid())
-
-#####可在脚本执行成功的逻辑分支处调用，打印当时的时间戳及PID。
-def job_success(msg):
-    print "[%s][PID:%s] job_success:[%s]" % (_now(), os.getpid(), msg)
-    sys.exit(0)
-
-#####可在脚本执行失败的逻辑分支处调用，打印当时的时间戳及PID。
-def job_fail(msg):
-    print "[%s][PID:%s] job_fail:[%s]" % (_now(), os.getpid(), msg)
-    sys.exit(1)
-
-if __name__ == '__main__':
-
-    job_start()
-
-######可在此处开始编写您的脚本逻辑代码
-######iJobs中执行脚本成功和失败的标准只取决于脚本最后一条执行语句的返回值
-######如果返回值为0，则认为此脚本执行成功，如果非0，则认为脚本执行失败
-
-*/};
 
 //定义一个实现多行字符串的函数multiline
 var multiline = function (fn) {
@@ -351,64 +256,6 @@ var multiline = function (fn) {
     return str.slice(1, str.length - 1 ).join('\n');
 };
 
-
-/*
-*等待页面所有图片、js文件加载完再执行，否则ace执行失败
-*/
-$(window).load(function() {
-    var dom = require("ace/lib/dom");
-
-    //add command to all new editor instaces
-    require("ace/commands/default_commands").commands.push({
-        name: "Toggle Fullscreen",
-        bindKey: "F11",
-        exec: function(editor) {
-            var fullScreen = dom.toggleCssClass(document.body, "fullScreen");
-            dom.setCssClass(editor.container, "fullScreen", fullScreen);
-            editor.setAutoScrollEditorIntoView(!fullScreen);
-            editor.resize()
-        }
-    });
-
-    // create first editor
-    editor = ace.edit("editor");
-    editor.setTheme("ace/theme/monokai");
-    editor.session.setMode("ace/mode/sh");
-    editor.renderer.setScrollMargin(10, 10);
-    editor.setOptions({
-        // "scrollPastEnd": 0.8,
-        autoScrollEditorIntoView: true
-    });
-    //设置字体
-    document.getElementById('editor').style.fontSize='18px';
-    //语法补全
-    editor.setOptions({
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true
-    });
-    //默认shell
-    editor.setValue(multiline(shell_tmp));
-    editor.gotoLine(1);
-});
-
-
-/*
-*初始化字体选择项
-*/
-function init_font() {
-    for (var i=12;i<23;i++)
-    {
-        var cont = "<option value='"+ i +"'>"+ i +"</option>";
-        $('#font').append(cont);
-    }
-    $('#font').val('18');
-}
-$('#font').change(function () {
-    var font_val = $(this).val() + 'px';
-    document.getElementById('editor').style.fontSize=font_val;
-    console.log($(this).val())
-});
 
 
 /*
@@ -431,13 +278,18 @@ function init_account() {
 }
 
 
+/*
+*执行
+*/
 $('#run_script').click(function () {
     var data = get_data();
     var jdata = JSON.stringify(data);
-    var url = '/job/run_script/';
-{#    var index = layer.load();#}
+    var url = '/job/run_fastPushfile/';
+    console.log(data)
+    var index = layer.load();
     $.post(url, {'data': jdata}, function (res) {
         var _data = $.parseJSON(res);
+        console.log(res)
         if (_data.status==1){
             var msg = _data.msg.join('<br>');
             ajax_callback1(msg);
@@ -446,47 +298,33 @@ $('#run_script').click(function () {
     });
 });
 
+
 function get_data() {
-    var script_name = $('#script_name').val();
+    var task_name = $('#task_name').val();
     var account = $('#account').val();
     var server_data = $('#table_selected').bootstrapTable('getData');
-    var content = editor.getValue();
-    var scriptParam = $('#scriptParam').val();
+    var files = $('#table_selected_file').bootstrapTable('getData');
+    var fileTargetPath = $('#fileTargetPath').val();
     var scriptTimeout = $('#scriptTimeout').val();
-    var script_type = $("input:radio[name='script_type']:checked").val();
 
     var ipList = [];
     $.each(server_data, function (k, v) {
-       ipList.push(v.ip)
+        ipList.push(v.ip)
+    });
+    var fileSource = [];
+    $.each(files, function (k, file) {
+        fileSource.push(file)
     });
     var data = {
-        'script_name': script_name,
+        'task_name': task_name,
+        'fileSource': fileSource,
+        'fileTargetPath': fileTargetPath,
         'account': account,
-        'content': content,
         'ipList': ipList,
-        'scriptParam': scriptParam,
         'scriptTimeout': scriptTimeout,
-        'script_type': script_type
     };
     return data
 }
-
-
-/*
-*脚本类型、模板选择
-*/
-$("input:radio[name='script_type']").click(function () {
-    var val = $(this).val();
-    if (val=='shell'){
-        editor.setValue(multiline(shell_tmp));
-        editor.session.setMode("ace/mode/sh");
-    }
-   else {
-        editor.setValue(multiline(python_tmp));
-        editor.session.setMode("ace/mode/python");
-    }
-    editor.gotoLine(1);
-});
 
 
 //得到查询的参数
@@ -510,7 +348,7 @@ function queryParams(params) {
 */
 function init_server_choice() {
     $('#table_choice').bootstrapTable({
-{#        url: '/cmdb/get_index/',#}
+        url: '/cmdb/get_index/',
         pagination: true,                   //是否显示分页（*）
         sortable: false,                     //是否启用排序
         sortOrder: "asc",                   //排序方式
@@ -527,8 +365,6 @@ function init_server_choice() {
         columns:get_columns()
     });
 }
-
-
 
 
 /*
@@ -550,7 +386,6 @@ $('#table_selected_file').bootstrapTable({
     search: true,                  //是否显示搜索 --前端搜索
     columns:get_file_columns()
 });
-
 
 
 /*
@@ -593,6 +428,64 @@ function get_file_columns() {
 }
 
 
+/*
+*将已选的服务器添加到已选表格
+*/
+$('#table_selected').bootstrapTable({
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "asc",                   //排序方式
+    showColumns: true,
+    showRefresh: true,
+    clickToSelect: true,
+    uniqueId: "id",
+    queryParams: queryParams,           //传递参数（*）
+    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 5,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    search: true,                  //是否显示搜索 --前端搜索
+    columns:get_columns()
+});
+
+
+/*
+*获取服务器列表 的列columns
+*/
+function get_columns() {
+    var columns =[{
+         field: 'checkbox',
+         checkbox: true
+    },{
+        title: '序号',//标题  可不加
+        formatter: function (value, row, index) {
+            return index+1;
+            }
+    }, {
+        field: 'id',
+        title: 'ID',
+        visible: false
+    }, {
+        field: 'ip',
+        title: '服务器IP地址'
+    }, {
+        field: 'desc',
+        title: '描述'
+    }, {
+        field: 'creater',
+        title: '创建人'
+    }, {
+        field: 'createTime',
+        title: '创建时间'
+    }, {
+        field: 'ModifyUser',
+        title: '修改人'
+    }, {
+        field: 'ModifyTime',
+        title: '修改时间'
+    }];
+    return columns
+}
 
 
 /*
@@ -640,33 +533,6 @@ $('#add_server').click(function () {
 });
 
 
-
-
-/*
-*脚本类型、模板选择
-*/
-$("input:radio[name='server']").click(function () {
-    var val = $(this).val();
-    if (val=='show_all'){
-        $('#table_selected').bootstrapTable('getRowsHidden',{show:true});
-    }
-
-   else if (val=='no_selected') {
-        var data = $('#table_selected').bootstrapTable('getSelections');
-        $.each(data,function (k,v) {
-            $('#table_selected').bootstrapTable('hideRow', {uniqueId: v.id})
-        });
-
-    }
-    else {
-        var all_data = $('#table_selected').bootstrapTable('getData');
-        $.each(all_data,function (k,v) {
-            $('#table_selected').bootstrapTable('hideRow', {uniqueId: v.id})
-        });
-    }
-});
-
-
 /*
 *删除文件
 */
@@ -688,73 +554,6 @@ $('#delete').click(function () {
     var data = $('#table_selected').bootstrapTable('getSelections');
     $.each(data, function (sk, v) {
         $('#table_selected').bootstrapTable('removeByUniqueId', v.id);
-    });
-});
-
-
-/*
-*提交编辑的数据
-*/
-function post_edit() {
-    var id = $('#add_account').find("input[name='id']").val();
-    var name = $('#add_account').find("input[name='name']").val();
-    var desc = $('#add_account').find("textarea[name='desc']").val();
-    var url = '/business/edit_account/';
-    var data = {'id': id, 'name':name, 'desc':desc};
-    var index = layer.load();
-    $.post(url, data, function (msg) {
-        var _msg = $.parseJSON(msg);
-        layer.close(index);
-        layer.msg(_msg);
-        $('#table').bootstrapTable('refresh');
-    });
-}
-
-
-/*
-*编辑服务器
-*/
-function edit(id,name,desc) {
-    $('#add_account').find("input[name='id']").val(id);
-    $('#add_account').find("input[name='name']").val(name);
-    $('#add_account').find("textarea[name='desc']").val(desc);
-    $('#add_account').removeClass('hide');
-    //页面层
-    layer.open({
-      type: 1,
-      skin: 'layui-layer-rim', //加上边框
-      area: ['420px', '240px'], //宽高
-      content: $('#add_account')
-      ,btn: ['save', 'close']
-      ,yes: function(index1, layero){
-            post_edit(); //编辑
-            layer.close(index1);
-      }
-      ,btn2: function(index, layero){
-        //return false 开启该代码可禁止点击该按钮关闭
-      }
-      ,cancel: function(){
-        //右上角关闭回调
-      }
-    });
-}
-
-
-/*
-*提交编辑服务器的数据
-*/
-$('#edit_server').find("button[name='save']").click(function () {
-    var id = $('#edit_server').find("input[name='id']").val();
-    var ip = $('#edit_server').find("input[name='ip']").val();
-    var desc = $('#edit_server').find("textarea[name='desc']").val();
-    var url = '/cmdb/edit_server/';
-    var data = {'id':id, 'ip':ip, 'desc':desc};
-    var index = layer.load();
-    $.post(url, data, function (msg) {
-        var _msg = $.parseJSON(msg);
-        layer.close(index);
-        layer.msg(_msg);
-        $('#table').bootstrapTable('refresh');
     });
 });
 
@@ -818,6 +617,7 @@ function ProgressFormatter(value, row, index) {
     return cont
 }
 
+
 /*
 *百分比格式化
 */
@@ -828,9 +628,6 @@ function percentFormatter(value, row, index) {
                 ].join('');
     return cont
 }
-
-
-
 
 
 /*
