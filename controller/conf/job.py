@@ -6,3 +6,4 @@
 # Company:          东方银谷
 
 UPLOAD_FILE_DIR = '/srv/salt/upload_file/'
+SALT_UPLOAD_FILE = 'salt://upload_file/'

@@ -40,7 +40,7 @@ class Salt_Help(object):
     def run_fastPushfile(self, target, filename, fileTargetPath, account, timeout):
         client = salt.client.LocalClient()
         ret = client.cmd(target, 'cp.get_file',
-                         ['%s%s' % (UPLOAD_FILE_DIR, filename),
+                         ['%s%s' % (SALT_UPLOAD_FILE, filename),
                           '%s%s' % (fileTargetPath, filename),
                           'runas=%s' % account, 'timeout=%s' % timeout],
                          tgt_type='compound')

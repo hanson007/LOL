@@ -177,8 +177,8 @@ def run_fastPushfile(request):
     jdata = cur.rq_post('data')
     data = json.loads(jdata)
     print data
-    # data['operator'] = cur.nowuser.username
-    # run_script_async.delay(data)
+    data['operator'] = cur.nowuser.username
+    run_fastPushfile_async(data)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': ['操作成功']}))
     return response
@@ -210,37 +210,44 @@ class Run_fastPushfile_Help(Run_Script_Help):
 
     def run_job(self):
         # 执行作业
-        rets = []
+        def merge_results(rets, ret):
+            """
+            将每台机器多个文件的传输结果合并为一个。
+            例如file1、file2 传输到master机器上返回两个结果{'master': v1}, {'master': v2}
+            将这两个结果合并为一个，保证每台机器只有一个结果
+            :param rets: {'master': m_v1+ m_v2, 'test': t_v1+t_v2, ... ...}
+            :param ret: [ {'master': m_v1, 'test': t_v1} ,{'master': m_v2, 'test': t_v2}, ... ... ]
+            :return:
+            """
+            for k, v in ret.items():
+                if k in rets:
+                    rets[k] = rets[k] + '\n' + v
+                else:
+                    rets[k] = v
+        rets = {}
         for file in self.fileSource:
             ret = self.sh.run_fastPushfile(self.target,
                                            file['name'],
                                            self.fileTargetPath,
                                            self.account, self.scriptTimeout)
-            rets.append(ret)
+            merge_results(rets, ret)
         return rets
 
-    def save_status(self, instance_status, step_instance_status):
-        # 保存执行状态(2:正在执行 3:成功 4:失败)
-        self.instance.status = instance_status
-        self.step_instance.status = step_instance_status
-        self.instance.save()
-        self.step_instance.save()
-
-    def save_instance_status(self, rets):
-        # 保存执行状态(2:正在执行 3:成功 4:失败)
-        is_errors = [self.save_ret(ret) for ret in rets]
-        status = 3 if all(is_errors) else 4
-        self.instance.status = status
-        self.instance.save()
-
-    def save_step_instance_status(self, rets):
-        # 保存执行状态(2:正在执行 3:成功 4:失败)
-        is_errors = [self.save_ret(ret) for ret in rets]
-        status = 3 if all(is_errors) else 4
-        self.instance.status = status
-        self.instance.save()
-
-
+    def save_ret(self, ret):
+        # 保存结果，错误判断 is_error
+        server_help = Server_Help()
+        servers = server_help.get_servers_dict()
+        is_error = True
+        for key, val in ret.items():
+            ipList = Nm_ipList.objects.get(stepInstance_id=self.step_instance, ip=servers[key])
+            if val['retcode'] == 0:
+                result = val['stdout']
+            else:
+                is_error = False
+                result = val['stdout'] + '\n' + val['stderr']
+            ipList.result = result
+            ipList.save()
+        return is_error
 
 
 def run_fastPushfile_async(data):
@@ -252,9 +259,5 @@ def run_fastPushfile_async(data):
     rets = rsh.run_job()
     rsh.instance_end()
     rsh.stepInstance_end()
-    is_errors = [rsh.save_ret(ret) for ret in rets]
-    total_ret = {}
-    for ret in rets:
-
-
-    rsh.save_status()
+    is_error = rsh.save_ret(rets)
+    rsh.save_status(is_error)
