@@ -286,7 +286,7 @@ $('#run_script').click(function () {
     var jdata = JSON.stringify(data);
     var url = '/job/run_fastPushfile/';
     console.log(data)
-    var index = layer.load();
+{#    var index = layer.load();#}
     $.post(url, {'data': jdata}, function (res) {
         var _data = $.parseJSON(res);
         console.log(res)
@@ -294,7 +294,7 @@ $('#run_script').click(function () {
             var msg = _data.msg.join('<br>');
             ajax_callback1(msg);
         }
-        layer.close(index);
+{#        layer.close(index);#}
     });
 });
 

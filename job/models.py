@@ -62,12 +62,14 @@ class Nm_StepInstance(models.Model):
     scriptContent = models.TextField(null=True, verbose_name=u'执行脚本的内容')
     # 执行脚本的类型:1(shell脚本)、2(bat脚本)、3(perl脚本)、4(python脚本)
     scriptType = models.IntegerField(null=True, verbose_name=u'执行脚本的类型')
-    scriptParam = models.CharField(max_length=255, null=True, default=True, verbose_name=u'执行脚本的参数')
+    scriptParam = models.CharField(max_length=255, null=True, verbose_name=u'执行脚本的参数')
     scriptTimeout = models.IntegerField(null=True, verbose_name=u'执行脚本的超时时间')
     # 文件传输的源文件。格式：[{"file":"/home/data/backup/2.war","serverSetId":"1002",account:"root"},
     # {"file":"/home/data/a.txt","serverSetId":"1002",account:"root"}]如果是本地文件，那么只填file，
     # serverSetId，accont为空
     fileSource = models.CharField(max_length=255, null=True, verbose_name=u'文件传输的源文件')
+    # 文件传输的目标目录，如：/home/data/backup
+    fileTargetPath = models.CharField(max_length=255, null=True, verbose_name=u'文件传输的目标目录')
     # 传输文件的限速，单位KBps
     fileSpeedLimit = models.IntegerField(null=True, verbose_name=u'传输文件的限速')
     text = models.CharField(max_length=255, null=True, verbose_name=u'文本通知')

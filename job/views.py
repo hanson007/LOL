@@ -190,12 +190,15 @@ class Run_fastPushfile_Help(Run_Script_Help):
         self.task_name = data.get('task_name', '')
         self.fileSource = data.get('fileSource', '')
         self.fileTargetPath = data.get('fileTargetPath', '')
+        # 目标路径最后一位如果没有反斜线 /，那么就加一个
+        if not self.fileTargetPath.rfind('/') == (len(self.fileTargetPath) - 1):
+            self.fileTargetPath += '/'
 
     def stepInstance_start(self):
         # 作业实例步骤 start
         self.step_instance.taskInstanceId = self.instance
         self.step_instance.name = self.task_name
-        self.step_instance.type = 1
+        self.step_instance.type = 2
         self.step_instance.ord = 1
         self.step_instance.blockOrd = 1
         self.step_instance.blockName = self.task_name
@@ -210,44 +213,50 @@ class Run_fastPushfile_Help(Run_Script_Help):
 
     def run_job(self):
         # 执行作业
-        def merge_results(rets, ret):
-            """
-            将每台机器多个文件的传输结果合并为一个。
-            例如file1、file2 传输到master机器上返回两个结果{'master': v1}, {'master': v2}
-            将这两个结果合并为一个，保证每台机器只有一个结果
-            :param rets: {'master': m_v1+ m_v2, 'test': t_v1+t_v2, ... ...}
-            :param ret: [ {'master': m_v1, 'test': t_v1} ,{'master': m_v2, 'test': t_v2}, ... ... ]
-            :return:
-            """
-            for k, v in ret.items():
-                if k in rets:
-                    rets[k] = rets[k] + '\n' + v
-                else:
-                    rets[k] = v
         rets = {}
         for file in self.fileSource:
             ret = self.sh.run_fastPushfile(self.target,
                                            file['name'],
                                            self.fileTargetPath,
                                            self.account, self.scriptTimeout)
-            merge_results(rets, ret)
+            print 'job===>',ret
+            self.merge_results(rets, ret)
         return rets
+
+    def merge_results(self, rets, ret):
+        """
+        将每台机器多个文件的传输结果合并为一个。
+        例如file1、file2 传输到master机器上返回两个结果{'master': v1}, {'master': v2}
+        将这两个结果合并为一个，保证每台机器只有一个结果
+        :param rets: {'master': m_v1+ m_v2, 'test': t_v1+t_v2, ... ...}
+        :param ret: [ {'master': m_v1, 'test': t_v1} ,{'master': m_v2, 'test': t_v2}, ... ... ]
+        :return:
+        """
+        for k, v in ret.items():
+            if k in rets:
+                rets[k] = rets[k] + '\n' + v
+            else:
+                rets[k] = v
 
     def save_ret(self, ret):
         # 保存结果，错误判断 is_error
         server_help = Server_Help()
         servers = server_help.get_servers_dict()
-        is_error = True
         for key, val in ret.items():
             ipList = Nm_ipList.objects.get(stepInstance_id=self.step_instance, ip=servers[key])
-            if val['retcode'] == 0:
-                result = val['stdout']
-            else:
-                is_error = False
-                result = val['stdout'] + '\n' + val['stderr']
-            ipList.result = result
+            ipList.result = val
             ipList.save()
-        return is_error
+
+    def check(self):
+        is_fail = False
+        for file in self.fileSource:
+            ret = self.sh.check_file(self.target,
+                                        file['name'],
+                                        self.fileTargetPath)
+            print ret
+            if all(ret.values()):
+                is_fail = True
+        return is_fail
 
 
 def run_fastPushfile_async(data):
@@ -259,5 +268,6 @@ def run_fastPushfile_async(data):
     rets = rsh.run_job()
     rsh.instance_end()
     rsh.stepInstance_end()
-    is_error = rsh.save_ret(rets)
-    rsh.save_status(is_error)
+    rsh.save_ret(rets)
+    is_fail = rsh.check()
+    rsh.save_status(is_fail)

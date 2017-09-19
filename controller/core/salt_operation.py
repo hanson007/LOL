@@ -45,3 +45,10 @@ class Salt_Help(object):
                           'runas=%s' % account, 'timeout=%s' % timeout],
                          tgt_type='compound')
         return ret
+
+    def check_file(self, target, filename, fileTargetPath):
+        client = salt.client.LocalClient()
+        ret = client.cmd(target, 'file.file_exists',
+                         ['%s%s' % (fileTargetPath, filename)],
+                         tgt_type='compound')
+        return ret
