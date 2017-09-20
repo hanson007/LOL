@@ -19,7 +19,7 @@ client = salt.client.LocalClient()
 # dict2 = {'a': 'test1_dict2', 'b': 'test2_dict2'}
 dict1 = {'a': True, 'b': True}
 dict2 = {'a': True, 'b': False}
-
+print dict1.values()
 # total = [dict1, dict2]
 #
 #
@@ -37,5 +37,5 @@ dict2 = {'a': True, 'b': False}
 # print rets
 # ret = dict2.values()
 # print all(ret)
-a = '/tmp/backup/'
-print a.rfind('/') == (len(a) - 1), list(a)
+# a = '/tmp/backup/'
+# print a.rfind('/') == (len(a) - 1), list(a)

@@ -46,9 +46,17 @@ class Salt_Help(object):
                          tgt_type='compound')
         return ret
 
-    def check_file(self, target, filename, fileTargetPath):
+    def check_file_md5(self, target, filename, fileTargetPath, md5):
         client = salt.client.LocalClient()
-        ret = client.cmd(target, 'file.file_exists',
-                         ['%s%s' % (fileTargetPath, filename)],
+        ret = client.cmd(target, 'file.check_hash',
+                         ['%s%s' % (fileTargetPath, filename), md5],
                          tgt_type='compound')
         return ret
+
+    def get_file_md5(self, filename):
+        client = salt.client.LocalClient()
+        ret = client.cmd('S@%s' % MASTER, 'file.get_sum',
+                         ['%s%s' % (UPLOAD_FILE_DIR, filename), 'md5'],
+                         tgt_type='compound')
+
+        return ret.values()[0]

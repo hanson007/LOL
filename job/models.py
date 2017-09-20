@@ -114,3 +114,6 @@ class Nm_ipList(models.Model):
 
     class Meta:
         db_table = 'nm_ipList'
+
+
+

@@ -26,7 +26,7 @@ class Account(models.Model):
         )
 
 
-class Script(models.Model):
+class Nm_Script(models.Model):
     # 脚本
     name = models.CharField(max_length=255, null=True, unique=True, verbose_name=u'名称')
     appId = models.CharField(max_length=255, null=True, verbose_name=u'开发商id')
@@ -44,7 +44,7 @@ class Script(models.Model):
         return '%s - %s - %s' % (self.name, self.TYPE, self.ModifyTime)
 
     class Meta:
-        db_table = 'script'
+        db_table = 'nm_script'
         permissions = (
             ("view_script", u'查看脚本'),
             ("edit_script", u'编辑脚本'),

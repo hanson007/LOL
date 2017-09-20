@@ -247,16 +247,19 @@ class Run_fastPushfile_Help(Run_Script_Help):
             ipList.result = val
             ipList.save()
 
-    def check(self):
-        is_fail = False
+    def check_status(self):
+        # 利用md5检测传输文件是否成功，有一个失败，那么任务就算失败
+        rets = []
         for file in self.fileSource:
-            ret = self.sh.check_file(self.target,
+            # 获取文件的md5值
+            md5 = self.sh.get_file_md5(file['name'])
+            # 检测传输的文件md5值
+            ret = self.sh.check_file_md5(self.target,
                                         file['name'],
-                                        self.fileTargetPath)
-            print ret
-            if all(ret.values()):
-                is_fail = True
-        return is_fail
+                                        self.fileTargetPath, md5)
+            rets.extend(ret.values())
+
+        return True if all(rets) else False
 
 
 def run_fastPushfile_async(data):
@@ -269,5 +272,5 @@ def run_fastPushfile_async(data):
     rsh.instance_end()
     rsh.stepInstance_end()
     rsh.save_ret(rets)
-    is_fail = rsh.check()
-    rsh.save_status(is_fail)
+    is_error = rsh.check_status()
+    rsh.save_status(is_error)
