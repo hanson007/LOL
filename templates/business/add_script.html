@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+
+.ace_editor.fullScreen {
+    height: auto !important;
+    width: auto;
+    border: 0;
+    margin: 0;
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+}
+
+.fullScreen {
+    overflow: hidden
+}
+
+#editor {
+    margin: 0;
+    position: relative;
+    height: 400px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+    <div id="breadcrumb">
+        <ul class="breadcrumb">
+             <li><i class="fa fa-home"></i><a href="/"> Home</a></li>
+             <li>作业平台</li>
+             <li class="active">新增脚本</li>
+        </ul>
+    </div><!--breadcrumb-->
+
+	<div class="padding-md">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="inputEmail1" class="col-lg-2 control-label">脚本名称</label>
+                                <div class="col-lg-10">
+                                    <input type="email" class="form-control input-sm" id="script_name" placeholder="name">
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
+                                <div class="col-lg-10">
+                                    <label class="label-radio inline">
+										<input type="radio" name="script_type" value="1" checked="checked">
+										<span class="custom-radio"></span>
+										shell
+									</label>
+									<label class="label-radio inline">
+										<input type="radio" name="script_type" value="4">
+										<span class="custom-radio"></span>
+										python
+									</label>
+                                    <select class="form-inline" id="font"></select>
+                                    <label class="label-radio inline">
+										字体
+									</label>
+                                    <label class="label-radio inline">
+										F11全屏切换(光标放在文本框里)
+									</label>
+                                    <pre id="editor"></pre>
+								</div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <div class="col-lg-offset-2 col-lg-10">
+                                    <button type="button" id="save" class="btn btn-success btn-sm">save</button>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                        </form>
+                    </div>
+                </div><!-- /panel -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+<div class="table-responsive hide" id="table_choice_div">
+    <table class="table table-hover table-bordered NoNewline" id="table_choice"></table>
+</div><!-- /.padding-md -->
+
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script src="/static/plugins/ace/ace.js"></script>
+<script src="/static/plugins/ace/ext-themelist.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/plugins/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/js/lol.js" type="text/javascript" charset="utf-8"></script>
+<script>
+/**
+ *等待页面所有图片、js文件加载完再执行，否则ace执行失败
+ */
+$(window).load(function() {
+    init_editor();
+    editor.set
+});
+
+$('#save').click(function () {
+    var data = get_data();
+    var jdata = JSON.stringify(data);
+    var url = '/business/save_script/';
+    var index = layer.load();
+    $.post(url, {'data': jdata}, function (res) {
+        var _data = $.parseJSON(res);
+        var msg = _data.msg.join('<br>');
+        layer.close(index);
+        if (_data.status==1){
+            ajax_callback1(msg);
+        }
+        else {
+            var url ='/business/script/';
+            ajax_callback2(msg, url)
+        }
+    });
+});
+
+
+function get_data() {
+    var script_name = $('#script_name').val();
+    var content = editor.getValue();
+    var script_type = $("input:radio[name='script_type']:checked").val();
+    var data = {
+        'script_name': script_name,
+        'content': content,
+        'script_type': script_type
+    };
+    return data
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+/**
+ * ajax callback to new page
+ * @param msg
+ */
+function ajax_callback2(msg, url){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        layer.close(index);
+        window.location.href=url;
+    });
+}
+</script>
+{% endblock %}
