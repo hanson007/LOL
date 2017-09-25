@@ -36,7 +36,8 @@ def run_script(request):
     jdata = cur.rq_post('data')
     data = json.loads(jdata)
     data['operator'] = cur.nowuser.username
-    run_script_async.delay(data)
+    # run_script_async.delay(data)
+    run_script_async(data)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': ['操作成功']}))
     return response
@@ -50,6 +51,7 @@ class Run_Script_Help(object):
         self.scriptParam = data.get('scriptParam', '')
         self.scriptTimeout = data.get('scriptTimeout', '')
         self.account = data.get('account', '')
+        self.script_id = data.get('script_id', '')
         self.script_name = data.get('script_name', '')
         self.scriptType = data.get('script_type', '')
         self.content = data.get('content', '')
@@ -59,6 +61,12 @@ class Run_Script_Help(object):
 
         self.instance = Nm_Instance()
         self.step_instance = Nm_StepInstance()
+
+        if self.script_id:
+            script = Nm_Script.objects.get(pk=int(self.script_id))
+            self.script_name = script.name
+            self.content = script.content
+            self.scriptType = script.TYPE
 
     def instance_start(self, name):
         # 作业实例 start
@@ -140,7 +148,9 @@ class Run_Script_Help(object):
 def run_script_async(data):
     # 异步快速运行脚本任务
     rsh = Run_Script_Help(data)
-    rsh.instance_start(rsh.script_name)
+    script_id = data['script_id']
+    script = Nm_Script.objects.get(pk=int(script_id))
+    rsh.instance_start(script.name)
     rsh.stepInstance_start()
     rsh.ipList_start()
     ret = rsh.run_job()

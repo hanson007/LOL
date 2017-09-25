@@ -50,12 +50,21 @@ class Check_Task(object):
         self.data = data
         self.error_msg = []
         self.script_name = data.get('script_name', '')
+        self.script_id = data.get('script_id', '')
         self.account = data.get('account', '')
         self.content = data.get('content', '')
         self.ipList = data.get('ipList', [])
         self.scriptParam = data.get('scriptParam', '')
         self.scriptTimeout = data.get('scriptTimeout', '')
         self.script_type = data.get('script_type', '')
+
+    def check_script_id(self):
+        # 检测脚本id
+        if not self.script_id or not str(self.script_id).isdigit():
+            self.error_msg.append(u'请选择脚本')
+        else:
+            if not Nm_Script.objects.filter(pk=int(self.script_id)):
+                self.error_msg.append(u'脚本不存在')
 
     def check_script_name(self):
         # 检测脚本名称
@@ -102,11 +111,9 @@ class Check_Task(object):
                 self.error_msg.append(u'超时时间必须为十进制数')
 
     def total_check(self):
-        self.check_script_name()
+        self.check_script_id()
         self.check_account()
-        self.check_content()
         self.check_ipList()
-        self.check_script_type()
         self.check_script_timeout()
         status = 1 if self.error_msg else 0
 
@@ -192,7 +199,6 @@ class Check_EditScript(Check_AddScript):
     """
     def __init__(self, request):
         super(Check_EditScript, self).__init__(request)
-        self.script_id = self.data.get('id', '')
 
     def check_script_name(self):
         # 检测脚本名称

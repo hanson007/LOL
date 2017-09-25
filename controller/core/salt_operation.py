@@ -36,6 +36,7 @@ class Salt_Help(object):
         ret = client.cmd(target, 'cmd.script',
                          ['salt://%s' % file, scriptParam, 'runas=%s' % account, 'timeout=%s' % timeout],
                          tgt_type='compound')
+        return ret
 
     def run_fastPushfile(self, target, filename, fileTargetPath, account, timeout):
         client = salt.client.LocalClient()

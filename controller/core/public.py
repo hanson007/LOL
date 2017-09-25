@@ -32,11 +32,10 @@ class Currency(object):
 
     @classmethod
     def write_file(cls, file, content):
-        with open(file, 'a+') as f:
+        with open(file, 'ab+') as f:
             for con in content:
-                f.write(con)
-                f.write('\n')
-
+                ncon = con.replace("\r","\n")
+                f.write(ncon)
 
 class Datetime_help(object):
     # 日期时间帮助
