@@ -5,7 +5,7 @@
 # Company:          东方银谷
 from public import *
 from business.models import *
-from cmdb.models import Server
+from cmdb.models import *
 from django.http import HttpResponse
 from functools import wraps
 import json
@@ -90,7 +90,7 @@ class Check_Task(object):
 
     def check_script_type(self):
         # 检测脚本类型
-        if self.script_type not in ['shell', 'python']:
+        if self.script_type not in ['1', '4']:
             self.error_msg.append(u'脚本类型错误')
 
     def check_script_timeout(self):
@@ -161,3 +161,43 @@ class Server_Help(object):
         for dt in servers_data:
             servers[dt['hostname']] = dt['ip']
         return servers
+
+
+class Check_AddScript(Check_Task):
+    """
+    检测新增脚本信息
+    """
+    def __init__(self, request):
+        super(Check_AddScript, self).__init__(request)
+
+    def check_script_name(self):
+        # 检测脚本名称
+        if not self.script_name:
+            self.error_msg.append(u'脚本名称不能为空')
+        if Nm_Script.objects.filter(name=self.script_name).exists():
+            self.error_msg.append(u'脚本名称已存在')
+
+    def total_check(self):
+        self.check_script_name()
+        self.check_content()
+        self.check_script_type()
+        status = 1 if self.error_msg else 0
+
+        return status, self.error_msg
+
+
+class Check_EditScript(Check_AddScript):
+    """
+    检测需要编辑的脚本信息
+    """
+    def __init__(self, request):
+        super(Check_EditScript, self).__init__(request)
+        self.script_id = self.data.get('id', '')
+
+    def check_script_name(self):
+        # 检测脚本名称
+        print self.data
+        if not self.script_name:
+            self.error_msg.append(u'脚本名称不能为空')
+        if Nm_Script.objects.filter(name=self.script_name).exclude(pk=int(self.script_id)).exists():
+            self.error_msg.append(u'脚本名称已存在')

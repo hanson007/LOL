@@ -59,7 +59,6 @@ white-space: nowrap;
     overflow: hidden
 }
 
-
 #editor {
     margin: 0;
     position: relative;
@@ -90,7 +89,7 @@ white-space: nowrap;
 	<div class="padding-md">
 		<div class="panel panel-default table-responsive">
                 <div class="form-inline">
-					<a role="button" id="add" type="button" class="btn btn-xs btn-info">
+					<a href="/business/add_script_page/" role="button" id="add" type="button" class="btn btn-xs btn-info">
                         <i class="fa fa-plus"></i> 新增</a>
 					<a href="#" role="button" data-toggle="modal" id="delete" type="button" class="btn btn-xs btn-danger">
                         <i class="fa fa-trash-o"></i> 删除</a>
@@ -148,163 +147,6 @@ white-space: nowrap;
 <script src="/static/plugins/ace/ext-themelist.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/plugins/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
 <script>
-$(document).ready(function(){
-  // 在这里写你的代码...
-    init_font();
-});
-var shell_tmp = function () {/*
-#!/bin/bash
-
-anynowtime="date +'%Y-%m-%d %H:%M:%S'"
-NOW="echo [\`$anynowtime\`][PID:$$]"
-
-#####可在脚本开始运行时调用，打印当时的时间戳及PID。
-function job_start
-{
-    echo "`eval $NOW` job_start"
-}
-
-#####可在脚本执行成功的逻辑分支处调用，打印当时的时间戳及PID。
-function job_success
-{
-    MSG="$*"
-    echo "`eval $NOW` job_success:[$MSG]"
-    exit 0
-}
-
-#####可在脚本执行失败的逻辑分支处调用，打印当时的时间戳及PID。
-function job_fail
-{
-    MSG="$*"
-    echo "`eval $NOW` job_fail:[$MSG]"
-    exit 1
-}
-
-job_start
-
-######可在此处开始编写您的脚本逻辑代码
-######作业平台中执行脚本成功和失败的标准只取决于脚本最后一条执行语句的返回值
-######如果返回值为0，则认为此脚本执行成功，如果非0，则认为脚本执行失败
-
-*/};
-
-var python_tmp = function () {/*
-#!/usr/bin/env python
-# -*- coding: utf8 -*-
-
-import datetime
-import os
-import sys
-
-def _now(format="%Y-%m-%d %H:%M:%S"):
-    return datetime.datetime.now().strftime(format)
-
-#####可在脚本开始运行时调用，打印当时的时间戳及PID。
-def job_start():
-    print "[%s][PID:%s] job_start" % (_now(), os.getpid())
-
-#####可在脚本执行成功的逻辑分支处调用，打印当时的时间戳及PID。
-def job_success(msg):
-    print "[%s][PID:%s] job_success:[%s]" % (_now(), os.getpid(), msg)
-    sys.exit(0)
-
-#####可在脚本执行失败的逻辑分支处调用，打印当时的时间戳及PID。
-def job_fail(msg):
-    print "[%s][PID:%s] job_fail:[%s]" % (_now(), os.getpid(), msg)
-    sys.exit(1)
-
-if __name__ == '__main__':
-
-    job_start()
-
-######可在此处开始编写您的脚本逻辑代码
-######iJobs中执行脚本成功和失败的标准只取决于脚本最后一条执行语句的返回值
-######如果返回值为0，则认为此脚本执行成功，如果非0，则认为脚本执行失败
-
-*/};
-
-//定义一个实现多行字符串的函数multiline
-var multiline = function (fn) {
-    var str = fn.toString().split('\n');
-    return str.slice(1, str.length - 1 ).join('\n');
-};
-
-
-/*
-*等待页面所有图片、js文件加载完再执行，否则ace执行失败
-*/
-$(window).load(function() {
-    var dom = require("ace/lib/dom");
-
-    //add command to all new editor instaces
-    require("ace/commands/default_commands").commands.push({
-        name: "Toggle Fullscreen",
-        bindKey: "F11",
-        exec: function(editor) {
-            var fullScreen = dom.toggleCssClass(document.body, "fullScreen");
-            dom.setCssClass(editor.container, "fullScreen", fullScreen);
-            editor.setAutoScrollEditorIntoView(!fullScreen);
-            editor.resize()
-        }
-    });
-
-    // create first editor
-    editor = ace.edit("editor");
-    editor.setTheme("ace/theme/monokai");
-    editor.session.setMode("ace/mode/sh");
-    editor.renderer.setScrollMargin(10, 10);
-    editor.setOptions({
-        // "scrollPastEnd": 0.8,
-        autoScrollEditorIntoView: true
-    });
-    //设置字体
-    document.getElementById('editor').style.fontSize='18px';
-    //语法补全
-    editor.setOptions({
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true
-    });
-    //默认shell
-    editor.setValue(multiline(shell_tmp));
-    editor.gotoLine(1);
-});
-
-
-/*
-*初始化字体选择项
-*/
-function init_font() {
-    for (var i=12;i<23;i++)
-    {
-        var cont = "<option value='"+ i +"'>"+ i +"</option>";
-        $('#font').append(cont);
-    }
-    $('#font').val('18');
-}
-$('#font').change(function () {
-    var font_val = $(this).val() + 'px';
-    document.getElementById('editor').style.fontSize=font_val;
-    console.log($(this).val())
-});
-
-/*
-*脚本类型、模板选择
-*/
-$("input:radio[name='script_type']").click(function () {
-    var val = $(this).val();
-    if (val=='shell'){
-        editor.setValue(multiline(shell_tmp));
-        editor.session.setMode("ace/mode/sh");
-    }
-   else {
-        editor.setValue(multiline(python_tmp));
-        editor.session.setMode("ace/mode/python");
-    }
-    editor.gotoLine(1);
-});
-
-
 //得到查询的参数
 function queryParams(params) {
     var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
@@ -325,7 +167,7 @@ function queryParams(params) {
 *初始化表格
 */
 var option = $('#table').bootstrapTable({
-    url: '/business/get_account/',
+    url: '/business/get_script/',
     pagination: true,                   //是否显示分页（*）
     sortable: false,                     //是否启用排序
     sortOrder: "asc",                   //排序方式
@@ -360,11 +202,11 @@ function get_columns() {
         visible: false
     }, {
         field: 'name',
-        title: '账号名称',
+        title: '脚本名称',
         formatter: subjectFormatter
     }, {
-        field: 'desc',
-        title: '描述'
+        field: 'TYPE',
+        title: '类型'
     }, {
         field: 'creater',
         title: '创建人'
@@ -399,63 +241,12 @@ function receiversFormatter(value, row, index) {
 */
 function subjectFormatter(value, row, index) {
     return [
-        "<div><a href='#' role='button' data-toggle='modal' onclick="+ '"' +"edit("
-        + row.id + ",'" + row.name + "','" + row.desc +
-        "')"+ '"' +" class='mod'>",
+        "<div><a href='/business/edit_script_page/"+ row.id + "' role='button' data-toggle='modal'"
+        + " class='mod'>",
         value,
         '</a></div>'
     ].join('');
 }
-
-
-/*
-*新增
-*/
-function add() {
-    var name = $('#add_script').find("input[name='name']").val();
-    var desc = $('#add_script').find("textarea[name='desc']").val();
-    var data = {'name': name, 'desc': desc};
-    var url = '/business/add_script/';
-    var index = layer.load();
-    $.post(url, data, function (msg) {
-        var _msg = $.parseJSON(msg);
-        layer.close(index);
-        layer.msg(_msg);
-        $('#table').bootstrapTable('refresh');
-    });
-}
-
-
-/*
-*新增
-*/
-$('#add').click(function () {
-    $('#add_script').find("input[name='id']").val("");
-    $('#add_script').find("input[name='name']").val("");
-    $('#add_script').find("textarea[name='desc']").val("");
-    $('#add_script').removeClass('hide');
-    //页面层
-    layer.open({
-      type: 1,
-      skin: 'layui-layer-rim', //加上边框
-      area: ['820px', '540px'], //宽高
-      content: $('#add_script')
-      ,btn: ['save', 'close']
-  ,yes: function(index1, layero){
-        add(); //新增
-        layer.close(index1);
-  }
-  ,btn2: function(index, layero){
-    //return false 开启该代码可禁止点击该按钮关闭
-  }
-  ,cancel: function(){
-    //右上角关闭回调
-  }
-    });
-});
-
-
-
 
 
 /*

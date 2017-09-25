@@ -161,7 +161,6 @@ def fastPushfile_upload_file(request):
     # 上传快速分发文件
     fileobj = request.FILES.get('file', None)
     content = fileobj.readlines()
-    print fileobj.name
     with open('%s%s' % (UPLOAD_FILE_DIR, fileobj.name), 'a+') as f:
         f.writelines(content)
     response = HttpResponse()
@@ -176,7 +175,6 @@ def run_fastPushfile(request):
     cur = Currency(request)
     jdata = cur.rq_post('data')
     data = json.loads(jdata)
-    print data
     data['operator'] = cur.nowuser.username
     run_fastPushfile_async(data)
     response = HttpResponse()

@@ -172,7 +172,7 @@ $("input:radio[name='script_type']").click(function () {
 
 
 /**
- *初始化脚本
+ *初始化脚本选项
  */
 function init_script() {
     var url = '/business/get_script/';

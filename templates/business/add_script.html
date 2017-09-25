@@ -118,7 +118,7 @@ white-space: nowrap;
 										字体
 									</label>
                                     <label class="label-radio inline">
-										F11全屏切换(光标放在文本框里)
+										ESC键全屏切换(光标放在文本框里)
 									</label>
                                     <pre id="editor"></pre>
 								</div><!-- /.col -->
@@ -158,7 +158,8 @@ white-space: nowrap;
  */
 $(window).load(function() {
     init_editor();
-    editor.set
+    init_font();
+    set_editor_fullscreen();
 });
 
 $('#save').click(function () {

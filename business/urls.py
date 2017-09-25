@@ -30,5 +30,11 @@ urlpatterns = [
     url(r'^delete_account/$', delete_account),  # 删除账户
 
     url(r'^script/$', script),  # 脚本
+    url(r'^get_script/$', get_script),  # 获取所有脚本
+    url(r'^add_script_page/$', add_script_page),  # 新增脚本页面
+    url(r'^save_script/$', save_script),  # 保存新增的脚本
+    url(r'^edit_script_page/(?P<id>\d+)/$', edit_script_page),  # 编辑脚本页面
+    url(r'^get_edit_script/$', get_edit_script),  # 获取需要编辑的脚本数据
+    url(r'^edit_script/$', edit_script),  # 保存需要编辑的脚本数据
 
 ]
