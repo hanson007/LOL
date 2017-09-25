@@ -116,4 +116,31 @@ class Nm_ipList(models.Model):
         db_table = 'nm_ipList'
 
 
+class Nm_Task(models.Model):
+    # 作业
 
+    appId = models.IntegerField(null=True, verbose_name=u'业务id')
+    name = models.CharField(max_length=255, null=True, verbose_name=u'作业名称')
+    account = models.CharField(max_length=255, null=True, verbose_name=u'目标机器的执行账户名')
+    taskId = models.IntegerField(null=True, verbose_name=u'执行作业id')
+    # # 快速执行脚本时，执行作业名称=脚本名称 + 时间
+    operator = models.CharField(max_length=255, null=True, verbose_name=u'执行人')
+    # 启动方式： 1.页面执行、2.API调用、3.定时执行
+    startWay = models.IntegerField(null=True, verbose_name=u'启动方式')
+    currentStepId = models.IntegerField(null=True, verbose_name=u'当前执行步骤id')
+    # 状态：1.未执行、2.正在执行、3.执行成功、4.执行失败、5.跳过、6.忽略错误、7.等待用户、
+    #      8.手动结束、9.状态异常、10.步骤强制终止中、11.步骤强制终止成功、12.步骤强制终止失败
+    status = models.IntegerField(null=True, default=1, verbose_name=u'状态')
+    startTime = models.DateTimeField(null=True, verbose_name=u'开始时间')
+    endTime = models.DateTimeField(null=True, verbose_name=u'结束时间')
+    # # 总耗时，单位：秒
+    totalTime = models.FloatField(max_length=11, null=True, default=False, verbose_name=u'总耗时')
+    createTime = models.DateTimeField(null=True, auto_now_add=True, verbose_name=u'创建时间')
+    mobileTaskId = models.IntegerField(null=True, verbose_name=u'移动作业id')
+    tagId = models.IntegerField(null=True, verbose_name=u'标签Id')
+
+    def __unicode__(self):
+        return '%s - %s - %s' % (self.name, self.status, self.totalTime)
+
+    class Meta:
+        db_table = 'nm_task'
