@@ -32,3 +32,9 @@ sys.setdefaultencoding('utf8')
 def jobList(request):
     # 首页
     return render_to_response('job/JobList.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required
+def newTaskPage(request):
+    # 首页
+    return render_to_response('job/newTaskPage.html', locals(), context_instance=RequestContext(request))

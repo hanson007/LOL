@@ -37,5 +37,6 @@ urlpatterns = [
     url(r'^run_fastPushfile/$', run_fastPushfile),  # 快速执行分发文件
 
     url(r'^jobList/$', jobMg.jobList),  # 常用作业
+    url(r'^newTaskPage/$', jobMg.newTaskPage),  # 新增作业页面
 
 ]
