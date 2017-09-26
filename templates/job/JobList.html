@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+.ace_editor.fullScreen {
+    height: auto !important;
+    width: auto;
+    border: 0;
+    margin: 0;
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 19891016;
+}
+
+.fullScreen {
+    overflow: hidden
+}
+
+#editor {
+    margin: 0;
+    position: relative;
+    height: 400px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+    <div id="breadcrumb">
+        <ul class="breadcrumb">
+             <li><i class="fa fa-home"></i><a href="/"> Home</a></li>
+             <li>作业平台</li>
+             <li class="active">常用作业</li>
+        </ul>
+    </div><!--breadcrumb-->
+
+	<div class="padding-md">
+		<div class="panel panel-default table-responsive">
+                <div class="form-inline">
+					<a href="/business/add_script_page/" role="button" id="add" type="button" class="btn btn-xs btn-info">
+                        <i class="fa fa-plus"></i> 新增</a>
+					<a href="#" role="button" data-toggle="modal" id="delete" type="button" class="btn btn-xs btn-danger">
+                        <i class="fa fa-trash-o"></i> 删除</a>
+				</div>
+            <div class="table-responsive">
+				<table class="table table-hover table-bordered NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+        <div class="panel-body hide" id="add_script">
+            <form class="form-horizontal" >
+                <div class="form-group">
+                    <label for="inputEmail1" class="col-lg-2 control-label">脚本名称</label>
+                    <div class="col-lg-10">
+                        <input name="id" class="hide">
+                        <input type="email" class="form-control input-sm" name="name" placeholder="脚本名称">
+                    </div><!-- /.col -->
+                </div><!-- /form-group -->
+                <div class="form-group">
+                    <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
+                    <div class="col-lg-10">
+                        <label class="label-radio inline">
+                            <input type="radio" name="script_type" value="shell" checked="checked">
+                            <span class="custom-radio"></span>
+                            shell
+                        </label>
+                        <label class="label-radio inline">
+                            <input type="radio" name="script_type" value="python">
+                            <span class="custom-radio"></span>
+                            python
+                        </label>
+                        <select class="form-inline" id="font"></select>
+                        <label class="label-radio inline">
+                            字体
+                        </label>
+                        <label class="label-radio inline">
+                            F11全屏切换(光标放在文本框里)
+                        </label>
+                        <pre id="editor"></pre>
+                    </div><!-- /.col -->
+                </div><!-- /form-group -->
+            </form>
+        </div>
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src='/static/template/js/chosen.jquery.min.js'></script>
+<script src="/static/plugins/ace/ace.js"></script>
+<script src="/static/plugins/ace/ext-themelist.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/plugins/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+<script>
+//得到查询的参数
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        order: params.order,  //排序
+        time: $('#time').val(),
+        orderNum: $('#orderNum').val(),
+        createTime_start: $('#createTime_start').val(),
+        createTime_end: $('#createTime_end').val(),
+        database: "ygproperty",
+    };
+    return temp;
+}
+
+
+/*
+*初始化表格
+*/
+var option = $('#table').bootstrapTable({
+    url: '/business/get_script/',
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "asc",                   //排序方式
+    showColumns: true,
+    clickToSelect: true,
+    uniqueId: "id",
+    queryParams: queryParams,           //传递参数（*）
+    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 10,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    search: true,                  //是否显示搜索 --前端搜索
+    columns:get_columns()
+});
+
+
+/*
+*获取bootstraptable 的列columns
+*/
+function get_columns() {
+    var columns =[{
+         field: 'checkbox',
+         checkbox: true
+    },{
+        title: '序号',//标题  可不加
+        formatter: function (value, row, index) {
+            return index+1;
+            }
+    }, {
+        field: 'id',
+        title: 'ID',
+        visible: false
+    }, {
+        field: 'name',
+        title: '脚本名称',
+        formatter: subjectFormatter
+    }, {
+        field: 'TYPE',
+        title: '类型'
+    }, {
+        field: 'creater',
+        title: '创建人'
+    }, {
+        field: 'createTime',
+        title: '创建时间'
+    }, {
+        field: 'ModifyUser',
+        title: '修改人'
+    }, {
+        field: 'ModifyTime',
+        title: '修改时间'
+    }];
+    return columns
+}
+
+
+/*
+*超链接显示收件人
+*/
+function receiversFormatter(value, row, index) {
+    return [
+        '<div class="text-overflow"><a href="#">',
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+/*
+*超链接显示邮件标题
+*/
+function subjectFormatter(value, row, index) {
+    return [
+        "<div><a href='/business/edit_script_page/"+ row.id + "' role='button' data-toggle='modal'"
+        + " class='mod'>",
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+/*
+*删除
+*/
+$('#delete').click(function () {
+    var _delete = [];
+    var Total_data = $('#table').bootstrapTable('getData');
+    $.each(Total_data, function (k, v) {
+        if (v.checkbox){
+            _delete.push(v.id)
+        }
+    });
+    var url = '/business/delete_account/';
+    var data = {'data': JSON.stringify(_delete)};
+    //询问框
+    layer.confirm('确认删除吗？', {
+      btn: ['确定','取消'] //按钮
+    }, function () {
+            var index = layer.load();
+            $.post(url, data, function (msg) {
+                var _msg = $.parseJSON(msg);
+                layer.close(index);
+                layer.msg(_msg);
+                $('#table').bootstrapTable('refresh');
+            });
+        }
+    );
+});
+
+
+/*
+*提交编辑的数据
+*/
+function post_edit() {
+    var id = $('#add_script').find("input[name='id']").val();
+    var name = $('#add_script').find("input[name='name']").val();
+    var desc = $('#add_script').find("textarea[name='desc']").val();
+    var url = '/business/edit_account/';
+    var data = {'id': id, 'name':name, 'desc':desc};
+    var index = layer.load();
+    $.post(url, data, function (msg) {
+        var _msg = $.parseJSON(msg);
+        layer.close(index);
+        layer.msg(_msg);
+        $('#table').bootstrapTable('refresh');
+    });
+}
+
+
+/*
+*编辑服务器
+*/
+function edit(id,name,desc) {
+    $('#add_script').find("input[name='id']").val(id);
+    $('#add_script').find("input[name='name']").val(name);
+    $('#add_script').find("textarea[name='desc']").val(desc);
+    $('#add_script').removeClass('hide');
+    //页面层
+    layer.open({
+      type: 1,
+      skin: 'layui-layer-rim', //加上边框
+      area: ['420px', '240px'], //宽高
+      content: $('#add_script')
+      ,btn: ['save', 'close']
+      ,yes: function(index1, layero){
+            post_edit(); //编辑
+            layer.close(index1);
+      }
+      ,btn2: function(index, layero){
+        //return false 开启该代码可禁止点击该按钮关闭
+      }
+      ,cancel: function(){
+        //右上角关闭回调
+      }
+    });
+}
+
+
+/*
+*提交编辑服务器的数据
+*/
+$('#edit_server').find("button[name='save']").click(function () {
+    var id = $('#edit_server').find("input[name='id']").val();
+    var ip = $('#edit_server').find("input[name='ip']").val();
+    var desc = $('#edit_server').find("textarea[name='desc']").val();
+    var url = '/cmdb/edit_server/';
+    var data = {'id':id, 'ip':ip, 'desc':desc};
+    var index = layer.load();
+    $.post(url, data, function (msg) {
+        var _msg = $.parseJSON(msg);
+        layer.close(index);
+        layer.msg(_msg);
+        $('#table').bootstrapTable('refresh');
+    });
+});
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+</script>
+{% endblock %}

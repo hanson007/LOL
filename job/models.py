@@ -108,7 +108,7 @@ class Nm_StepInstanceIpList(models.Model):
     """
 
     # 执行作业id: -1 快速执行脚本
-    stepInstance_id = models.ForeignKey(Nm_StepInstance, null=True, verbose_name=u'执行作业实例步骤id')
+    stepInstance = models.ForeignKey(Nm_StepInstance, null=True, verbose_name=u'执行作业实例步骤id')
     ip = models.CharField(max_length=255, null=True, verbose_name=u'ip地址')
     result = models.TextField(null=True, verbose_name=u'执行结果')
 
@@ -198,12 +198,12 @@ class Nm_StepIplist(models.Model):
     """
     作业步骤目标服务器的执行结果
     """
-    step_id = models.ForeignKey(Nm_StepInstance, null=True, verbose_name=u'作业步骤id')
+    step = models.ForeignKey(Nm_StepInstance, null=True, verbose_name=u'作业步骤id')
     ip = models.CharField(max_length=255, null=True, verbose_name=u'ip地址')
     result = models.TextField(null=True, verbose_name=u'执行结果')
 
     def __unicode__(self):
-        return '%s - %s' % (self.step_id, self.ip)
+        return '%s - %s' % (self.step, self.ip)
 
     class Meta:
         db_table = 'nm_stepipList'

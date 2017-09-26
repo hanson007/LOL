@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.contrib.auth.views import logout
 from django.contrib.auth.views import login
 from views import *
+import job_management as jobMg
 
 urlpatterns = [
     # url(r'^admin/', admin.site.urls),
@@ -34,5 +35,7 @@ urlpatterns = [
     url(r'^fastPushfile/$', fastPushfile),  # 快速分发文件页面
     url(r'^fastPushfile_upload_file/$', fastPushfile_upload_file),  # 上传需要快速分发的文件
     url(r'^run_fastPushfile/$', run_fastPushfile),  # 快速执行分发文件
+
+    url(r'^jobList/$', jobMg.jobList),  # 常用作业
 
 ]
