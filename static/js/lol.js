@@ -205,3 +205,23 @@ function set_editor_fullscreen() {
 　　　　}
 　　　});
 }
+
+$('body').on('click', "label[for='scriptLabel']", function() {
+    var siblings = $(this).siblings();/*清空缩略脚本参数、缩略账号*/
+    siblings.eq(1).text('');
+    siblings.eq(2).text('');
+    var parentSib = $(this).parent().siblings();
+    console.log(parentSib.eq(0).is(':hidden'))
+    if(parentSib.eq(0).is(':hidden')){
+        /*如果节点隐藏了则参数、账号赋值到缩略脚本参数、缩略账号*/
+        var account = parentSib.eq(0).children();
+        console.log(123,account)
+    }
+    else{
+
+    }
+
+    $.each(parentSib, function (k, div) {
+        $(div).slideToggle();
+    });
+});

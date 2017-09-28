@@ -70,7 +70,16 @@ white-space: nowrap;
     right: 0;
 }
 
+.oneline {
+    width:100px;
+    overflow:hidden;
+    white-space:nowrap;
+    ext-overflow:ellipsis;
+}
 
+.pointer{
+cursor:pointer;
+}
 </style>
 	<!-- Datepicker -->
     <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
@@ -112,22 +121,101 @@ white-space: nowrap;
                             <div class="form-group alert alert-success">
                                 <label for="inputEmail1" class="col-lg-2 control-label">步骤名称</label>
                                 <div class="col-lg-5">
-                                    <input type="text" class="form-control input-sm" name="script_type">
+                                    <input type="text" class="form-control input-sm" name="blockName">
                                 </div><!-- /.col -->
                                 <label for="inputEmail1" class="col-lg-2 control-label">执行脚本</label>
                                 <div class="col-lg-3">
-                                    <button type="button" id="run_script" class="btn btn-info btn-xs">
+                                    <button type="button" name="blockUp" class="btn btn-info btn-xs">
                                         <i class="fa fa-arrow-up"></i>
                                     </button>
-                                    <button type="button" id="run_script" class="btn btn-info btn-xs">
+                                    <button type="button" name="blockDown" class="btn btn-info btn-xs">
                                         <i class="fa fa-arrow-down"></i>
                                     </button>
-                                    <button type="button" id="run_script" class="btn btn-danger btn-xs">
+                                    <button type="button" name="blockDelete" class="btn btn-danger btn-xs">
+                                        <i class="fa fa-trash-o"></i>
+                                    </button>
+                                    <button type="button" name="blockCut" class="btn btn-danger btn-xs">
+                                        <i class="fa fa-scissors"></i>
+                                    </button>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                        </form>
+                        <form class="form-horizontal alert alert-warning">
+                            <div class="form-group">
+                                <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
+                                <div class="col-lg-3">
+                                    <select id="script" class="form-control chzn-select"></select>
+                                </div><!-- /.col -->
+                                <div class="col-lg-2 oneline pointer"><!-- 缩略脚本参数 -->
+                                    <span>参数：</span>
+                                    <span>/tmp/log/YinguOnline</span>
+                                </div>
+                                <div class="col-lg-2">账号：administrator</div><!-- 缩略账号 -->
+                                <div class="col-lg-3">
+                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
+                                        <i class="fa fa-arrow-down"></i>
+                                    </button>
+                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
                                         <i class="fa fa-trash-o"></i>
                                     </button>
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
-                            <hr>
+                            <div class="form-group">
+                                <label for="account" class="col-lg-2 control-label">执行账户</label>
+                                <div class="col-lg-10">
+									<select id="account" class="form-control chzn-select"></select>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
+                                <div class="col-lg-10">
+									<button type="button" id="add_server" class="btn btn-success btn-sm">选择服务器</button>
+                                    <button type="button" id="delete" class="btn btn-success btn-sm">删除</button>
+                                    <div class="table-responsive" id="table_selected_div">
+                                        <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
+                                    </div><!-- /.padding-md -->
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
+                                <div class="col-lg-10">
+                                    <label class="label-radio inline">
+										<input type="radio" name="script_type" value="1" checked="checked">
+										<span class="custom-radio"></span>
+										shell
+									</label>
+									<label class="label-radio inline">
+										<input type="radio" name="script_type" value="4">
+										<span class="custom-radio"></span>
+										python
+									</label>
+                                    <select class="form-inline" id="font"></select>
+                                    <label class="label-radio inline">
+										字体
+									</label>
+                                    <label class="label-radio inline">
+										ESC键全屏切换(光标放在文本框里)
+									</label>
+                                    <pre id="editor"></pre>
+								</div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
+                                <div class="col-lg-10">
+                                    <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
+                                <div class="col-lg-10">
+                                    <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                        </form>
+                        <form class="form-horizontal alert alert-warning">
                             <div class="form-group">
                                 <label for="inputEmail1" class="col-lg-2 control-label">脚本</label>
                                 <div class="col-lg-3">
@@ -213,7 +301,7 @@ white-space: nowrap;
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <form class="form-horizontal">
-                            <div class="form-group alert alert-warning">
+                            <div class="form-group alert alert-info">
                                 <label for="inputEmail1" class="col-lg-2 control-label">步骤名称</label>
                                 <div class="col-lg-5">
                                     <input type="text" class="form-control input-sm" name="script_type">
@@ -231,7 +319,8 @@ white-space: nowrap;
                                     </button>
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
-                            <hr>
+                        </form>
+                        <form class="form-horizontal alert alert-warning">
                             <div class="form-group">
                                 <label for="inputEmail1" class="col-lg-2 control-label">脚本</label>
                                 <div class="col-lg-3">
@@ -362,6 +451,21 @@ white-space: nowrap;
 <script src="/static/plugins/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/js/lol.js" type="text/javascript" charset="utf-8"></script>
 <script>
+$(document).ready(function(){
+  // 在这里写你的代码...
+  $("#para").mouseenter(function(){
+    var text = $(this).children().text();
+    //tips层-上
+    layer.tips(text, $(this), {
+      tips: [1, '#0FA6D8'] //还可配置颜色
+    });
+  });
+    $("#para").mouseleave(function(){
+        layer.closeAll()
+  });
+});
+
+
 /*
 *等待页面所有图片、js文件加载完再执行，否则ace执行失败
 */
