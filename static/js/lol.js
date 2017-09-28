@@ -91,9 +91,9 @@ var multiline = function (fn) {
 /**
  * init editor
  */
-function init_editor() {
+function init_editor(selectorById) {
     // create first editor
-    editor = ace.edit("editor");
+    editor = ace.edit(selectorById);
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode("ace/mode/sh");
     editor.renderer.setScrollMargin(10, 10);
@@ -102,7 +102,7 @@ function init_editor() {
         autoScrollEditorIntoView: true
     });
     //设置字体
-    document.getElementById('editor').style.fontSize='18px';
+    document.getElementById(selectorById).style.fontSize='18px';
     //语法补全
     editor.setOptions({
         enableBasicAutocompletion: true,
@@ -119,15 +119,20 @@ function init_editor() {
 /*
 *初始化字体选择项
 */
-function init_font() {
+function init_font($selector) {
     for (var i=12;i<23;i++)
     {
         var cont = "<option value='"+ i +"'>"+ i +"</option>";
-        $('#font').append(cont);
+        $selector.append(cont);
     }
-    $('#font').val('18');
+    $selector.val('18');
 }
-$('#font').change(function () {
+
+
+/**
+ * 修改编辑器字体
+ */
+$("select[name='font']").change(function () {
     var font_val = $(this).val() + 'px';
     document.getElementById('editor').style.fontSize=font_val;
     console.log($(this).val())
@@ -137,26 +142,26 @@ $('#font').change(function () {
 /*
 *初始化账户
 */
-function init_account() {
+function init_account($selector) {
     var url = '/business/get_account/';
     var index = layer.load();
     $.post(url, function (data) {
         var _data = $.parseJSON(data);
         var cont0 = "<option value=''>请选择</option>";
-        $('#account').append(cont0);
+        $selector.append(cont0);
         $.each(_data, function (k,v) {
             var cont = "<option value='"+ v.name +"'>"+ v.name + " " + v.desc +"</option>";
-            $('#account').append(cont);
+            $selector.append(cont);
         });
-        $("#account").chosen();
+        $selector.chosen();
         layer.close(index);
     });
 }
 
 
-/*
-*脚本类型、模板选择
-*/
+/**
+ * 脚本类型、模板选择
+ */
 $("input:radio[name='script_type']").click(function () {
     var _type = $(this).val();
     if (_type=='1'){
@@ -172,20 +177,20 @@ $("input:radio[name='script_type']").click(function () {
 
 
 /**
- *初始化脚本选项
+ * 初始化脚本选项
  */
-function init_script() {
+function init_script($selector) {
     var url = '/business/get_script/';
     var index = layer.load();
     $.post(url, function (data) {
         var _data = $.parseJSON(data);
         var cont0 = "<option value=''>请选择</option>";
-        $('#script').append(cont0);
+        $selector.append(cont0);
         $.each(_data, function (k,v) {
             var cont = "<option value='"+ v.id +"'>"+ v.name + "</option>";
-            $('#script').append(cont);
+            $selector.append(cont);
         });
-        $("#script").chosen();
+        $selector.chosen();
         layer.close(index);
     });
 }
@@ -206,19 +211,29 @@ function set_editor_fullscreen() {
 　　　});
 }
 
+
+/**
+ * 节点展开、收缩显示
+ */
 $('body').on('click', "label[for='scriptLabel']", function() {
     var siblings = $(this).siblings();/*清空缩略脚本参数、缩略账号*/
-    siblings.eq(1).text('');
-    siblings.eq(2).text('');
+    var scriptParamSpan = siblings.eq(1).children();
+    var accountSpan = siblings.eq(2).children();
     var parentSib = $(this).parent().siblings();
     console.log(parentSib.eq(0).is(':hidden'))
     if(parentSib.eq(0).is(':hidden')){
-        /*如果节点隐藏了则参数、账号赋值到缩略脚本参数、缩略账号*/
-        var account = parentSib.eq(0).children();
-        console.log(123,account)
+        /*展开节点时清空缩略脚本参数、缩略账号*/
+        accountSpan.text('');
+        scriptParamSpan.text('');
     }
     else{
-
+        /*在隐藏节点时将参数、账号赋值到缩略脚本参数、缩略账号*/
+        var scriptParam = parentSib.eq(3).find('input').val();
+        var account = parentSib.eq(0).find('select').val();
+        scriptParamSpan.eq(0).text('参数：');
+        scriptParamSpan.eq(1).text(scriptParam);
+        accountSpan.eq(0).text('账户：');
+        accountSpan.eq(1).text(account);
     }
 
     $.each(parentSib, function (k, div) {
