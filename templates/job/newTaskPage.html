@@ -140,7 +140,7 @@ cursor:pointer;
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                         </form>
-                        <form class="form-horizontal alert alert-warning">
+                        <form class="form-horizontal alert alert-warning" data-name="ord1">
                             <div class="form-group">
                                 <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
                                 <div class="col-lg-3">
@@ -175,10 +175,10 @@ cursor:pointer;
                             <div class="form-group">
                                 <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
                                 <div class="col-lg-10">
-									<button type="button" id="add_server" class="btn btn-success btn-sm">选择服务器</button>
-                                    <button type="button" id="delete" class="btn btn-success btn-sm">删除</button>
+									<button type="button" data-name="add_server" class="btn btn-success btn-sm">选择服务器</button>
+                                    <button type="button" data-name="delete" class="btn btn-success btn-sm">删除</button>
                                     <div class="table-responsive" id="table_selected_div">
-                                        <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
+                                        <table class="table table-hover table-bordered NoNewline" data-name="table_selected"></table>
                                     </div><!-- /.padding-md -->
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
@@ -221,91 +221,11 @@ cursor:pointer;
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                         </form>
-                        <form class="form-horizontal alert alert-warning">
-                            <div class="form-group">
-                                <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
-                                <div class="col-lg-3">
-                                    <select name="script" class="form-control chzn-select"></select>
-                                </div><!-- /.col -->
-                                <div class="col-lg-2 oneline pointer"><!-- 缩略脚本参数 -->
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                                <div class="col-lg-2">
-                                    <span></span>
-                                    <span></span>
-                                </div><!-- 缩略账号 -->
-                                <div class="col-lg-3">
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-arrow-up"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-arrow-down"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-trash-o"></i>
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="account" class="col-lg-2 control-label">执行账户</label>
-                                <div class="col-lg-10">
-									<select name="account" class="form-control chzn-select"></select>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
-                                <div class="col-lg-10">
-									<button type="button" id="add_server" class="btn btn-success btn-sm">选择服务器</button>
-                                    <button type="button" id="delete" class="btn btn-success btn-sm">删除</button>
-                                    <div class="table-responsive" id="table_selected_div">
-                                        <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
-                                    </div><!-- /.padding-md -->
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
-                                <div class="col-lg-10">
-                                    <label class="label-radio inline">
-										<input type="radio" name="script_type" value="1" checked="checked">
-										<span class="custom-radio"></span>
-										shell
-									</label>
-									<label class="label-radio inline">
-										<input type="radio" name="script_type" value="4">
-										<span class="custom-radio"></span>
-										python
-									</label>
-                                    <select class="form-inline" name="font"></select>
-                                    <label class="label-radio inline">
-										字体
-									</label>
-                                    <label class="label-radio inline">
-										ESC键退出全屏
-									</label>
-                                    <button type="button" name="fullScreen" class="btn btn-default btn-xs">
-                                        <i class="fa fa-crosshairs"></i> 全屏
-                                    </button>
-                                    <pre id="editor2" class="editor"></pre>
-								</div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
-                                <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
-                                <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
+
                         <form class="form-horizontal">
                             <div class="form-group">
                                 <div class="col-lg-offset-1 col-lg-2">
-                                    <button type="button" id="run_script" class="btn btn-default btn-sm">
+                                    <button type="button" data-name="addOrd" class="btn btn-default btn-sm">
                                         <i class="fa fa-plus"></i> 新增节点
                                     </button>
                                 </div><!-- /.col -->
@@ -448,6 +368,89 @@ cursor:pointer;
         </div><!-- /.row -->
 	</div><!-- /padding-md -->
 </div><!-- /main-container -->
+<div id="ordTemplate" class="">
+    <form class="form-horizontal alert alert-warning" data-name="ord">
+    <div class="form-group">
+        <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
+        <div class="col-lg-3">
+            <select name="script" class="form-control chzn-select"></select>
+        </div><!-- /.col -->
+        <div class="col-lg-2 oneline pointer"><!-- 缩略脚本参数 -->
+            <span></span>
+            <span></span>
+        </div>
+        <div class="col-lg-2">
+            <span></span>
+            <span></span>
+        </div><!-- 缩略账号 -->
+        <div class="col-lg-3">
+            <button type="button" id="run_script" class="btn btn-default btn-xs">
+                <i class="fa fa-arrow-up"></i>
+            </button>
+            <button type="button" id="run_script" class="btn btn-default btn-xs">
+                <i class="fa fa-arrow-down"></i>
+            </button>
+            <button type="button" id="run_script" class="btn btn-default btn-xs">
+                <i class="fa fa-trash-o"></i>
+            </button>
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="account" class="col-lg-2 control-label">执行账户</label>
+        <div class="col-lg-10">
+            <select name="account" class="form-control chzn-select"></select>
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
+        <div class="col-lg-10">
+            <button type="button" data-name="add_server" class="btn btn-success btn-sm">选择服务器</button>
+            <button type="button" data-name="delete" class="btn btn-success btn-sm">删除</button>
+            <div class="table-responsive" id="table_selected_div">
+                <table class="table table-hover table-bordered NoNewline" data-name="table_selected"></table>
+            </div><!-- /.padding-md -->
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
+        <div class="col-lg-10">
+            <label class="label-radio inline">
+                <input type="radio" name="script_type" value="1" checked="checked">
+                <span class="custom-radio"></span>
+                shell
+            </label>
+            <label class="label-radio inline">
+                <input type="radio" name="script_type" value="4">
+                <span class="custom-radio"></span>
+                python
+            </label>
+            <select class="form-inline" name="font"></select>
+            <label class="label-radio inline">
+                字体
+            </label>
+            <label class="label-radio inline">
+                ESC键退出全屏
+            </label>
+            <button type="button" name="fullScreen" class="btn btn-default btn-xs">
+                <i class="fa fa-crosshairs"></i> 全屏
+            </button>
+            <pre id="editor2" class="editor"></pre>
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
+        <div class="col-lg-10">
+            <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
+        <div class="col-lg-10">
+            <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+</form>
+</div>
 <div class="table-responsive hide" id="table_choice_div">
     <table class="table table-hover table-bordered NoNewline" id="table_choice"></table>
 </div><!-- /.padding-md -->
@@ -481,18 +484,17 @@ $(document).ready(function(){
 });
 
 
-/*
-*等待页面所有图片、js文件加载完再执行，否则ace执行失败
-*/
+/**
+ * 等待页面所有图片、js文件加载完再执行，否则ace执行失败
+ */
 $(window).load(function() {
-    init_font($("select[name='font']"));
-    init_account($("select[name='account']"));
-    initAllEditor();
-    init_script($("select[name='script']"));
+    initFont($('#main-container').find("select[name='font']"));
+    init_account($('#main-container').find("select[name='account']"));
+    initEditorAction($('#main-container').find("pre[id^='editor']"));
+    init_script($('#main-container').find("select[name='script']"));
+    initTableSelected($('#main-container').find("table[data-name='table_selected']"));
+    initAddOrd();
 });
-
-
-
 
 
 /**
@@ -519,7 +521,7 @@ $('body').on('change', '#script', function() {
 
 
 /**
- *运行脚本
+ * 运行脚本
  */
 $('#run_script').click(function () {
     var data = get_data();
@@ -535,6 +537,7 @@ $('#run_script').click(function () {
 {#        layer.close(index);#}
     });
 });
+
 
 function get_data() {
     var script_id = $('#script').val();
@@ -562,25 +565,8 @@ function get_data() {
 }
 
 
-/*
-*脚本类型、模板选择
-*/
-{% comment %}$("input:radio[name='script_type']").click(function () {
-    var val = $(this).val();
-    if (val=='shell'){
-        editor.setValue(multiline(shell_tmp));
-        editor.session.setMode("ace/mode/sh");
-    }
-   else {
-        editor.setValue(multiline(python_tmp));
-        editor.session.setMode("ace/mode/python");
-    }
-    editor.gotoLine(1);
-});{% endcomment %}
-
-
 //得到查询的参数
-function queryParams(params) {
+{% comment %}function queryParams(params) {
     var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
         limit: params.limit,   //页面大小
         offset: params.offset,  //页码
@@ -592,139 +578,25 @@ function queryParams(params) {
         database: "ygproperty",
     };
     return temp;
-}
-
-
-/*
-*初始化服务器选择表格
-*/
-function init_server_choice() {
-    $('#table_choice').bootstrapTable({
-        url: '/cmdb/get_index/',
-        pagination: true,                   //是否显示分页（*）
-        sortable: false,                     //是否启用排序
-        sortOrder: "asc",                   //排序方式
-        showColumns: true,
-        showRefresh: true,
-        clickToSelect: true,
-        uniqueId: "id",
-        queryParams: queryParams,           //传递参数（*）
-        sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
-        pageNumber: 1,                       //初始化加载第一页，默认第一页
-        pageSize: 10,                       //每页的记录行数（*）
-        pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-        search: true,                  //是否显示搜索 --前端搜索
-        columns:get_columns()
-    });
-}
+}{% endcomment %}
 
 
 
 
-/*
-*将已选的服务器添加到已选表格
-*/
-$('#table_selected').bootstrapTable({
-    pagination: true,                   //是否显示分页（*）
-    sortable: false,                     //是否启用排序
-    sortOrder: "asc",                   //排序方式
-    showColumns: true,
-    showRefresh: true,
-    clickToSelect: true,
-    uniqueId: "id",
-    queryParams: queryParams,           //传递参数（*）
-    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
-    pageNumber: 1,                       //初始化加载第一页，默认第一页
-    pageSize: 5,                       //每页的记录行数（*）
-    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-    search: true,                  //是否显示搜索 --前端搜索
-    columns:get_columns()
-});
 
 
 
-/*
-*获取bootstraptable 的列columns
-*/
-function get_columns() {
-    var columns =[{
-         field: 'checkbox',
-         checkbox: true
-    },{
-        title: '序号',//标题  可不加
-        formatter: function (value, row, index) {
-            return index+1;
-            }
-    }, {
-        field: 'id',
-        title: 'ID',
-        visible: false
-    }, {
-        field: 'ip',
-        title: '服务器IP地址'
-    }, {
-        field: 'desc',
-        title: '描述'
-    }, {
-        field: 'creater',
-        title: '创建人'
-    }, {
-        field: 'createTime',
-        title: '创建时间'
-    }, {
-        field: 'ModifyUser',
-        title: '修改人'
-    }, {
-        field: 'ModifyTime',
-        title: '修改时间'
-    }];
-    return columns
-}
 
 
-/*
-*添加服务器到已选表格里
-*/
-function add() {
-    var choice_data = $('#table_choice').bootstrapTable('getSelections');
-    var selected_data = $('#table_selected').bootstrapTable('getData');
-    var selected_id = [];
-    $.each(selected_data, function (sk, selected_v) {
-        selected_id.push(selected_v.id);
-    });
-    $.each(choice_data, function (k, choice_v) {
-        if (selected_id.indexOf(choice_v.id) == -1){
-            $('#table_selected').bootstrapTable('append', choice_v);
-        }
-    });
-}
 
 
-/*
-*新增
-*/
-$('#add_server').click(function () {
-    init_server_choice();
-     $('#table_choice_div').removeClass('hide');
-    //页面层
-    layer.open({
-      type: 1,
-      skin: 'layui-layer-rim', //加上边框
-      area: ['820px', '540px'], //宽高
-      content: $('#table_choice_div')
-      ,btn: ['add', 'close']
-  ,yes: function(index1, layero){
-        add(); //新增
-        layer.close(index1);
-  }
-  ,btn2: function(index, layero){
-    //return false 开启该代码可禁止点击该按钮关闭
-  }
-  ,cancel: function(){
-    //右上角关闭回调
-  }
-    });
-});
+
+
+
+
+
+
+
 
 
 
@@ -732,7 +604,7 @@ $('#add_server').click(function () {
 /*
 *脚本类型、模板选择
 */
-$("input:radio[name='server']").click(function () {
+{% comment %}$("input:radio[name='server']").click(function () {
     var val = $(this).val();
     if (val=='show_all'){
         $('#table_selected').bootstrapTable('getRowsHidden',{show:true});
@@ -751,18 +623,10 @@ $("input:radio[name='server']").click(function () {
             $('#table_selected').bootstrapTable('hideRow', {uniqueId: v.id})
         });
     }
-});
+});{% endcomment %}
 
 
-/*
-*删除
-*/
-$('#delete').click(function () {
-    var data = $('#table_selected').bootstrapTable('getSelections');
-    $.each(data, function (sk, v) {
-        $('#table_selected').bootstrapTable('removeByUniqueId', v.id);
-    });
-});
+
 
 
 /*

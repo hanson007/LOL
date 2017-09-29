@@ -120,7 +120,7 @@ function init_editor(selectorById) {
 /*
 *初始化字体选择项
 */
-function init_font($selector) {
+function initFont($selector) {
     for (var i=12;i<23;i++)
     {
         var cont = "<option value='"+ i +"'>"+ i +"</option>";
@@ -133,11 +133,12 @@ function init_font($selector) {
 /**
  * 修改编辑器字体
  */
-$("select[name='font']").change(function () {
+$('body').on('click', "select[name='font']", function () {
     var font_val = $(this).val() + 'px';
     var editorId =$(this).siblings('pre').attr('id');
     document.getElementById(editorId).style.fontSize=font_val;
 });
+
 
 
 
@@ -204,12 +205,14 @@ function init_script($selector) {
 /**
  * 设置按esc键退出全屏
  */
-function editorFullscreen(editor) {
+function exitFullscreen(editor) {
     $(window).keyup(function(e){
         if(e.keyCode==27){//此处代表按的是键盘的Esc键
-            $('body').toggleClass('fullScreen');
-            $(editor.container).removeClass('fullScreen');
-            editor.resize();
+            var dom = require("ace/lib/dom");
+            var fullScreen = dom.removeCssClass(document.body, "fullScreen");
+            dom.setCssClass(editor.container, "fullScreen", fullScreen);
+            editor.setAutoScrollEditorIntoView(!fullScreen);
+            editor.resize()
 　　　　}
     });
 }
@@ -218,10 +221,15 @@ function editorFullscreen(editor) {
 /**
  * 全屏
  */
-$("button[name='fullScreen']").click(function () {
-    $('body').toggleClass('fullScreen');
-    $(this).siblings('pre').addClass('fullScreen');
-});
+function fullScreen(editor, $fullScreen) {
+    $fullScreen.click(function () {
+        var dom = require("ace/lib/dom");
+        var fullScreen = dom.toggleCssClass(document.body, "fullScreen");
+        dom.setCssClass(editor.container, "fullScreen", fullScreen);
+        editor.setAutoScrollEditorIntoView(!fullScreen);
+        editor.resize()
+    });
+}
 
 
 /**
@@ -254,15 +262,181 @@ $('body').on('click', "label[for='scriptLabel']", function() {
 
 
 /**
- * init all editor
+ * init editor all action
  */
-function initAllEditor() {
-    $("pre").each(function () {
+function initEditorAction($pre) {
+    $pre.each(function () {
         var editorId = $(this).attr('id');
         var editor = init_editor(editorId);
         var $script_type = $(this).siblings().find("input[name='script_type']");
+        var $fullScreen = $(this).siblings("button[name='fullScreen']");
         ModifyScriptType(editor, $script_type);
-        editorFullscreen(editor);
+        fullScreen(editor, $fullScreen);
+        exitFullscreen(editor);
         console.log($(this).attr('id'))
+    })
+}
+
+
+/**
+ * 初始化服务器已选表格
+ */
+function initTableSelected($table_selected) {
+    $table_selected.bootstrapTable({
+        pagination: true,                   //是否显示分页（*）
+        sortable: false,                     //是否启用排序
+        sortOrder: "asc",                   //排序方式
+        showColumns: true,
+        showRefresh: true,
+        clickToSelect: true,
+        uniqueId: "id",
+        sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+        pageNumber: 1,                       //初始化加载第一页，默认第一页
+        pageSize: 5,                       //每页的记录行数（*）
+        pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+        search: true,                  //是否显示搜索 --前端搜索
+        columns: serverColumns()
+    });
+}
+
+
+
+/**
+ * 初始化服务器选择表格
+ */
+function init_server_choice() {
+    $('#table_choice').bootstrapTable({
+        url: '/cmdb/get_index/',
+        pagination: true,                   //是否显示分页（*）
+        sortable: false,                     //是否启用排序
+        sortOrder: "asc",                   //排序方式
+        showColumns: true,
+        showRefresh: true,
+        clickToSelect: true,
+        uniqueId: "id",
+        sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+        pageNumber: 1,                       //初始化加载第一页，默认第一页
+        pageSize: 10,                       //每页的记录行数（*）
+        pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+        search: true,                  //是否显示搜索 --前端搜索
+        columns: serverColumns()
+    });
+}
+
+
+/**
+ * 新增服务器
+ */
+$('body').on('click', "button[data-name='add_server']", function () {
+        var $table_selected = $(this).siblings().find("table[data-name='table_selected']");
+        init_server_choice();
+         $('#table_choice_div').removeClass('hide');
+        //页面层
+        layer.open({
+            type: 1,
+            skin: 'layui-layer-rim', //加上边框
+            area: ['820px', '540px'], //宽高
+            content: $('#table_choice_div')
+            ,btn: ['add', 'close']
+            ,yes: function(index1, layero){
+                addServer($table_selected); //新增
+                layer.close(index1);
+            }
+            ,btn2: function(index, layero){
+            //return false 开启该代码可禁止点击该按钮关闭
+            }
+            ,cancel: function(){
+            //右上角关闭回调
+            }
+        });
+});
+
+
+
+/**
+ * 添加服务器到已选表格里
+ */
+function addServer($table_selected) {
+    var choice_data = $('#table_choice').bootstrapTable('getSelections');
+    var selected_data = $table_selected.bootstrapTable('getData');
+    var selected_id = [];
+    $.each(selected_data, function (sk, selected_v) {
+        selected_id.push(selected_v.id);
+    });
+    $.each(choice_data, function (k, choice_v) {
+        if (selected_id.indexOf(choice_v.id) == -1){
+            $table_selected.bootstrapTable('append', choice_v);
+        }
+    });
+}
+
+
+/**
+ * 删除已选服务器
+ */
+$('body').on('click', "button[data-name='delete']", function () {
+    var $table_selected = $(this).siblings().find("table[data-name='table_selected']");
+    var data = $table_selected.bootstrapTable('getSelections');
+    $.each(data, function (sk, v) {
+        $table_selected.bootstrapTable('removeByUniqueId', v.id);
+    });
+});
+
+
+/**
+ * 获取服务器表格的列columns
+ */
+function serverColumns() {
+    var columns =[{
+         field: 'checkbox',
+         checkbox: true
+    },{
+        title: '序号',//标题  可不加
+        formatter: function (value, row, index) {
+            return index+1;
+            }
+    }, {
+        field: 'id',
+        title: 'ID',
+        visible: false
+    }, {
+        field: 'ip',
+        title: '服务器IP地址'
+    }, {
+        field: 'desc',
+        title: '描述'
+    }, {
+        field: 'creater',
+        title: '创建人'
+    }, {
+        field: 'createTime',
+        title: '创建时间'
+    }, {
+        field: 'ModifyUser',
+        title: '修改人'
+    }, {
+        field: 'ModifyTime',
+        title: '修改时间'
+    }];
+    return columns
+}
+
+
+/**
+ * 新增节点
+ */
+function initAddOrd() {
+    $("button[data-name='addOrd']").click(function () {
+        $(this).parents('form').before($('#ordTemplate').html());
+        var $ords = $(this).parents('form').siblings("form[data-name^='ord']");
+        var ordNum = $ords.length;
+        console.log(ordNum)
+        $ords.last().attr('data-name', 'ord'+ ordNum);
+        $ords.last().find("pre[id^='editor']").attr('id', 'editor'+ ordNum);
+        init_account($ords.last().find("select[name='account']"));
+        init_script($ords.last().find("select[name='script']"));
+        initTableSelected($ords.last().find("table[data-name='table_selected']"));
+        initEditorAction($ords.last().find("pre[id^='editor']"));
+        initFont($ords.last().find("select[name='font']"));
     })
 }

@@ -106,7 +106,6 @@ $(function	()	{
 				$(this).parent().removeClass('open').children('.submenu').slideUp();
 			}
 		}
-		
 		return false;
 	});
 		
