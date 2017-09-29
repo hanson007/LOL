@@ -93,7 +93,7 @@ var multiline = function (fn) {
  */
 function init_editor(selectorById) {
     // create first editor
-    editor = ace.edit(selectorById);
+    var editor = ace.edit(selectorById);
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode("ace/mode/sh");
     editor.renderer.setScrollMargin(10, 10);
@@ -112,6 +112,7 @@ function init_editor(selectorById) {
     //默认shell
     editor.setValue(multiline(shell_tmp));
     editor.gotoLine(1);
+    return editor
 }
 
 
@@ -134,9 +135,10 @@ function init_font($selector) {
  */
 $("select[name='font']").change(function () {
     var font_val = $(this).val() + 'px';
-    document.getElementById('editor').style.fontSize=font_val;
-    console.log($(this).val())
+    var editorId =$(this).siblings('pre').attr('id');
+    document.getElementById(editorId).style.fontSize=font_val;
 });
+
 
 
 /*
@@ -160,20 +162,23 @@ function init_account($selector) {
 
 
 /**
- * 脚本类型、模板选择
+ * 脚本类型选择
  */
-$("input:radio[name='script_type']").click(function () {
-    var _type = $(this).val();
-    if (_type=='1'){
-        editor.setValue(multiline(shell_tmp));
-        editor.session.setMode("ace/mode/sh");
-    }
-   else {
-        editor.setValue(multiline(python_tmp));
-        editor.session.setMode("ace/mode/python");
-    }
-    editor.gotoLine(1);
-});
+function ModifyScriptType(editor, $script_type) {
+    $script_type.click(function () {
+        var _type = $(this).val();
+        if (_type=='1'){
+            editor.setValue(multiline(shell_tmp));
+            editor.session.setMode("ace/mode/sh");
+        }
+       else {
+            editor.setValue(multiline(python_tmp));
+            editor.session.setMode("ace/mode/python");
+        }
+        editor.gotoLine(1);
+    });
+}
+
 
 
 /**
@@ -197,19 +202,26 @@ function init_script($selector) {
 
 
 /**
- *设置按esc键全屏切换
+ * 设置按esc键退出全屏
  */
-function set_editor_fullscreen() {
-　　　$(window).keyup(function(e){
-　  　　if(e.keyCode==27){//此处代表按的是键盘的Esc键
-            var dom = require("ace/lib/dom");
-            var fullScreen = dom.toggleCssClass(document.body, "fullScreen");
-            dom.setCssClass(editor.container, "fullScreen", fullScreen);
-            editor.setAutoScrollEditorIntoView(!fullScreen);
-            editor.resize()
+function editorFullscreen(editor) {
+    $(window).keyup(function(e){
+        if(e.keyCode==27){//此处代表按的是键盘的Esc键
+            $('body').toggleClass('fullScreen');
+            $(editor.container).removeClass('fullScreen');
+            editor.resize();
 　　　　}
-　　　});
+    });
 }
+
+
+/**
+ * 全屏
+ */
+$("button[name='fullScreen']").click(function () {
+    $('body').toggleClass('fullScreen');
+    $(this).siblings('pre').addClass('fullScreen');
+});
 
 
 /**
@@ -220,7 +232,6 @@ $('body').on('click', "label[for='scriptLabel']", function() {
     var scriptParamSpan = siblings.eq(1).children();
     var accountSpan = siblings.eq(2).children();
     var parentSib = $(this).parent().siblings();
-    console.log(parentSib.eq(0).is(':hidden'))
     if(parentSib.eq(0).is(':hidden')){
         /*展开节点时清空缩略脚本参数、缩略账号*/
         accountSpan.text('');
@@ -240,3 +251,18 @@ $('body').on('click', "label[for='scriptLabel']", function() {
         $(div).slideToggle();
     });
 });
+
+
+/**
+ * init all editor
+ */
+function initAllEditor() {
+    $("pre").each(function () {
+        var editorId = $(this).attr('id');
+        var editor = init_editor(editorId);
+        var $script_type = $(this).siblings().find("input[name='script_type']");
+        ModifyScriptType(editor, $script_type);
+        editorFullscreen(editor);
+        console.log($(this).attr('id'))
+    })
+}

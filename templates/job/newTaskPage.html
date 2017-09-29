@@ -60,7 +60,7 @@ white-space: nowrap;
     overflow: hidden
 }
 
-#editor {
+.editor {
     margin: 0;
     position: relative;
     height: 400px;
@@ -200,9 +200,12 @@ cursor:pointer;
 										字体
 									</label>
                                     <label class="label-radio inline">
-										ESC键全屏切换(光标放在文本框里)
+										ESC键退出全屏
 									</label>
-                                    <pre id="editor"></pre>
+                                    <button type="button" name="fullScreen" class="btn btn-default btn-xs">
+                                        <i class="fa fa-crosshairs"></i> 全屏
+                                    </button>
+                                    <pre id="editor1" class="editor"></pre>
 								</div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
@@ -278,9 +281,12 @@ cursor:pointer;
 										字体
 									</label>
                                     <label class="label-radio inline">
-										ESC键全屏切换(光标放在文本框里)
+										ESC键退出全屏
 									</label>
-                                    <pre id="editor"></pre>
+                                    <button type="button" name="fullScreen" class="btn btn-default btn-xs">
+                                        <i class="fa fa-crosshairs"></i> 全屏
+                                    </button>
+                                    <pre id="editor2" class="editor"></pre>
 								</div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
@@ -329,7 +335,7 @@ cursor:pointer;
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                         </form>
-                        <form class="form-horizontal alert alert-warning">
+                        {% comment %}<form class="form-horizontal alert alert-warning">
                             <div class="form-group">
                                 <label for="inputEmail1" class="col-lg-2 control-label">脚本</label>
                                 <div class="col-lg-3">
@@ -400,334 +406,7 @@ cursor:pointer;
                                     <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
-                        </form>
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <div class="col-lg-offset-1 col-lg-2">
-                                    <button type="button" id="run_script" class="btn btn-default btn-sm">
-                                        <i class="fa fa-plus"></i> 新增节点
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
-                    </div>
-                </div><!-- /panel -->
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <div class="col-lg-offset-1 col-lg-2">
-                                    <button type="button" id="run_script" class="btn btn-info btn-sm">
-                                        <i class="fa fa-plus"></i> 新增步骤
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
-                    </div>
-                </div><!-- /panel -->
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <div class="col-lg-offset-5 col-lg-2">
-                                    <button type="button" id="run_script" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-floppy-o"></i> SAVE
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
-                    </div>
-                </div><!-- /panel -->
-            </div><!-- /.col -->
-        </div><!-- /.row -->
-        <div class="row">
-            <div class="col-md-10">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <form class="form-horizontal">
-                            <div class="form-group alert alert-success">
-                                <label for="inputEmail1" class="col-lg-2 control-label">步骤名称</label>
-                                <div class="col-lg-5">
-                                    <input type="text" class="form-control input-sm" name="blockName">
-                                </div><!-- /.col -->
-                                <label for="inputEmail1" class="col-lg-2 control-label">执行脚本</label>
-                                <div class="col-lg-3">
-                                    <button type="button" name="blockUp" class="btn btn-info btn-xs">
-                                        <i class="fa fa-arrow-up"></i>
-                                    </button>
-                                    <button type="button" name="blockDown" class="btn btn-info btn-xs">
-                                        <i class="fa fa-arrow-down"></i>
-                                    </button>
-                                    <button type="button" name="blockDelete" class="btn btn-danger btn-xs">
-                                        <i class="fa fa-trash-o"></i>
-                                    </button>
-                                    <button type="button" name="blockCut" class="btn btn-danger btn-xs">
-                                        <i class="fa fa-scissors"></i>
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
-                        <form class="form-horizontal alert alert-warning">
-                            <div class="form-group">
-                                <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
-                                <div class="col-lg-3">
-                                    <select id="script" class="form-control chzn-select"></select>
-                                </div><!-- /.col -->
-                                <div class="col-lg-2 oneline pointer"><!-- 缩略脚本参数 -->
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                                <div class="col-lg-2">
-                                    <span></span>
-                                    <span></span>
-                                </div><!-- 缩略账号 -->
-                                <div class="col-lg-3">
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-arrow-up"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-arrow-down"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-trash-o"></i>
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="account" class="col-lg-2 control-label">执行账户</label>
-                                <div class="col-lg-10">
-									<select id="account" class="form-control chzn-select"></select>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
-                                <div class="col-lg-10">
-									<button type="button" id="add_server" class="btn btn-success btn-sm">选择服务器</button>
-                                    <button type="button" id="delete" class="btn btn-success btn-sm">删除</button>
-                                    <div class="table-responsive" id="table_selected_div">
-                                        <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
-                                    </div><!-- /.padding-md -->
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
-                                <div class="col-lg-10">
-                                    <label class="label-radio inline">
-										<input type="radio" name="script_type" value="1" checked="checked">
-										<span class="custom-radio"></span>
-										shell
-									</label>
-									<label class="label-radio inline">
-										<input type="radio" name="script_type" value="4">
-										<span class="custom-radio"></span>
-										python
-									</label>
-                                    <select class="form-inline" id="font"></select>
-                                    <label class="label-radio inline">
-										字体
-									</label>
-                                    <label class="label-radio inline">
-										ESC键全屏切换(光标放在文本框里)
-									</label>
-                                    <pre id="editor"></pre>
-								</div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
-                                <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
-                                <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
-                        <form class="form-horizontal alert alert-warning">
-                            <div class="form-group">
-                                <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
-                                <div class="col-lg-3">
-                                    <select id="script" class="form-control chzn-select"></select>
-                                </div><!-- /.col -->
-                                <div class="col-lg-2 oneline pointer"><!-- 缩略脚本参数 -->
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                                <div class="col-lg-2">
-                                    <span></span>
-                                    <span></span>
-                                </div><!-- 缩略账号 -->
-                                <div class="col-lg-3">
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-arrow-up"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-arrow-down"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-trash-o"></i>
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="account" class="col-lg-2 control-label">执行账户</label>
-                                <div class="col-lg-10">
-									<select id="account" class="form-control chzn-select"></select>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
-                                <div class="col-lg-10">
-									<button type="button" id="add_server" class="btn btn-success btn-sm">选择服务器</button>
-                                    <button type="button" id="delete" class="btn btn-success btn-sm">删除</button>
-                                    <div class="table-responsive" id="table_selected_div">
-                                        <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
-                                    </div><!-- /.padding-md -->
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
-                                <div class="col-lg-10">
-                                    <label class="label-radio inline">
-										<input type="radio" name="script_type" value="1" checked="checked">
-										<span class="custom-radio"></span>
-										shell
-									</label>
-									<label class="label-radio inline">
-										<input type="radio" name="script_type" value="4">
-										<span class="custom-radio"></span>
-										python
-									</label>
-                                    <select class="form-inline" id="font"></select>
-                                    <label class="label-radio inline">
-										字体
-									</label>
-                                    <label class="label-radio inline">
-										ESC键全屏切换(光标放在文本框里)
-									</label>
-                                    <pre id="editor"></pre>
-								</div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
-                                <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
-                                <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <div class="col-lg-offset-1 col-lg-2">
-                                    <button type="button" id="run_script" class="btn btn-default btn-sm">
-                                        <i class="fa fa-plus"></i> 新增节点
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
-                    </div>
-                </div><!-- /panel -->
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <form class="form-horizontal">
-                            <div class="form-group alert alert-info">
-                                <label for="inputEmail1" class="col-lg-2 control-label">步骤名称</label>
-                                <div class="col-lg-5">
-                                    <input type="text" class="form-control input-sm" name="script_type">
-                                </div><!-- /.col -->
-                                <label for="inputEmail1" class="col-lg-2 control-label">文件分发</label>
-                                <div class="col-lg-3">
-                                    <button type="button" id="run_script" class="btn btn-info btn-xs">
-                                        <i class="fa fa-arrow-up"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-info btn-xs">
-                                        <i class="fa fa-arrow-down"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-danger btn-xs">
-                                        <i class="fa fa-trash-o"></i>
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
-                        <form class="form-horizontal alert alert-warning">
-                            <div class="form-group">
-                                <label for="inputEmail1" class="col-lg-2 control-label">脚本</label>
-                                <div class="col-lg-3">
-                                    <select id="script" class="form-control chzn-select"></select>
-                                </div><!-- /.col -->
-                                <label for="inputEmail1" class="col-lg-2 control-label">账户：administrator</label>
-                                <label for="inputEmail1" class="col-lg-2 control-label">参数：<abbr title="/tmp/log/Yin">attr</abbr></label>
-                                <div class="col-lg-3">
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-arrow-up"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-arrow-down"></i>
-                                    </button>
-                                    <button type="button" id="run_script" class="btn btn-default btn-xs">
-                                        <i class="fa fa-trash-o"></i>
-                                    </button>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">执行账户</label>
-                                <div class="col-lg-10">
-									<select id="account" class="form-control chzn-select"></select>
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
-                                <div class="col-lg-10">
-									<button type="button" id="add_server" class="btn btn-success btn-sm">选择服务器</button>
-                                    <button type="button" id="delete" class="btn btn-success btn-sm">删除</button>
-                                    <div class="table-responsive" id="table_selected_div">
-                                        <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
-                                    </div><!-- /.padding-md -->
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
-                                <div class="col-lg-10">
-                                    <label class="label-radio inline">
-										<input type="radio" name="script_type" value="1" checked="checked">
-										<span class="custom-radio"></span>
-										shell
-									</label>
-									<label class="label-radio inline">
-										<input type="radio" name="script_type" value="4">
-										<span class="custom-radio"></span>
-										python
-									</label>
-                                    <select class="form-inline" id="font"></select>
-                                    <label class="label-radio inline">
-										字体
-									</label>
-                                    <label class="label-radio inline">
-										ESC键全屏切换(光标放在文本框里)
-									</label>
-                                    <pre id="editor"></pre>
-								</div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
-                                <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                            <div class="form-group">
-                                <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
-                                <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
-                                </div><!-- /.col -->
-                            </div><!-- /form-group -->
-                        </form>
+                        </form>{% endcomment %}
                         <form class="form-horizontal">
                             <div class="form-group">
                                 <div class="col-lg-offset-1 col-lg-2">
@@ -808,14 +487,16 @@ $(document).ready(function(){
 $(window).load(function() {
     init_font($("select[name='font']"));
     init_account($("select[name='account']"));
-    init_editor("editor");
-    set_editor_fullscreen();
+    initAllEditor();
     init_script($("select[name='script']"));
 });
 
 
+
+
+
 /**
- *设置脚本
+ * 设置脚本
  */
 $('body').on('change', '#script', function() {
     var url = '/business/get_edit_script/';
@@ -884,7 +565,7 @@ function get_data() {
 /*
 *脚本类型、模板选择
 */
-$("input:radio[name='script_type']").click(function () {
+{% comment %}$("input:radio[name='script_type']").click(function () {
     var val = $(this).val();
     if (val=='shell'){
         editor.setValue(multiline(shell_tmp));
@@ -895,7 +576,7 @@ $("input:radio[name='script_type']").click(function () {
         editor.session.setMode("ace/mode/python");
     }
     editor.gotoLine(1);
-});
+});{% endcomment %}
 
 
 //得到查询的参数
