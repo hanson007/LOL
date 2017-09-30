@@ -150,7 +150,7 @@ class Nm_Step(models.Model):
     taskId = models.ForeignKey(Nm_Task, related_name="nm_task_set")
     appId = models.IntegerField(null=True, verbose_name=u'业务id')
     # 快速执行脚本时，执行步骤名称=脚本名称 + 时间
-    name = models.CharField(max_length=255, null=True, verbose_name=u'步骤名称')
+    name = models.CharField(max_length=255, null=True, verbose_name=u'节点名称')
     # 步骤类型：1、执行脚本，2、传输文件，3、文本通知
     type = models.IntegerField(null=True, verbose_name=u'步骤类型')
     ord = models.IntegerField(null=True, verbose_name=u'小步骤执行的次序')

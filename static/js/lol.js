@@ -254,11 +254,60 @@ $('body').on('click', "label[for='scriptLabel']", function() {
         accountSpan.eq(0).text('账户：');
         accountSpan.eq(1).text(account);
     }
+    $.each(parentSib, function (k, div) {
+        $(div).slideToggle();
+    });
+});
+
+
+/**
+ * 文件节点展开、收缩显示
+ */
+$('body').on('click', "label[for='fileLabel']", function() {
+    var siblings = $(this).siblings();/*清空缩略脚本参数、缩略账号*/
+    var scriptParamSpan = siblings.eq(1).children();
+    var accountSpan = siblings.eq(2).children();
+    var parentSib = $(this).parent().siblings();
+    if(parentSib.eq(0).is(':hidden')){
+        /*展开节点时清空缩略脚本参数、缩略账号*/
+        accountSpan.text('');
+        scriptParamSpan.text('');
+    }
+    else{
+        /*在隐藏节点时将参数、账号赋值到缩略脚本参数、缩略账号*/
+        var scriptParam = parentSib.eq(3).find('input').val();
+        var account = parentSib.eq(0).find('select').val();
+        scriptParamSpan.eq(0).text('目标路径：');
+        scriptParamSpan.eq(1).text(scriptParam);
+        accountSpan.eq(0).text('账户：');
+        accountSpan.eq(1).text(account);
+    }
 
     $.each(parentSib, function (k, div) {
         $(div).slideToggle();
     });
 });
+
+
+/**
+ * add file blockOrd
+ */
+function addFileBlockOrd() {
+    $('#addFileBlockOrd').click(function () {
+        $(this).parents(".panel-default").before($('#fileBlockOrdTemplate').html());
+        console.log()
+    })
+}
+
+
+/**
+ * add script blockOrd
+ */
+function addScriptBlockOrd() {
+    $('#addScriptBlockOrd').click(function () {
+        $(this).parents(".panel-default").before($('#scriptBlockOrdTemplate').html());
+    })
+}
 
 
 /**
@@ -430,7 +479,6 @@ function initAddOrd() {
         $(this).parents('form').before($('#ordTemplate').html());
         var $ords = $(this).parents('form').siblings("form[data-name^='ord']");
         var ordNum = $ords.length;
-        console.log(ordNum)
         $ords.last().attr('data-name', 'ord'+ ordNum);
         $ords.last().find("pre[id^='editor']").attr('id', 'editor'+ ordNum);
         init_account($ords.last().find("select[name='account']"));
@@ -438,5 +486,27 @@ function initAddOrd() {
         initTableSelected($ords.last().find("table[data-name='table_selected']"));
         initEditorAction($ords.last().find("pre[id^='editor']"));
         initFont($ords.last().find("select[name='font']"));
+    })
+}
+
+
+/**
+ * ordUp
+ */
+function ordUp() {
+    $('body').on('click', "#main-container button[data-name='ordUp']", function () {
+        var $ordForm = $(this).parents("form[data-name^='ord']");
+        $ordForm.prev("form[data-name^='ord']").before($ordForm);
+    })
+}
+
+
+/**
+ * ordDown
+ */
+function ordDown() {
+    $('body').on('click', "#main-container button[data-name='ordDown']", function () {
+        var $ordForm = $(this).parents("form[data-name^='ord']");
+        $ordForm.next("form[data-name^='ord']").after($ordForm);
     })
 }
