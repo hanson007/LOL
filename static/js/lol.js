@@ -296,6 +296,7 @@ function addFileBlockOrd() {
         init_account($addBlock.prev().find("select[name='account']"));
         initTableSelected($addBlock.prev().find("table[data-name='table_selected']"));
         initFileTableSelected($addBlock.prev().find("table[data-name='table_selected_file']"));
+        addFileOrd();
         // console.log($addBlock.prev().find("select[name='account']"));
     })
 }
@@ -704,6 +705,7 @@ function percentFormatter(value, row, index) {
  */
 function initAddOrd() {
     addScriptOrd();
+    addFileOrd();
 }
 
 /**
@@ -730,7 +732,14 @@ function addScriptOrd() {
  * add file ord
  */
 function addFileOrd() {
-    var $addOrdBtn = $("form[data-type='runFile']").siblings().find("button[data-name='addOrd']");
+    var $addOrdBtn = $("form[data-type='pushFile']").siblings().find("button[data-name='addOrd']");
+    $addOrdBtn.click(function () {
+        $(this).parents('form').before($('#fileOrdTemplate').html());
+        console.log($("form[data-type='pushFile']"));
+        init_account($(this).parents('form').prev().find("select[name='account']"));
+        initTableSelected($(this).parents('form').prev().find("table[data-name='table_selected']"));
+        initFileTableSelected($(this).parents('form').prev().find("table[data-name='table_selected_file']"));
+    });
 }
 
 
