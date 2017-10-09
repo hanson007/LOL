@@ -268,7 +268,7 @@ cursor:pointer;
         </div><!-- /.row -->
 	</div><!-- /padding-md -->
 </div><!-- /main-container -->
-<div id="scriptOrdTemplate" class="hide">
+<div id="scriptOrdTemplate" class="hide"><!-- 脚本节点模板 -->
     <form class="form-horizontal alert alert-warning" data-name="ord">
     <div class="form-group">
         <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
@@ -352,7 +352,7 @@ cursor:pointer;
 </form>
 </div><!-- 脚本节点模板 -->
 <div id="fileOrdTemplate" class="hide"><!-- 文件节点模板 -->
-    <form class="form-horizontal" data-name="ord1">
+    <form class="form-horizontal alert alert-warning" data-name="ord1">
         <div class="form-group">
             <label for="fileLabel" class="col-lg-2 control-label pointer">节点名称</label>
             <div class="col-lg-3">
@@ -381,11 +381,11 @@ cursor:pointer;
         <div class="form-group">
             <label for="inputPassword1" class="col-lg-2 control-label">源文件</label>
             <div class="col-lg-10">
-                <input id='file' type="file"  name="file" style="padding-left: 0px;" class="col-lg-4" multiple="multiple">
-                <button type="button" id="delete_file" class="btn btn-success btn-xs">删除</button>
+                <input data-name='file' type="file"  name="file" style="padding-left: 0px;" class="col-lg-4" multiple="multiple">
+                <button type="button" data-name="delete_file" class="btn btn-success btn-xs">删除</button>
                 <span>（同名文件覆盖，文件大小不要超过500M）</span>
                 <div class="table-responsive" id="table_selected_div">
-                    <table class="table table-hover table-bordered NoNewline" id="table_selected_file"></table>
+                    <table class="table table-hover table-bordered NoNewline" data-name="table_selected_file"></table>
                 </div><!-- /.padding-md -->
             </div><!-- /.col -->
         </div><!-- /form-group -->
@@ -398,16 +398,16 @@ cursor:pointer;
         <div class="form-group">
             <label for="inputPassword1" class="col-lg-2 control-label">执行账户</label>
             <div class="col-lg-10">
-                <select id="account" class="form-control chzn-select"></select>
+                <select name="account" class="form-control chzn-select"></select>
             </div><!-- /.col -->
         </div><!-- /form-group -->
         <div class="form-group">
             <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
             <div class="col-lg-10">
-                <button type="button" id="add_server" class="btn btn-success btn-sm">选择服务器</button>
-                <button type="button" id="delete" class="btn btn-success btn-sm">删除</button>
+                <button type="button" data-name="add_server" class="btn btn-success btn-sm">选择服务器</button>
+                <button type="button" data-name="delete" class="btn btn-success btn-sm">删除</button>
                 <div class="table-responsive" id="table_selected_div">
-                    <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
+                    <table class="table table-hover table-bordered NoNewline" data-name="table_selected"></table>
                 </div><!-- /.padding-md -->
             </div><!-- /.col -->
         </div><!-- /form-group -->

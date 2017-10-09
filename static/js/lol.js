@@ -86,8 +86,6 @@ var multiline = function (fn) {
 };
 
 
-
-
 /**
  * init editor
  */
@@ -116,10 +114,9 @@ function init_editor(selectorById) {
 }
 
 
-
-/*
-*初始化字体选择项
-*/
+/**
+ * 初始化字体选择项
+ */
 function initFont($selector) {
     for (var i=12;i<23;i++)
     {
@@ -140,11 +137,9 @@ $('body').on('click', "select[name='font']", function () {
 });
 
 
-
-
-/*
-*初始化账户
-*/
+/**
+ * 初始化账户
+ */
 function init_account($selector) {
     var url = '/business/get_account/';
     var index = layer.load();
@@ -179,7 +174,6 @@ function ModifyScriptType(editor, $script_type) {
         editor.gotoLine(1);
     });
 }
-
 
 
 /**
@@ -233,7 +227,7 @@ function fullScreen(editor, $fullScreen) {
 
 
 /**
- * 节点展开、收缩显示
+ * 脚本节点展开、收缩显示
  */
 $('body').on('click', "label[for='scriptLabel']", function() {
     var siblings = $(this).siblings();/*清空缩略脚本参数、缩略账号*/
@@ -265,24 +259,23 @@ $('body').on('click', "label[for='scriptLabel']", function() {
  */
 $('body').on('click', "label[for='fileLabel']", function() {
     var siblings = $(this).siblings();/*清空缩略脚本参数、缩略账号*/
-    var scriptParamSpan = siblings.eq(1).children();
+    var fileTargetPath = siblings.eq(1).children();
     var accountSpan = siblings.eq(2).children();
     var parentSib = $(this).parent().siblings();
     if(parentSib.eq(0).is(':hidden')){
         /*展开节点时清空缩略脚本参数、缩略账号*/
         accountSpan.text('');
-        scriptParamSpan.text('');
+        fileTargetPath.text('');
     }
     else{
         /*在隐藏节点时将参数、账号赋值到缩略脚本参数、缩略账号*/
-        var scriptParam = parentSib.eq(3).find('input').val();
-        var account = parentSib.eq(0).find('select').val();
-        scriptParamSpan.eq(0).text('目标路径：');
-        scriptParamSpan.eq(1).text(scriptParam);
+        var targetPathParam = parentSib.eq(1).find('input').val();
+        var account = parentSib.eq(2).find('select').val();
+        fileTargetPath.eq(0).text('目标路径：');
+        fileTargetPath.eq(1).text(targetPathParam);
         accountSpan.eq(0).text('账户：');
         accountSpan.eq(1).text(account);
     }
-
     $.each(parentSib, function (k, div) {
         $(div).slideToggle();
     });
@@ -294,8 +287,16 @@ $('body').on('click', "label[for='fileLabel']", function() {
  */
 function addFileBlockOrd() {
     $('#addFileBlockOrd').click(function () {
-        $(this).parents(".panel-default").before($('#fileBlockOrdTemplate').html());
-        console.log()
+        var $addBlock = $(this).parents(".panel-default");
+        $addBlock.before($('#fileBlockOrdTemplate').html());
+        /*设置步骤的data-name属性*/
+        var count = $addBlock.prevAll().length;
+        $addBlock.prev().find("form[data-type='pushFile']").attr('data-name', 'blockOrd' + count);
+        $addBlock.prev().find("form[data-type='pushFile']").after($('#fileOrdTemplate').html());
+        init_account($addBlock.prev().find("select[name='account']"));
+        initTableSelected($addBlock.prev().find("table[data-name='table_selected']"));
+        initFileTableSelected($addBlock.prev().find("table[data-name='table_selected_file']"));
+        // console.log($addBlock.prev().find("select[name='account']"));
     })
 }
 
@@ -472,11 +473,246 @@ function serverColumns() {
 
 
 /**
+ * 上传文件
+ */
+$('body').on('change', "input[data-name='file']", function () {
+    var files = $(this)[0].files;
+    var $tableSelectedFile = $(this).siblings().find("table[data-name='table_selected_file']");
+    console.log($tableSelectedFile)
+    add_table_file(files, $tableSelectedFile);
+    $.each(files, function (k, file) {
+        upload_file(file, $tableSelectedFile);
+    });
+});
+
+
+/**
+ * 上传文件到salt master服务器
+ */
+function upload_file(file, $tableSelectedFile) {
+    var formData = new FormData();
+    formData.append('file', file);
+    var index = layer.load();
+	$.ajax({
+			url: '/job/fastPushfile_upload_file/',
+			type: 'POST',
+			cache: false,
+			data: formData,
+			processData: false,
+			contentType: false,
+            xhr: function(){
+                myXhr = $.ajaxSettings.xhr();
+                if(myXhr.upload){
+                  myXhr.upload.addEventListener('progress',function(e) {
+                    if (e.lengthComputable) {
+                        var percent = Math.floor(e.loaded/e.total*100);
+                        var progress = percent + '%';
+                        var data = $tableSelectedFile.bootstrapTable('getData');
+                        $.each(data, function (k, v) {
+                            if (v.name == file.name){
+                                $tableSelectedFile.bootstrapTable('updateCell', {index: k, field: 'progress', value: percent});
+                                $tableSelectedFile.bootstrapTable('updateCell', {index: k, field: 'percent', value: percent});
+                            }
+                        });
+                    }
+                  }, false);
+                }
+                return myXhr;
+            },
+            success: function (res) {
+                layer.close(index);
+                var data = $tableSelectedFile.bootstrapTable('getData');
+                    resfile = $.parseJSON(res);
+                    console.log(resfile)
+                ajax_callback1('上传成功')
+            }
+		})
+}
+
+
+/**
+ * 将需要上传的文件添加到文件表格
+ */
+function add_table_file(files, $tableSelectedFile) {
+    var selected_data = $tableSelectedFile.bootstrapTable('getData');
+    var selected_id = [];
+    $.each(selected_data, function (sk, selected_v) {
+        selected_id.push(selected_v.name);
+    });
+    $.each(files, function (k, file) {
+        var data = {'name': file.name, 'size': file.size, 'lastModified': file.lastModified,
+                    'progress': 0, 'percent': 0, 'id': k};
+        if (selected_id.indexOf(file.name) == -1){
+            $tableSelectedFile.bootstrapTable('append', data);
+        }
+    });
+}
+
+
+/**
+ * 删除文件
+ */
+$('body').on('click', "button[data-name='delete_file']", function () {
+    var $tableSelectedFile = $(this).siblings().find("table[data-name='table_selected_file']");
+    var names = $.map($tableSelectedFile.bootstrapTable('getSelections'), function (row) {
+        return row.name;
+    });
+    $tableSelectedFile.bootstrapTable('remove', {
+        field: 'name',
+        values: names
+    });
+});
+
+
+/**
+ * 初始化文件表格
+ */
+function initFileTableSelected($table_selected_file) {
+    $table_selected_file.bootstrapTable({
+        pagination: true,                   //是否显示分页（*）
+        sortable: false,                     //是否启用排序
+        sortOrder: "asc",                   //排序方式
+        showColumns: true,
+        showRefresh: true,
+        clickToSelect: true,
+        uniqueId: "id",
+        sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+        pageNumber: 1,                       //初始化加载第一页，默认第一页
+        pageSize: 5,                       //每页的记录行数（*）
+        pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+        search: true,                  //是否显示搜索 --前端搜索
+        columns:get_file_columns()
+    });
+}
+
+
+
+/**
+ * 获取文件表格 的列columns
+ */
+function get_file_columns() {
+    var columns =[{
+         field: 'checkbox',
+         checkbox: true
+    },{
+        title: '序号',//标题  可不加
+        formatter: function (value, row, index) {
+            return index+1;
+            }
+    }, {
+        field: 'id',
+        title: 'id',
+        visible: false
+    }, {
+        field: 'name',
+        title: 'name'
+    }, {
+        field: 'size',
+        title: 'size',
+        formatter: sizeFormatter
+    }, {
+        field: 'lastModified',
+        title: 'lastModified',
+        formatter: lastModifieldFormatter
+    }, {
+        field: 'progress',
+        title: 'Progress',
+        formatter: ProgressFormatter
+    }, {
+        field: 'percent',
+        title: '',
+        formatter: percentFormatter
+    }];
+    return columns
+}
+
+/**
+ * 格式化文件大小
+ */
+function sizeFormatter(limit){
+    var size = "";
+    if( limit < 0.1 * 1024 ){ //如果小于0.1KB转化成B
+        size = limit.toFixed(2) + "B";
+    }else if(limit < 0.1 * 1024 * 1024 ){//如果小于0.1MB转化成KB
+        size = (limit / 1024).toFixed(2) + "KB";
+    }else if(limit < 0.1 * 1024 * 1024 * 1024){ //如果小于0.1GB转化成MB
+        size = (limit / (1024 * 1024)).toFixed(2) + "MB";
+    }else{ //其他转化成GB
+        size = (limit / (1024 * 1024 * 1024)).toFixed(2) + "GB";
+    }
+
+    var sizestr = size + "";
+    var len = sizestr.indexOf("\.");
+    var dec = sizestr.substr(len + 1, 2);
+    if(dec == "00"){//当小数点后为00时 去掉小数部分
+        return sizestr.substring(0,len) + sizestr.substr(len + 3,2);
+    }
+    return sizestr;
+}
+
+
+/**
+ * 格式化文件修改时间
+ */
+function lastModifieldFormatter(value, row, index) {
+    return timetrans(value);
+}
+
+
+/**
+ * 时间转换
+ */
+function timetrans(date){
+    var date = new Date(date);//如果date为13位不需要乘1000
+    var Y = date.getFullYear() + '-';
+    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+    var D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + ' ';
+    var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+    var m = (date.getMinutes() <10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+    var s = (date.getSeconds() <10 ? '0' + date.getSeconds() : date.getSeconds());
+    return Y+M+D+h+m+s;
+}
+
+
+/**
+ * 进度条格式化
+ */
+function ProgressFormatter(value, row, index) {
+    var cont = ['<div class="progress" style="height:12px; margin:5px 0 0 0;">',
+                            '<div class="progress-bar" name="progress" style="width: ', value+'%', '">',
+                            '</div>',
+                        '</div>'
+                ].join('');
+    return cont
+}
+
+
+/**
+ * 百分比格式化
+ */
+function percentFormatter(value, row, index) {
+    var cont = ['<div name="percent">',
+                    value + '%',
+                '</div>'
+                ].join('');
+    return cont
+}
+
+
+/**
  * 新增节点
  */
 function initAddOrd() {
-    $("button[data-name='addOrd']").click(function () {
-        $(this).parents('form').before($('#ordTemplate').html());
+    addScriptOrd();
+}
+
+/**
+ * add script ord
+ */
+function addScriptOrd() {
+    var $addOrdBtn = $("form[data-type='runScript']").siblings().find("button[data-name='addOrd']");
+    $addOrdBtn.click(function () {
+        $(this).parents('form').before($('#scriptOrdTemplate').html());
         var $ords = $(this).parents('form').siblings("form[data-name^='ord']");
         var ordNum = $ords.length;
         $ords.last().attr('data-name', 'ord'+ ordNum);
@@ -486,7 +722,15 @@ function initAddOrd() {
         initTableSelected($ords.last().find("table[data-name='table_selected']"));
         initEditorAction($ords.last().find("pre[id^='editor']"));
         initFont($ords.last().find("select[name='font']"));
-    })
+    });
+}
+
+
+/**
+ * add file ord
+ */
+function addFileOrd() {
+    var $addOrdBtn = $("form[data-type='runFile']").siblings().find("button[data-name='addOrd']");
 }
 
 
@@ -509,4 +753,16 @@ function ordDown() {
         var $ordForm = $(this).parents("form[data-name^='ord']");
         $ordForm.next("form[data-name^='ord']").after($ordForm);
     })
+}
+
+
+/**
+ * ajax get callback
+ */
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
 }
