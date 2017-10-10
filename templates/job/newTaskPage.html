@@ -125,17 +125,14 @@ cursor:pointer;
                                 </div><!-- /.col -->
                                 <label for="inputEmail1" class="col-lg-2 control-label">执行脚本</label>
                                 <div class="col-lg-3">
-                                    <button type="button" name="blockUp" class="btn btn-info btn-xs">
+                                    <button type="button" data-name="blockUp" class="btn btn-info btn-xs">
                                         <i class="fa fa-arrow-up"></i>
                                     </button>
-                                    <button type="button" name="blockDown" class="btn btn-info btn-xs">
+                                    <button type="button" data-name="blockDown" class="btn btn-info btn-xs">
                                         <i class="fa fa-arrow-down"></i>
                                     </button>
-                                    <button type="button" name="blockDelete" class="btn btn-danger btn-xs">
+                                    <button type="button" data-name="blockDelete" class="btn btn-danger btn-xs">
                                         <i class="fa fa-trash-o"></i>
-                                    </button>
-                                    <button type="button" name="blockCut" class="btn btn-danger btn-xs">
-                                        <i class="fa fa-scissors"></i>
                                     </button>
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
@@ -161,7 +158,7 @@ cursor:pointer;
                                     <button type="button" data-name="ordDown" class="btn btn-default btn-xs">
                                         <i class="fa fa-arrow-down"></i>
                                     </button>
-                                    <button type="button" data-name="deleteOrd" class="btn btn-default btn-xs">
+                                    <button type="button" data-name="ordDelete" class="btn btn-default btn-xs">
                                         <i class="fa fa-trash-o"></i>
                                     </button>
                                 </div><!-- /.col -->
@@ -239,7 +236,7 @@ cursor:pointer;
                             <div class="form-group">
                                 <div class="col-lg-offset-1 col-lg-2">
                                     <div class="btn-group">
-                                        <button class="btn btn-info"><i class="fa fa-plus"></i> 新增步骤</button>
+                                        <button class="btn btn-info" type="button"><i class="fa fa-plus"></i> 新增步骤</button>
                                         <button class="btn btn-info dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
                                         <ul class="dropdown-menu">
                                             <li><a href="javascript:void(0)" id="addScriptBlockOrd">添加执行脚本</a></li>
@@ -256,7 +253,7 @@ cursor:pointer;
                         <form class="form-horizontal">
                             <div class="form-group">
                                 <div class="col-lg-offset-5 col-lg-2">
-                                    <button type="button" id="run_script" class="btn btn-primary btn-sm">
+                                    <button type="button" id="save" class="btn btn-primary btn-sm">
                                         <i class="fa fa-floppy-o"></i> SAVE
                                     </button>
                                 </div><!-- /.col -->
@@ -269,7 +266,7 @@ cursor:pointer;
 	</div><!-- /padding-md -->
 </div><!-- /main-container -->
 <div id="scriptOrdTemplate" class="hide"><!-- 脚本节点模板 -->
-    <form class="form-horizontal alert alert-warning" data-name="ord">
+    <form class="form-horizontal alert alert-warning" data-name="ord1">
     <div class="form-group">
         <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
         <div class="col-lg-3">
@@ -290,7 +287,7 @@ cursor:pointer;
             <button type="button" data-name="ordDown" class="btn btn-default btn-xs">
                 <i class="fa fa-arrow-down"></i>
             </button>
-            <button type="button" data-name="deleteOrd" class="btn btn-default btn-xs">
+            <button type="button" data-name="ordDelete" class="btn btn-default btn-xs">
                 <i class="fa fa-trash-o"></i>
             </button>
         </div><!-- /.col -->
@@ -350,7 +347,7 @@ cursor:pointer;
         </div><!-- /.col -->
     </div><!-- /form-group -->
 </form>
-</div><!-- 脚本节点模板 -->
+</div>
 <div id="fileOrdTemplate" class="hide"><!-- 文件节点模板 -->
     <form class="form-horizontal alert alert-warning" data-name="ord1">
         <div class="form-group">
@@ -373,7 +370,7 @@ cursor:pointer;
                 <button type="button" data-name="ordDown" class="btn btn-default btn-xs">
                     <i class="fa fa-arrow-down"></i>
                 </button>
-                <button type="button" data-name="deleteOrd" class="btn btn-default btn-xs">
+                <button type="button" data-name="ordDelete" class="btn btn-default btn-xs">
                     <i class="fa fa-trash-o"></i>
                 </button>
             </div><!-- /.col -->
@@ -430,13 +427,13 @@ cursor:pointer;
                     </div><!-- /.col -->
                     <label for="inputEmail1" class="col-lg-2 control-label">文件分发</label>
                     <div class="col-lg-3">
-                        <button type="button" id="run_script" class="btn btn-info btn-xs">
+                        <button type="button" data-name="blockUp" class="btn btn-info btn-xs">
                             <i class="fa fa-arrow-up"></i>
                         </button>
-                        <button type="button" id="run_script" class="btn btn-info btn-xs">
+                        <button type="button" data-name="blockDown" class="btn btn-info btn-xs">
                             <i class="fa fa-arrow-down"></i>
                         </button>
-                        <button type="button" id="run_script" class="btn btn-danger btn-xs">
+                        <button type="button" data-name="blockDelete" class="btn btn-danger btn-xs">
                             <i class="fa fa-trash-o"></i>
                         </button>
                     </div><!-- /.col -->
@@ -465,17 +462,14 @@ cursor:pointer;
                     </div><!-- /.col -->
                     <label for="inputEmail1" class="col-lg-2 control-label">执行脚本</label>
                     <div class="col-lg-3">
-                        <button type="button" name="blockUp" class="btn btn-info btn-xs">
+                        <button type="button" data-name="blockUp" class="btn btn-info btn-xs">
                             <i class="fa fa-arrow-up"></i>
                         </button>
-                        <button type="button" name="blockDown" class="btn btn-info btn-xs">
+                        <button type="button" data-name="blockDown" class="btn btn-info btn-xs">
                             <i class="fa fa-arrow-down"></i>
                         </button>
-                        <button type="button" name="blockDelete" class="btn btn-danger btn-xs">
+                        <button type="button" data-name="blockDelete" class="btn btn-danger btn-xs">
                             <i class="fa fa-trash-o"></i>
-                        </button>
-                        <button type="button" name="blockCut" class="btn btn-danger btn-xs">
-                            <i class="fa fa-scissors"></i>
                         </button>
                     </div><!-- /.col -->
                 </div><!-- /form-group -->
@@ -537,208 +531,25 @@ $(window).load(function() {
     initAddOrd();
     ordUp();
     ordDown();
+    blockUp();
+    blockDown();
+    ordDelete();
+    blockDelete();
     addFileBlockOrd();
     addScriptBlockOrd();
+    setScript();
 });
 
 
 /**
- * 设置脚本
+ * save new task
  */
-$('body').on('change', '#script', function() {
-    var url = '/business/get_edit_script/';
-    var script_id = $('#script').val();
-    $.post(url,{'id': script_id}, function (res) {
-        var _data = $.parseJSON(res);
-        $('#script_name').val(_data.name);
-        editor.setValue(_data.content);
-        if (_data.TYPE=='1'){
-            editor.session.setMode("ace/mode/sh");
-        }
-        else {
-            editor.session.setMode("ace/mode/python");
-        }
-        editor.gotoLine(1);
-        editor.setReadOnly(true);
-        $("input:radio[name='script_type'][value='"+ _data.TYPE +"']").prop("checked", "checked");
-    });
+$('#save').click(function () {
+   $.each($("#main-container form[data-name^='blockOrd']"), function (k, v) {
+       console.log(k, v)
+   })
 });
 
-
-/**
- * 运行脚本
- */
-$('#run_script').click(function () {
-    var data = get_data();
-    var jdata = JSON.stringify(data);
-    var url = '/job/run_script/';
-{#    var index = layer.load();#}
-    $.post(url, {'data': jdata}, function (res) {
-        var _data = $.parseJSON(res);
-        if (_data.status==1){
-            var msg = _data.msg.join('<br>');
-            ajax_callback1(msg);
-        }
-{#        layer.close(index);#}
-    });
-});
-
-
-function get_data() {
-    var script_id = $('#script').val();
-    var account = $('#account').val();
-    var server_data = $('#table_selected').bootstrapTable('getData');
-    var content = editor.getValue();
-    var scriptParam = $('#scriptParam').val();
-    var scriptTimeout = $('#scriptTimeout').val();
-    var script_type = $("input:radio[name='script_type']:checked").val();
-
-    var ipList = [];
-    $.each(server_data, function (k, v) {
-       ipList.push(v.ip)
-    });
-    var data = {
-        'script_id': script_id,
-        'account': account,
-        'content': content,
-        'ipList': ipList,
-        'scriptParam': scriptParam,
-        'scriptTimeout': scriptTimeout,
-        'script_type': script_type
-    };
-    return data
-}
-
-
-//得到查询的参数
-{% comment %}function queryParams(params) {
-    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
-        limit: params.limit,   //页面大小
-        offset: params.offset,  //页码
-        order: params.order,  //排序
-        time: $('#time').val(),
-        orderNum: $('#orderNum').val(),
-        createTime_start: $('#createTime_start').val(),
-        createTime_end: $('#createTime_end').val(),
-        database: "ygproperty",
-    };
-    return temp;
-}{% endcomment %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-*脚本类型、模板选择
-*/
-{% comment %}$("input:radio[name='server']").click(function () {
-    var val = $(this).val();
-    if (val=='show_all'){
-        $('#table_selected').bootstrapTable('getRowsHidden',{show:true});
-    }
-
-   else if (val=='no_selected') {
-        var data = $('#table_selected').bootstrapTable('getSelections');
-        $.each(data,function (k,v) {
-            $('#table_selected').bootstrapTable('hideRow', {uniqueId: v.id})
-        });
-
-    }
-    else {
-        var all_data = $('#table_selected').bootstrapTable('getData');
-        $.each(all_data,function (k,v) {
-            $('#table_selected').bootstrapTable('hideRow', {uniqueId: v.id})
-        });
-    }
-});{% endcomment %}
-
-
-
-
-
-/*
-*提交编辑的数据
-*/
-function post_edit() {
-    var id = $('#add_account').find("input[name='id']").val();
-    var name = $('#add_account').find("input[name='name']").val();
-    var desc = $('#add_account').find("textarea[name='desc']").val();
-    var url = '/business/edit_account/';
-    var data = {'id': id, 'name':name, 'desc':desc};
-    var index = layer.load();
-    $.post(url, data, function (msg) {
-        var _msg = $.parseJSON(msg);
-        layer.close(index);
-        layer.msg(_msg);
-        $('#table').bootstrapTable('refresh');
-    });
-}
-
-
-/*
-*编辑服务器
-*/
-function edit(id,name,desc) {
-    $('#add_account').find("input[name='id']").val(id);
-    $('#add_account').find("input[name='name']").val(name);
-    $('#add_account').find("textarea[name='desc']").val(desc);
-    $('#add_account').removeClass('hide');
-    //页面层
-    layer.open({
-      type: 1,
-      skin: 'layui-layer-rim', //加上边框
-      area: ['420px', '240px'], //宽高
-      content: $('#add_account')
-      ,btn: ['save', 'close']
-      ,yes: function(index1, layero){
-            post_edit(); //编辑
-            layer.close(index1);
-      }
-      ,btn2: function(index, layero){
-        //return false 开启该代码可禁止点击该按钮关闭
-      }
-      ,cancel: function(){
-        //右上角关闭回调
-      }
-    });
-}
-
-
-/*
-*提交编辑服务器的数据
-*/
-$('#edit_server').find("button[name='save']").click(function () {
-    var id = $('#edit_server').find("input[name='id']").val();
-    var ip = $('#edit_server').find("input[name='ip']").val();
-    var desc = $('#edit_server').find("textarea[name='desc']").val();
-    var url = '/cmdb/edit_server/';
-    var data = {'id':id, 'ip':ip, 'desc':desc};
-    var index = layer.load();
-    $.post(url, data, function (msg) {
-        var _msg = $.parseJSON(msg);
-        layer.close(index);
-        layer.msg(_msg);
-        $('#table').bootstrapTable('refresh');
-    });
-});
 
 
 /*

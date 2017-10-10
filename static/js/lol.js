@@ -296,7 +296,6 @@ function addFileBlockOrd() {
         init_account($addBlock.prev().find("select[name='account']"));
         initTableSelected($addBlock.prev().find("table[data-name='table_selected']"));
         initFileTableSelected($addBlock.prev().find("table[data-name='table_selected_file']"));
-        addFileOrd();
         // console.log($addBlock.prev().find("select[name='account']"));
     })
 }
@@ -307,7 +306,15 @@ function addFileBlockOrd() {
  */
 function addScriptBlockOrd() {
     $('#addScriptBlockOrd').click(function () {
-        $(this).parents(".panel-default").before($('#scriptBlockOrdTemplate').html());
+        var $addBlock = $(this).parents(".panel-default");
+        $addBlock.before($('#scriptBlockOrdTemplate').html());
+        /*设置步骤的data-name属性*/
+        var count = $addBlock.prevAll().length;
+        var blockOrdDataName = 'blockOrd' + count;
+        $addBlock.prev().find("form[data-type='runScript']").attr('data-name', blockOrdDataName);
+        $addBlock.prev().find("form[data-type='runScript']").after($('#scriptOrdTemplate').html());
+        var $ord = $addBlock.prev().find("form[data-name='ord1']");
+        initScriptOrd($ord, 1, blockOrdDataName);
     })
 }
 
@@ -712,19 +719,29 @@ function initAddOrd() {
  * add script ord
  */
 function addScriptOrd() {
-    var $addOrdBtn = $("form[data-type='runScript']").siblings().find("button[data-name='addOrd']");
-    $addOrdBtn.click(function () {
+    $('body').on('click', "form[data-type='runScript'] ~ form button[data-name='addOrd']", function () {
         $(this).parents('form').before($('#scriptOrdTemplate').html());
+        var $blockOrd = $(this).parents('form').siblings("form[data-type='runScript']");
+        var blockOrdDataName = $blockOrd.attr('data-name');
         var $ords = $(this).parents('form').siblings("form[data-name^='ord']");
         var ordNum = $ords.length;
-        $ords.last().attr('data-name', 'ord'+ ordNum);
-        $ords.last().find("pre[id^='editor']").attr('id', 'editor'+ ordNum);
-        init_account($ords.last().find("select[name='account']"));
-        init_script($ords.last().find("select[name='script']"));
-        initTableSelected($ords.last().find("table[data-name='table_selected']"));
-        initEditorAction($ords.last().find("pre[id^='editor']"));
-        initFont($ords.last().find("select[name='font']"));
+        initScriptOrd($ords.last(), ordNum, blockOrdDataName)
     });
+}
+
+
+/**
+ * init script ord
+ */
+function initScriptOrd($ord, ordNum, blockOrdDataName) {
+    $ord.attr('data-name', 'ord'+ ordNum);
+    var editorId = blockOrdDataName + '_' + ordNum;
+    $ord.find("pre").attr('id', editorId);
+    init_account($ord.find("select[name='account']"));
+    init_script($ord.find("select[name='script']"));
+    initTableSelected($ord.find("table[data-name='table_selected']"));
+    initEditorAction($ord.find("pre"));
+    initFont($ord.find("select[name='font']"));
 }
 
 
@@ -732,10 +749,8 @@ function addScriptOrd() {
  * add file ord
  */
 function addFileOrd() {
-    var $addOrdBtn = $("form[data-type='pushFile']").siblings().find("button[data-name='addOrd']");
-    $addOrdBtn.click(function () {
+    $('body').on('click', "form[data-type='pushFile'] ~ form button[data-name='addOrd']", function () {
         $(this).parents('form').before($('#fileOrdTemplate').html());
-        console.log($("form[data-type='pushFile']"));
         init_account($(this).parents('form').prev().find("select[name='account']"));
         initTableSelected($(this).parents('form').prev().find("table[data-name='table_selected']"));
         initFileTableSelected($(this).parents('form').prev().find("table[data-name='table_selected_file']"));
@@ -762,6 +777,103 @@ function ordDown() {
         var $ordForm = $(this).parents("form[data-name^='ord']");
         $ordForm.next("form[data-name^='ord']").after($ordForm);
     })
+}
+
+
+/**
+ * delete ord
+ */
+function ordDelete() {
+    $('body').on('click', "#main-container button[data-name='ordDelete']", function () {
+        var $ord = $(this).parents("form[data-name^='ord']");
+        //询问框
+        var index = layer.confirm('确认删除脚本节点？', {
+          btn: ['是','否'] //按钮
+        }, function(){
+            if ($ord.siblings("form[data-name^='ord']").length >= 1){
+                $ord.remove();
+            }
+            else{
+                layer.msg('必须保留一个节点！')
+            }
+            layer.close(index);
+        });
+    })
+}
+
+
+/**
+ * blockDelete
+ */
+function blockDelete() {
+    $('body').on('click', "#main-container button[data-name^='blockDelete']", function () {
+        var $blockOrd = $(this).parents(".panel-default");
+        console.log($blockOrd.siblings().find("form[data-name^='blockOrd']").parents(".panel-default"))
+        /* 步骤个数。 至少保留一个步骤 */
+        var blockOrdNum = $blockOrd.siblings().find("form[data-name^='blockOrd']").parents(".panel-default").length;
+        //询问框
+        var index = layer.confirm('确认删除步骤？', {
+          btn: ['是','否'] //按钮
+        }, function(){
+            if (blockOrdNum >= 1){
+                $blockOrd.remove();
+            }
+            else{
+                layer.msg('必须保留一个步骤！')
+            }
+            layer.close(index);
+        });
+    })
+}
+
+
+/**
+ * blockUp
+ */
+function blockUp() {
+    $('body').on('click', "#main-container button[data-name='blockUp']", function () {
+        var $block = $(this).parents(".panel-default");
+        $block.prev().before($block);
+    })
+}
+
+
+/**
+ * blockDown
+ */
+function blockDown() {
+    $('body').on('click', "#main-container button[data-name='blockDown']", function () {
+        var $block = $(this).parents(".panel-default");
+        console.log($block.next().find("form[data-name^='blockOrd']").parents('.panel-default'));
+        $block.next().find("form[data-name^='blockOrd']").parents('.panel-default').after($block);
+    })
+}
+
+
+/**
+ * 设置脚本
+ */
+function setScript() {
+    $('body').on('change', "#main-container select[name='script']", function() {
+        var url = '/business/get_edit_script/';
+        var script_id = $(this).val();
+        var editorId = $(this).parents(".form-group").siblings().find('pre').attr('id');
+        var editor = ace.edit(editorId);
+        $.post(url,{'id': script_id}, function (res) {
+            var _data = $.parseJSON(res);
+            // $('#script_name').val(_data.name);
+            editor.setValue(_data.content);
+            if (_data.TYPE=='1'){
+                editor.session.setMode("ace/mode/sh");
+            }
+            else {
+                editor.session.setMode("ace/mode/python");
+            }
+            editor.gotoLine(1);
+            editor.setReadOnly(true);
+            $("input:radio[name='script_type'][value='"+ _data.TYPE +"']").prop("checked", "checked");
+        });
+    });
 }
 
 
