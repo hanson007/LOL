@@ -36,5 +36,12 @@ def jobList(request):
 
 @login_required
 def newTaskPage(request):
-    # 首页
+    # 新建作业页面
     return render_to_response('job/newTaskPage.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required
+def saveNewTask(request):
+    response = HttpResponse()
+    response.write(json.dumps(u'ok'))
+    return response

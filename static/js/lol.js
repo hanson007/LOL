@@ -878,6 +878,127 @@ function setScript() {
 
 
 /**
+ * 获取页面作业信息
+ */
+function getPageTaskData() {
+   /*
+   数据结构
+              nm_task:{'taskName': '银谷在线后台更新'}
+
+              nm_step:[
+                           {'type':1, 'blockOrd':1, 'ord':1, 'blockName':'停止服务', 'scriptId':1, 'scriptParam':para1,
+                            'ordName':'脚本名称',
+                            'scriptTimeout':1000, 'account':root, 'ipList':['192.168.93.129','192.168.93.130']
+                           },
+                           ...
+
+                           {'type':2, 'blockOrd':2, 'ord':1, 'blockName':'更新配置文件', 'fileSource':['httpd.conf','ningx.conf'],
+                            'fileTargetPath':'/tmp/log/', 'ordName':'更新Apache文件'
+                            'scriptTimeout':1000, 'account':root, 'ipList':['192.168.93.129','192.168.93.130']
+                           }
+                           ...
+                      ]
+
+
+              {
+                'nm_task':nm_task,
+                'nm_step':nm_step
+              }
+   参数解析:
+          type:(1:执行脚本 2:传输文件)
+   */
+    var taskName = $('#taskName').val();
+    var nm_task = {'taskName': taskName};
+    var blockOrd = 1;
+    var nm_step = [];
+    $("#main-container form[data-name^='blockOrd']").each(function () {
+        var _type = taskType($(this).attr('data-type'));
+        var blockName = $(this).find("input[data-name='blockName']").val();
+        getOrdData($(this), _type, blockOrd, nm_step, blockName);
+        blockOrd += 1;
+    });
+    return {'nm_task':nm_task, 'nm_step':nm_step}
+}
+
+
+/**
+ * 作业类型转换
+ */
+function taskType(val) {
+    var data = {'runScript':1, 'pushFile':2};
+    return data[val]
+}
+
+
+/**
+ * 获取步骤的所有节点数据
+ */
+function getOrdData($blockOrd, _type, blockOrd, nm_step, blockName) {
+    var ord = 1;
+    $blockOrd.siblings("form[data-name^='ord']").each(function () {
+        var ordData = {};
+        if (_type == 1){
+            ordData = getScriptOrdData($(this))
+        }
+        else{
+            ordData = getFileOrdData($(this))
+        }
+        ordData['ord'] = ord;
+        ordData['blockOrd'] = blockOrd;
+        ordData['type'] = _type;
+        ordData['blockName'] = blockName;
+        nm_step.push(ordData);
+        ord+=1;
+    });
+    return nm_step
+}
+
+
+/**
+ * 获取脚本节点数据
+ */
+function getScriptOrdData($scriptOrd) {
+    var data = {};
+    data['scriptId'] = $scriptOrd.find("select[name='script']").val();
+    data['account'] = $scriptOrd.find("select[name='account']").val();
+    data['scriptParam'] = $scriptOrd.find("input[data-name='scriptParam']").val();
+    data['scriptTimeout'] = $scriptOrd.find("input[data-name='scriptTimeout']").val();
+    var ipTableData = $scriptOrd.find("table[data-name='table_selected']").bootstrapTable('getData');
+    var ipList = [];
+    $.each(ipTableData, function (k, v) {
+       ipList.push(v.id)
+    });
+    data['ipList'] = ipList;
+    return data
+}
+
+
+/**
+ * 获取文件节点数据
+ */
+function getFileOrdData($fileOrd) {
+    var data = {};
+    data['ordName'] = $fileOrd.find("input[data-name='ordName']").val();
+    var fileSource = [];
+    var fileTableData = $fileOrd.find("table[data-name='table_selected_file']").bootstrapTable('getData');
+    $.each(fileTableData, function (k, v) {
+        fileSource.push(v.name)
+    });
+    data['fileSource'] = fileSource;
+    data['fileTargetPath'] = $fileOrd.find("input[data-name='fileTargetPath']").val();
+    data['account'] = $fileOrd.find("select[name='account']").val();
+    var ipTableData = $fileOrd.find("table[data-name='table_selected']").bootstrapTable('getData');
+    var ipList = [];
+    $.each(ipTableData, function (k, v) {
+       ipList.push(v.id)
+    });
+    data['ipList'] = ipList;
+    data['scriptTimeout'] = $fileOrd.find("input[data-name='scriptTimeout']").val();
+    return data
+}
+
+
+/**
  * ajax get callback
  */
 function ajax_callback1(msg){

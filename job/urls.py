@@ -38,5 +38,6 @@ urlpatterns = [
 
     url(r'^jobList/$', jobMg.jobList),  # 常用作业
     url(r'^newTaskPage/$', jobMg.newTaskPage),  # 新增作业页面
+    url(r'^saveNewTask/$', jobMg.saveNewTask),  # 保存新增作业
 
 ]

@@ -121,7 +121,7 @@ cursor:pointer;
                             <div class="form-group alert alert-success">
                                 <label for="inputEmail1" class="col-lg-2 control-label">步骤名称</label>
                                 <div class="col-lg-5">
-                                    <input type="text" class="form-control input-sm" name="blockName">
+                                    <input type="text" class="form-control input-sm" data-name="blockName">
                                 </div><!-- /.col -->
                                 <label for="inputEmail1" class="col-lg-2 control-label">执行脚本</label>
                                 <div class="col-lg-3">
@@ -208,13 +208,13 @@ cursor:pointer;
                             <div class="form-group">
                                 <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
                                 <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
+                                    <input type="text" class="form-control input-sm" data-name="scriptParam" placeholder="para">
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
                                 <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
                                 <div class="col-lg-10">
-                                    <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
+                                    <input type="text" class="form-control input-sm" data-name="scriptTimeout" placeholder="para" value="1000">
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                         </form>
@@ -337,13 +337,13 @@ cursor:pointer;
     <div class="form-group">
         <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
         <div class="col-lg-10">
-            <input type="text" class="form-control input-sm" id="scriptParam" placeholder="para">
+            <input type="text" class="form-control input-sm" data-name="scriptParam" placeholder="para">
         </div><!-- /.col -->
     </div><!-- /form-group -->
     <div class="form-group">
         <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
         <div class="col-lg-10">
-            <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
+            <input type="text" class="form-control input-sm" data-name="scriptTimeout" placeholder="para" value="1000">
         </div><!-- /.col -->
     </div><!-- /form-group -->
 </form>
@@ -353,7 +353,7 @@ cursor:pointer;
         <div class="form-group">
             <label for="fileLabel" class="col-lg-2 control-label pointer">节点名称</label>
             <div class="col-lg-3">
-                <input type="text" class="form-control input-sm" data-name="blockOrdName" placeholder="blockOrdName">
+                <input type="text" class="form-control input-sm" data-name="ordName" placeholder="ordName">
             </div><!-- /.col -->
             <div class="col-lg-2 oneline pointer"><!-- 目标路径 -->
                 <span></span>
@@ -389,7 +389,7 @@ cursor:pointer;
         <div class="form-group">
             <label for="inputPassword1" class="col-lg-2 control-label">目标路径</label>
             <div class="col-lg-10">
-                <input type="text" class="form-control input-sm" id="fileTargetPath" placeholder="path">
+                <input type="text" class="form-control input-sm" data-name="fileTargetPath" placeholder="path">
             </div><!-- /.col -->
         </div><!-- /form-group -->
         <div class="form-group">
@@ -411,7 +411,7 @@ cursor:pointer;
         <div class="form-group">
             <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
             <div class="col-lg-10">
-                <input type="text" class="form-control input-sm" id="scriptTimeout" placeholder="para" value="1000">
+                <input type="text" class="form-control input-sm" data-name="scriptTimeout" placeholder="para" value="1000">
             </div><!-- /.col -->
         </div><!-- /form-group -->
     </form>
@@ -423,7 +423,7 @@ cursor:pointer;
                 <div class="form-group alert alert-info">
                     <label for="inputEmail1" class="col-lg-2 control-label">步骤名称</label>
                     <div class="col-lg-5">
-                        <input type="text" class="form-control input-sm" name="script_type">
+                        <input type="text" class="form-control input-sm" data-name="blockName">
                     </div><!-- /.col -->
                     <label for="inputEmail1" class="col-lg-2 control-label">文件分发</label>
                     <div class="col-lg-3">
@@ -458,7 +458,7 @@ cursor:pointer;
                 <div class="form-group alert alert-success">
                     <label for="inputEmail1" class="col-lg-2 control-label">步骤名称</label>
                     <div class="col-lg-5">
-                        <input type="text" class="form-control input-sm" name="blockName">
+                        <input type="text" class="form-control input-sm" data-name="blockName">
                     </div><!-- /.col -->
                     <label for="inputEmail1" class="col-lg-2 control-label">执行脚本</label>
                     <div class="col-lg-3">
@@ -545,9 +545,17 @@ $(window).load(function() {
  * save new task
  */
 $('#save').click(function () {
-   $.each($("#main-container form[data-name^='blockOrd']"), function (k, v) {
-       console.log(k, v)
-   })
+    var data = getPageTaskData();
+    var jData = JSON.stringify(data);
+    var url = '/job/saveNewTask/';
+    $.ajax({
+       type: "POST",
+       url: url,
+       data: jData,
+       success: function(msg){
+         console.log( "Data Saved: " + msg );
+       }
+    });
 });
 
 
