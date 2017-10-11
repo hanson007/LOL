@@ -6,6 +6,7 @@
 from public import *
 from business.models import *
 from cmdb.models import *
+from job.models import *
 from django.http import HttpResponse
 from functools import wraps
 import json
@@ -202,8 +203,92 @@ class Check_EditScript(Check_AddScript):
 
     def check_script_name(self):
         # 检测脚本名称
-        print self.data
         if not self.script_name:
             self.error_msg.append(u'脚本名称不能为空')
         if Nm_Script.objects.filter(name=self.script_name).exclude(pk=int(self.script_id)).exists():
             self.error_msg.append(u'脚本名称已存在')
+
+
+class CheckNewTask(object):
+    def __init__(self, request):
+        cur = Currency(request)
+        rq_post = getattr(cur, 'rq_post')
+        jdata = rq_post('data')
+        data = json.loads(jdata)
+        self.nm_step = data.get('nm_step', [])
+        self.data = data
+        print data
+        self.error_msg = []
+        self.nm_task = data.get('nm_task', {})
+
+    def checkTaskName(self):
+        # 作业名称不能为空
+        taskName = self.nm_task.get('taskName', {})
+        if not taskName:
+            self.error_msg.append(u'作业名称不能为空')
+        else:
+            if Nm_Task.objects.filter(name=taskName).exists():
+                self.error_msg.append(u'作业名称已存在')
+
+    def checkTaskStep(self):
+        if not self.nm_step:
+            self.error_msg.append(u'新建作业至少包含一个步骤')
+        else:
+            for ordData in self.nm_step:
+                self.checkOrd(ordData)
+
+    def checkOrd(self, ordData):
+        blockName = ordData.get('blockName', '')
+        blockOrd = ordData.get('blockOrd', 1)
+        ord = ordData.get('ord', 1)
+        account = ordData.get('account', '')
+        scriptTimeout = ordData.get('scriptTimeout', '')
+        ipList = ordData.get('ipList', [])
+        stepType = ordData.get('type', 0)
+
+        scriptId = ordData.get('scriptId', 0)
+        scriptParam = ordData.get('scriptParam', '')
+
+        fileSource = ordData.get('fileSource', [])
+        fileTargetPath = ordData.get('fileTargetPath', '')
+
+        if stepType not in (1, 2):
+            self.error_msg.append(u'步骤%s,节点%s的 步骤类型 错误' % (blockOrd, ord))
+            return
+
+        if not blockName:
+            self.error_msg.append(u'步骤%s,节点%s的 步骤名称 不能为空' % (blockOrd, ord))
+
+        if not account:
+            self.error_msg.append(u'步骤%s,节点%s的 账号 不能为空' % (blockOrd, ord))
+
+        if not ipList:
+            self.error_msg.append(u'步骤%s,节点%s的 目标机器 不能为空' % (blockOrd, ord))
+        else:
+            for _id in ipList:
+                if not Server.objects.filter(pk=int(_id)):
+                    self.error_msg.append(u'步骤%s,节点%s的 目标机器 不存在' % (blockOrd, ord))
+
+        if not scriptTimeout or not scriptTimeout.isdigit():
+            self.error_msg.append(u'步骤%s,节点%s的 超时时间 不能为空且必须为数字' % (blockOrd, ord))
+
+        if stepType == 1:  # 执行脚本
+            if not scriptId:
+                self.error_msg.append(u'步骤%s,节点%s的 脚本 不能为空' % (blockOrd, ord))
+            else:
+                if not Nm_Script.objects.filter(pk=int(scriptId)).exists():
+                    self.error_msg.append(u'步骤%s,节点%s的 脚本 不存在' % (blockOrd, ord))
+
+        if stepType == 2:  # 传送文件
+            if not fileSource:
+                self.error_msg.append(u'步骤%s,节点%s的 文件 不能为空' % (blockOrd, ord))
+
+            if not fileTargetPath:
+                self.error_msg.append(u'步骤%s,节点%s的 目标路径 不能为空' % (blockOrd, ord))
+
+    def total_check(self):
+        self.checkTaskName()
+        self.checkTaskStep()
+        status = 1 if self.error_msg else 0
+
+        return status, self.error_msg

@@ -198,7 +198,7 @@ class Nm_StepIplist(models.Model):
     """
     作业步骤目标服务器的执行结果
     """
-    step = models.ForeignKey(Nm_StepInstance, null=True, verbose_name=u'作业步骤id')
+    step = models.ForeignKey(Nm_Step, null=True, verbose_name=u'作业步骤id')
     ip = models.CharField(max_length=255, null=True, verbose_name=u'ip地址')
     result = models.TextField(null=True, verbose_name=u'执行结果')
 

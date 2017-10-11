@@ -37,6 +37,7 @@ class Currency(object):
                 ncon = con.replace("\r","\n")
                 f.write(ncon)
 
+
 class Datetime_help(object):
     # 日期时间帮助
     def __init__(self):
