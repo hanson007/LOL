@@ -1,0 +1,224 @@
+<div id="scriptOrdTemplate" class="hide"><!-- 脚本节点模板 -->
+    <form class="form-horizontal alert alert-warning" data-name="ord1">
+    <div class="form-group">
+        <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
+        <div class="col-lg-3">
+            <select name="script" class="form-control chzn-select"></select>
+        </div><!-- /.col -->
+        <div class="col-lg-2 oneline pointer"><!-- 缩略脚本参数 -->
+            <span></span>
+            <span></span>
+        </div>
+        <div class="col-lg-2">
+            <span></span>
+            <span></span>
+        </div><!-- 缩略账号 -->
+        <div class="col-lg-3">
+            <button type="button" data-name="ordUp" class="btn btn-default btn-xs">
+                <i class="fa fa-arrow-up"></i>
+            </button>
+            <button type="button" data-name="ordDown" class="btn btn-default btn-xs">
+                <i class="fa fa-arrow-down"></i>
+            </button>
+            <button type="button" data-name="ordDelete" class="btn btn-default btn-xs">
+                <i class="fa fa-trash-o"></i>
+            </button>
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="account" class="col-lg-2 control-label">执行账户</label>
+        <div class="col-lg-10">
+            <select name="account" class="form-control chzn-select"></select>
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
+        <div class="col-lg-10">
+            <button type="button" data-name="add_server" class="btn btn-success btn-sm">选择服务器</button>
+            <button type="button" data-name="delete" class="btn btn-success btn-sm">删除</button>
+            <div class="table-responsive" id="table_selected_div">
+                <table class="table table-hover table-bordered NoNewline" data-name="table_selected"></table>
+            </div><!-- /.padding-md -->
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
+        <div class="col-lg-10">
+            <label class="label-radio inline">
+                <input type="radio" name="script_type" value="1" checked="checked">
+                <span class="custom-radio"></span>
+                shell
+            </label>
+            <label class="label-radio inline">
+                <input type="radio" name="script_type" value="4">
+                <span class="custom-radio"></span>
+                python
+            </label>
+            <select class="form-inline" name="font"></select>
+            <label class="label-radio inline">
+                字体
+            </label>
+            <label class="label-radio inline">
+                ESC键退出全屏
+            </label>
+            <button type="button" name="fullScreen" class="btn btn-default btn-xs">
+                <i class="fa fa-crosshairs"></i> 全屏
+            </button>
+            <pre id="editor2" class="editor"></pre>
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
+        <div class="col-lg-10">
+            <input type="text" class="form-control input-sm" data-name="scriptParam" placeholder="para">
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+    <div class="form-group">
+        <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
+        <div class="col-lg-10">
+            <input type="text" class="form-control input-sm" data-name="scriptTimeout" placeholder="para" value="1000">
+        </div><!-- /.col -->
+    </div><!-- /form-group -->
+</form>
+</div>
+<div id="fileOrdTemplate" class="hide"><!-- 文件节点模板 -->
+    <form class="form-horizontal alert alert-warning" data-name="ord1">
+        <div class="form-group">
+            <label for="fileLabel" class="col-lg-2 control-label pointer">节点名称</label>
+            <div class="col-lg-3">
+                <input type="text" class="form-control input-sm" data-name="ordName" placeholder="ordName">
+            </div><!-- /.col -->
+            <div class="col-lg-2 oneline pointer"><!-- 目标路径 -->
+                <span></span>
+                <span></span>
+            </div>
+            <div class="col-lg-2">
+                <span></span>
+                <span></span>
+            </div><!-- 缩略账号 -->
+            <div class="col-lg-3">
+                <button type="button" data-name="ordUp" class="btn btn-default btn-xs">
+                    <i class="fa fa-arrow-up"></i>
+                </button>
+                <button type="button" data-name="ordDown" class="btn btn-default btn-xs">
+                    <i class="fa fa-arrow-down"></i>
+                </button>
+                <button type="button" data-name="ordDelete" class="btn btn-default btn-xs">
+                    <i class="fa fa-trash-o"></i>
+                </button>
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">源文件</label>
+            <div class="col-lg-10">
+                <input data-name='file' type="file"  name="file" style="padding-left: 0px;" class="col-lg-4" multiple="multiple">
+                <button type="button" data-name="delete_file" class="btn btn-success btn-xs">删除</button>
+                <span>（同名文件覆盖，文件大小不要超过500M）</span>
+                <div class="table-responsive" id="table_selected_div">
+                    <table class="table table-hover table-bordered NoNewline" data-name="table_selected_file"></table>
+                </div><!-- /.padding-md -->
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">目标路径</label>
+            <div class="col-lg-10">
+                <input type="text" class="form-control input-sm" data-name="fileTargetPath" placeholder="path">
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">执行账户</label>
+            <div class="col-lg-10">
+                <select name="account" class="form-control chzn-select"></select>
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">目标机器</label>
+            <div class="col-lg-10">
+                <button type="button" data-name="add_server" class="btn btn-success btn-sm">选择服务器</button>
+                <button type="button" data-name="delete" class="btn btn-success btn-sm">删除</button>
+                <div class="table-responsive" id="table_selected_div">
+                    <table class="table table-hover table-bordered NoNewline" data-name="table_selected"></table>
+                </div><!-- /.padding-md -->
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
+            <div class="col-lg-10">
+                <input type="text" class="form-control input-sm" data-name="scriptTimeout" placeholder="para" value="1000">
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+    </form>
+</div>
+<div id="fileBlockOrdTemplate" class="hide"><!-- 传输文件步骤模板 -->
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form class="form-horizontal" data-name="blockOrd2" data-type="pushFile">
+                <div class="form-group alert alert-info">
+                    <label for="inputEmail1" class="col-lg-2 control-label">步骤名称</label>
+                    <div class="col-lg-5">
+                        <input type="text" class="form-control input-sm" data-name="blockName">
+                    </div><!-- /.col -->
+                    <label for="inputEmail1" class="col-lg-2 control-label">文件分发</label>
+                    <div class="col-lg-3">
+                        <button type="button" data-name="blockUp" class="btn btn-info btn-xs">
+                            <i class="fa fa-arrow-up"></i>
+                        </button>
+                        <button type="button" data-name="blockDown" class="btn btn-info btn-xs">
+                            <i class="fa fa-arrow-down"></i>
+                        </button>
+                        <button type="button" data-name="blockDelete" class="btn btn-danger btn-xs">
+                            <i class="fa fa-trash-o"></i>
+                        </button>
+                    </div><!-- /.col -->
+                </div><!-- /form-group -->
+            </form>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <div class="col-lg-offset-1 col-lg-2">
+                        <button type="button" data-name="addOrd" class="btn btn-default btn-sm">
+                            <i class="fa fa-plus"></i> 新增节点
+                        </button>
+                    </div><!-- /.col -->
+                </div><!-- /form-group -->
+            </form>
+        </div>
+    </div><!-- /panel -->
+</div>
+<div id="scriptBlockOrdTemplate" class="hide"><!-- 执行脚本步骤模板 -->
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form class="form-horizontal" data-name="blockOrd1" data-type="runScript">
+                <div class="form-group alert alert-success">
+                    <label for="inputEmail1" class="col-lg-2 control-label">步骤名称</label>
+                    <div class="col-lg-5">
+                        <input type="text" class="form-control input-sm" data-name="blockName">
+                    </div><!-- /.col -->
+                    <label for="inputEmail1" class="col-lg-2 control-label">执行脚本</label>
+                    <div class="col-lg-3">
+                        <button type="button" data-name="blockUp" class="btn btn-info btn-xs">
+                            <i class="fa fa-arrow-up"></i>
+                        </button>
+                        <button type="button" data-name="blockDown" class="btn btn-info btn-xs">
+                            <i class="fa fa-arrow-down"></i>
+                        </button>
+                        <button type="button" data-name="blockDelete" class="btn btn-danger btn-xs">
+                            <i class="fa fa-trash-o"></i>
+                        </button>
+                    </div><!-- /.col -->
+                </div><!-- /form-group -->
+            </form>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <div class="col-lg-offset-1 col-lg-2">
+                        <button type="button" data-name="addOrd" class="btn btn-default btn-sm">
+                            <i class="fa fa-plus"></i> 新增节点
+                        </button>
+                    </div><!-- /.col -->
+                </div><!-- /form-group -->
+            </form>
+        </div>
+    </div><!-- /panel -->
+</div>
+<div class="table-responsive hide" id="table_choice_div">
+    <table class="table table-hover table-bordered NoNewline" id="table_choice"></table>
+</div><!-- /.padding-md -->

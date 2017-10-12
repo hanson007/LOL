@@ -203,7 +203,7 @@ function get_columns() {
     }, {
         field: 'name',
         title: '作业名称',
-        formatter: subjectFormatter
+        formatter: jobFormatter
     }, {
         field: 'creater',
         title: '创建人'
@@ -238,11 +238,11 @@ function actionFormatter(value, row, index) {
 
 
 /**
- * 超链接显示邮件标题
+ * 超链接显示作业名称
  */
-function subjectFormatter(value, row, index) {
+function jobFormatter(value, row, index) {
     return [
-        "<div><a href='/business/edit_script_page/"+ row.id + "' role='button' data-toggle='modal'"
+        "<div><a href='/job/editTask/"+ row.id + "' role='button' data-toggle='modal'"
         + " class='mod'>",
         value,
         '</a></div>'

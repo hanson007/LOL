@@ -142,12 +142,35 @@ class NmStep(object):
             obj.step = nmStep
             obj.save()
 
+
 @login_required
 def getJobList(request):
     data = Nm_Task.objects.values()
     cur = Currency(request)
     nData = [cur.transfor(d) for d in data]
-    print nData
     response = HttpResponse()
     response.write(json.dumps(nData))
+    return response
+
+
+@login_required
+def editTask(request, id):
+    # 编辑作业
+    return render_to_response('job/editTask.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required
+def getTask(request):
+    # 获取需要编辑的作业
+    cur = Currency(request)
+    _id = cur.rq_post('id')
+    task = Nm_Task.objects.get(pk=int(_id))
+    step = Nm_Step.objects.filter(taskId=task).values()
+    nStep = [cur.transfor(d) for d in step]
+    nm_task = {'taskName': task.name}
+    data = {'nm_task': nm_task, 'nm_step': nStep}
+    import pprint
+    pprint.pprint(data)
+    response = HttpResponse()
+    response.write(json.dumps(data))
     return response

@@ -999,6 +999,41 @@ function getFileOrdData($fileOrd) {
 
 
 /**
+ * load Task
+ */
+function loadTask(data) {
+    var nm_task = data['nm_task'];
+    var nm_step = data['nm_step'];
+    $('#taskName').val(nm_task.taskName);
+    $.each(nm_step, function (k, step) {
+        var $cont = $('#main-container .padding-md').children().eq(1).children();
+        var blockOrd = 'blockOrd' + step.blockOrd;
+        var ord = 'ord' + step.ord;
+        /* 添加步骤 */
+        if ($cont.find("form[data-name='"+ blockOrd +"']").length == 0){
+            $cont.append($('#scriptBlockOrdTemplate').html());
+            $cont.children().last().find("form[data-name^='blockOrd']").attr('data-name', blockOrd)
+        }
+        /* 添加节点 */
+        var $block = $cont.find("form[data-name='"+ blockOrd +"']");
+        var $ord = $block.siblings("form[data-name='"+ ord +"']");
+        console.log($ord, step.blockOrd)
+        if ($ord.length == 0){
+            var $addOrd = $block.siblings().find("button[data-name='addOrd']").parents('form');
+            $addOrd.before($('#scriptOrdTemplate').html());
+            $addOrd.prev().attr('data-name', ord)
+        }
+
+
+
+        /* 将 “添加步骤标签” 和 “保存按钮” 挪到最后 */
+        $cont.append($('#addScriptBlockOrd').parents("div .panel-default"));
+        $cont.append($('#save').parents("div .panel-default"));
+    });
+}
+
+
+/**
  * ajax get callback
  */
 function ajax_callback1(msg){
