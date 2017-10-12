@@ -166,8 +166,8 @@ function queryParams(params) {
 /*
 *初始化表格
 */
-var option = $('#table').bootstrapTable({
-    url: '/business/get_script/',
+$('#table').bootstrapTable({
+    url: '/job/getJobList/',
     pagination: true,                   //是否显示分页（*）
     sortable: false,                     //是否启用排序
     sortOrder: "asc",                   //排序方式
@@ -202,11 +202,8 @@ function get_columns() {
         visible: false
     }, {
         field: 'name',
-        title: '脚本名称',
+        title: '作业名称',
         formatter: subjectFormatter
-    }, {
-        field: 'TYPE',
-        title: '类型'
     }, {
         field: 'creater',
         title: '创建人'
@@ -214,31 +211,35 @@ function get_columns() {
         field: 'createTime',
         title: '创建时间'
     }, {
-        field: 'ModifyUser',
+        field: 'lastModifyUser',
         title: '修改人'
     }, {
-        field: 'ModifyTime',
+        field: 'lastModifyTime',
         title: '修改时间'
+    }, {
+        field: 'operation',
+        title: '操作',
+        formatter: actionFormatter
     }];
     return columns
 }
 
 
-/*
-*超链接显示收件人
-*/
-function receiversFormatter(value, row, index) {
+/**
+ * 操作按钮
+ */
+function actionFormatter(value, row, index) {
     return [
-        '<div class="text-overflow"><a href="#">',
-        value,
-        '</a></div>'
+        '<button type="button" data-name="runScript" value="'+ row.id +'" class="btn btn-info btn-xs">',
+        ' 执行',
+        '</button>'
     ].join('');
 }
 
 
-/*
-*超链接显示邮件标题
-*/
+/**
+ * 超链接显示邮件标题
+ */
 function subjectFormatter(value, row, index) {
     return [
         "<div><a href='/business/edit_script_page/"+ row.id + "' role='button' data-toggle='modal'"

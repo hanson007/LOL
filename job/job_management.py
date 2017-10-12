@@ -141,3 +141,13 @@ class NmStep(object):
             obj.ip = server.ip
             obj.step = nmStep
             obj.save()
+
+@login_required
+def getJobList(request):
+    data = Nm_Task.objects.values()
+    cur = Currency(request)
+    nData = [cur.transfor(d) for d in data]
+    print nData
+    response = HttpResponse()
+    response.write(json.dumps(nData))
+    return response
