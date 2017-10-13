@@ -68,7 +68,7 @@ class Nm_StepInstance(models.Model):
     # 文件传输的源文件。格式：[{"file":"/home/data/backup/2.war","serverSetId":"1002",account:"root"},
     # {"file":"/home/data/a.txt","serverSetId":"1002",account:"root"}]如果是本地文件，那么只填file，
     # serverSetId，accont为空
-    fileSource = models.CharField(max_length=255, null=True, verbose_name=u'文件传输的源文件')
+    fileSource = models.TextField(null=True, verbose_name=u'文件传输的源文件')
     # 文件传输的目标目录，如：/home/data/backup
     fileTargetPath = models.CharField(max_length=255, null=True, verbose_name=u'文件传输的目标目录')
     # 传输文件的限速，单位KBps
@@ -168,7 +168,7 @@ class Nm_Step(models.Model):
     # 文件传输的源文件。格式：[{"file":"/home/data/backup/2.war","serverSetId":"1002",account:"root"},
     # {"file":"/home/data/a.txt","serverSetId":"1002",account:"root"}]如果是本地文件，那么只填file，
     # serverSetId，accont为空
-    fileSource = models.CharField(max_length=255, null=True, verbose_name=u'文件传输的源文件')
+    fileSource = models.TextField(null=True, verbose_name=u'文件传输的源文件')
     # 文件传输的目标目录，如：/home/data/backup
     fileTargetPath = models.CharField(max_length=255, null=True, verbose_name=u'文件传输的目标目录')
     # 传输文件的限速，单位KBps

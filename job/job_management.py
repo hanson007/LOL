@@ -126,7 +126,7 @@ class NmStep(object):
             obj.scriptParam = self.scriptParam
 
         if self.type == 2:
-            obj.fileSource = self.fileSource
+            obj.fileSource = json.dumps(self.fileSource)
             obj.fileTargetPath = self.fileTargetPath
 
         obj.save()
@@ -134,7 +134,6 @@ class NmStep(object):
         logger.info(u'保存作业%s->步骤%s->节点%s' % (self.ntObj.name, self.blockName, self.ordName))
 
     def saveStepIpList(self, ipList, nmStep):
-
         for _id in ipList:
             obj = Nm_StepIplist()
             server = Server.objects.get(pk=int(_id))
@@ -166,7 +165,8 @@ def getTask(request):
     _id = cur.rq_post('id')
     task = Nm_Task.objects.get(pk=int(_id))
     step = Nm_Step.objects.filter(taskId=task).values()
-    nStep = [cur.transfor(d) for d in step]
+    t = Task()
+    nStep = [t.stepTransfor(d) for d in step]
     nm_task = {'taskName': task.name}
     data = {'nm_task': nm_task, 'nm_step': nStep}
     import pprint
@@ -174,3 +174,27 @@ def getTask(request):
     response = HttpResponse()
     response.write(json.dumps(data))
     return response
+
+
+class Task(object):
+    def __init__(self):
+        pass
+        self.dtf = DataTransfer()
+
+    def stepTransfor(self, d):
+        dict1 = self.dtf.commonTransfor1(d)
+        ipList = self.getIpList(d['id'])
+        dict1['ipList'] = ipList
+
+        return dict1
+
+    def getIpList(self, v):
+        step = Nm_Step.objects.get(pk=int(v))
+        stepIpList = Nm_StepIplist.objects.filter(step=step)
+        ipList = []
+        for sil in stepIpList:
+            server = Server.objects.filter(ip=sil.ip).values()[0]
+            server = self.dtf.commonTransfor1(server)
+            ipList.append(server)
+
+        return ipList

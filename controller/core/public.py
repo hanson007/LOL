@@ -87,3 +87,21 @@ class Datetime_help(object):
     def yesterdaystrf6(self):
         return self.yesterday.strftime(u'%Y年%m月%d日')
 
+
+class DataTransfer(object):
+    """
+    数据转换
+    """
+    def __init__(self):
+        pass
+
+    def dateTimeToStr1(self, v):
+        return v.strftime("%Y-%m-%d %H:%M:%S")
+
+    def commonTransfor1(self, d):
+        dict1 = {}
+        for k, v in d.items():
+            if isinstance(v, datetime.datetime):
+                v = self.dateTimeToStr1(v)
+            dict1[k] = v
+        return dict1

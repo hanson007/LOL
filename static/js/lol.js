@@ -140,7 +140,7 @@ $('body').on('click', "select[name='font']", function () {
 /**
  * 初始化账户
  */
-function init_account($selector) {
+function init_account($selector, val) {
     var url = '/business/get_account/';
     var index = layer.load();
     $.post(url, function (data) {
@@ -151,6 +151,7 @@ function init_account($selector) {
             var cont = "<option value='"+ v.name +"'>"+ v.name + " " + v.desc +"</option>";
             $selector.append(cont);
         });
+        $selector.val(val);
         $selector.chosen();
         layer.close(index);
     });
@@ -486,8 +487,8 @@ function serverColumns() {
 $('body').on('change', "input[data-name='file']", function () {
     var files = $(this)[0].files;
     var $tableSelectedFile = $(this).siblings().find("table[data-name='table_selected_file']");
-    console.log($tableSelectedFile)
     add_table_file(files, $tableSelectedFile);
+    console.log(files);
     $.each(files, function (k, file) {
         upload_file(file, $tableSelectedFile);
     });
@@ -844,7 +845,6 @@ function blockUp() {
 function blockDown() {
     $('body').on('click', "#main-container button[data-name='blockDown']", function () {
         var $block = $(this).parents(".panel-default");
-        console.log($block.next().find("form[data-name^='blockOrd']").parents('.panel-default'));
         $block.next().find("form[data-name^='blockOrd']").parents('.panel-default').after($block);
     })
 }
@@ -979,12 +979,7 @@ function getScriptOrdData($scriptOrd) {
 function getFileOrdData($fileOrd) {
     var data = {};
     data['ordName'] = $fileOrd.find("input[data-name='ordName']").val();
-    var fileSource = [];
-    var fileTableData = $fileOrd.find("table[data-name='table_selected_file']").bootstrapTable('getData');
-    $.each(fileTableData, function (k, v) {
-        fileSource.push(v.name)
-    });
-    data['fileSource'] = fileSource;
+    data['fileSource'] = $fileOrd.find("table[data-name='table_selected_file']").bootstrapTable('getData');
     data['fileTargetPath'] = $fileOrd.find("input[data-name='fileTargetPath']").val();
     data['account'] = $fileOrd.find("select[name='account']").val();
     var ipTableData = $fileOrd.find("table[data-name='table_selected']").bootstrapTable('getData');
@@ -1011,25 +1006,58 @@ function loadTask(data) {
         var ord = 'ord' + step.ord;
         /* 添加步骤 */
         if ($cont.find("form[data-name='"+ blockOrd +"']").length == 0){
-            $cont.append($('#scriptBlockOrdTemplate').html());
-            $cont.children().last().find("form[data-name^='blockOrd']").attr('data-name', blockOrd)
+            if (step.type == 1){
+                $cont.append($('#scriptBlockOrdTemplate').html());
+            }
+            else{
+                $cont.append($('#fileBlockOrdTemplate').html());
+            }
+            $cont.children().last().find("form[data-name^='blockOrd']").attr('data-name', blockOrd);
+            $cont.children().last().find("input[data-name='blockName']").val(step.blockName);
         }
         /* 添加节点 */
-        var $block = $cont.find("form[data-name='"+ blockOrd +"']");
-        var $ord = $block.siblings("form[data-name='"+ ord +"']");
-        console.log($ord, step.blockOrd)
-        if ($ord.length == 0){
-            var $addOrd = $block.siblings().find("button[data-name='addOrd']").parents('form');
-            $addOrd.before($('#scriptOrdTemplate').html());
-            $addOrd.prev().attr('data-name', ord)
-        }
-
+        loadOrd(step, $cont, blockOrd, ord);
+        console.log(step.blockOrd, step.type, step.type == 1)
 
 
         /* 将 “添加步骤标签” 和 “保存按钮” 挪到最后 */
         $cont.append($('#addScriptBlockOrd').parents("div .panel-default"));
         $cont.append($('#save').parents("div .panel-default"));
     });
+}
+
+
+/**
+ * load ord
+ */
+function loadOrd(step, $cont, blockOrd, ord) {
+        var $block = $cont.find("form[data-name='"+ blockOrd +"']");
+        var ordNum = $block.siblings("form[data-name='"+ ord +"']").length;
+        if (ordNum == 0){
+            var $addOrd = $block.siblings().find("button[data-name='addOrd']").parents('form');
+            if (step.type==1){
+                $addOrd.before($('#scriptOrdTemplate').html());
+                var $ord = $addOrd.prev();
+                init_script($ord.find("select[name='script']"));
+            }
+            else{
+                /*添加文件节点，并设置节点名称、文件、账户、已选机器*/
+                $addOrd.before($('#fileOrdTemplate').html());
+                $addOrd.prev().find("input[data-name='ordName']").val(step.name);
+                var $tableSelectedFile = $addOrd.prev().find("table[data-name='table_selected_file']");
+                initFileTableSelected($tableSelectedFile);
+                $tableSelectedFile.bootstrapTable('append', $.parseJSON(step.fileSource));
+                $addOrd.prev().find("input[data-name='fileTargetPath']").val(step.fileTargetPath);
+            }
+
+            var $account = $addOrd.prev().find("select[name='account']");
+            init_account($account, step.account);
+            var $tableSelected = $addOrd.prev().find("table[data-name='table_selected']");
+            initTableSelected($tableSelected);
+            $tableSelected.bootstrapTable('append', step.ipList);
+            $addOrd.prev().attr('data-name', ord);
+            console.log($account, step.account)
+        }
 }
 
 
