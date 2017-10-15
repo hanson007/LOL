@@ -98,40 +98,6 @@ white-space: nowrap;
 				<table class="table table-hover table-bordered NoNewline" id="table"></table>
 			</div><!-- /.padding-md -->
 		</div><!-- /panel -->
-        <div class="panel-body hide" id="add_script">
-            <form class="form-horizontal" >
-                <div class="form-group">
-                    <label for="inputEmail1" class="col-lg-2 control-label">脚本名称</label>
-                    <div class="col-lg-10">
-                        <input name="id" class="hide">
-                        <input type="email" class="form-control input-sm" name="name" placeholder="脚本名称">
-                    </div><!-- /.col -->
-                </div><!-- /form-group -->
-                <div class="form-group">
-                    <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
-                    <div class="col-lg-10">
-                        <label class="label-radio inline">
-                            <input type="radio" name="script_type" value="shell" checked="checked">
-                            <span class="custom-radio"></span>
-                            shell
-                        </label>
-                        <label class="label-radio inline">
-                            <input type="radio" name="script_type" value="python">
-                            <span class="custom-radio"></span>
-                            python
-                        </label>
-                        <select class="form-inline" id="font"></select>
-                        <label class="label-radio inline">
-                            字体
-                        </label>
-                        <label class="label-radio inline">
-                            F11全屏切换(光标放在文本框里)
-                        </label>
-                        <pre id="editor"></pre>
-                    </div><!-- /.col -->
-                </div><!-- /form-group -->
-            </form>
-        </div>
 	</div><!-- /padding-md -->
 </div><!-- /main-container -->
 {% endblock %}
@@ -230,7 +196,7 @@ function get_columns() {
  */
 function actionFormatter(value, row, index) {
     return [
-        '<button type="button" data-name="runScript" value="'+ row.id +'" class="btn btn-info btn-xs">',
+        '<button type="button" data-name="runTask" value="'+ row.id +'" class="btn btn-info btn-xs">',
         ' 执行',
         '</button>'
     ].join('');
@@ -242,7 +208,7 @@ function actionFormatter(value, row, index) {
  */
 function jobFormatter(value, row, index) {
     return [
-        "<div><a href='/job/editTask/"+ row.id + "' role='button' data-toggle='modal'"
+        "<div><a href='/job/editTaskPage/"+ row.id + "' role='button' data-toggle='modal'"
         + " class='mod'>",
         value,
         '</a></div>'
@@ -250,9 +216,9 @@ function jobFormatter(value, row, index) {
 }
 
 
-/*
-*删除
-*/
+/**
+ * 删除任务
+ */
 $('#delete').click(function () {
     var _delete = [];
     var Total_data = $('#table').bootstrapTable('getData');
@@ -261,18 +227,41 @@ $('#delete').click(function () {
             _delete.push(v.id)
         }
     });
-    var url = '/business/delete_account/';
+    var url = '/job/deleteTask/';
     var data = {'data': JSON.stringify(_delete)};
     //询问框
     layer.confirm('确认删除吗？', {
       btn: ['确定','取消'] //按钮
     }, function () {
             var index = layer.load();
-            $.post(url, data, function (msg) {
-                var _msg = $.parseJSON(msg);
+            $.post(url, data, function (jres) {
+                var res = $.parseJSON(jres);
                 layer.close(index);
-                layer.msg(_msg);
+                layer.msg(res.msg);
                 $('#table').bootstrapTable('refresh');
+            });
+        }
+    );
+});
+
+
+/**
+ * 执行任务
+ */
+$('body').on('click', "button[data-name='runTask']",function () {
+    var url = '/job/runTask/';
+    var taskId = $(this).val();
+    var data = {'taskId': taskId};
+    console.log(data)
+    //询问框
+    layer.confirm('确认执行作业吗？', {
+      btn: ['确定','取消'] //按钮
+    }, function () {
+            var index = layer.load();
+            $.post(url, data, function (jres) {
+                var res = $.parseJSON(jres);
+                layer.close(index);
+                layer.msg(res.msg);
             });
         }
     );

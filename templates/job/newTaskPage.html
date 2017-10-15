@@ -315,7 +315,7 @@ $(window).load(function() {
     blockDelete();
     addFileBlockOrd();
     addScriptBlockOrd();
-    setScript();
+    selectScript();
 });
 
 
@@ -331,26 +331,17 @@ $('#save').click(function () {
        url: url,
        data: {'data': jData},
        success: function(jres){
-           var res =$.parseJSON(jres);
-           if (res.status == 1){
+            var res =$.parseJSON(jres);
+            if (res.status == 1){
                 var errorMsg = res.msg.join('<br>');
                 ajax_callback1(errorMsg);
-           }
+            }
+            else{
+               var url = '/job/jobList/';
+               ajax_callback1(res.msg, url, true);
+            }
        }
     });
 });
-
-
-
-/*
-*ajax get callback
-*/
-function ajax_callback1(msg){
-    var index = layer.alert(msg, {
-        skin: 'layui-layer-molv' //样式类名
-    },function(){
-       layer.close(index)
-    });
-}
 </script>
 {% endblock %}

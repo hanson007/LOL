@@ -40,7 +40,10 @@ urlpatterns = [
     url(r'^newTaskPage/$', jobMg.newTaskPage),  # 新增作业页面
     url(r'^saveNewTask/$', jobMg.saveNewTask),  # 保存新增作业
     url(r'^getJobList/$', jobMg.getJobList),  # 获取作业列表
-    url(r'^editTask/(?P<id>\d+)/$', jobMg.editTask),  # 编辑作业页面
+    url(r'^editTaskPage/(?P<id>\d+)/$', jobMg.editTaskPage),  # 编辑作业页面
     url(r'^getTask/$', jobMg.getTask),  # 获取需要编辑的作业
+    url(r'^editTask/$', jobMg.editTask),  # 编辑作业
+    url(r'^deleteTask/$', jobMg.deleteTask),  # 删除作业
+    url(r'^runTask/$', jobMg.runTask),  # 执行作业
 
 ]

@@ -17,9 +17,9 @@ client = salt.client.LocalClient()
 
 # dict1 = {'a': 'test1', 'b': 'test2'}
 # dict2 = {'a': 'test1_dict2', 'b': 'test2_dict2'}
-dict1 = {'a': True, 'b': True}
-dict2 = {'a': True, 'b': False}
-print dict1.values()
+# dict1 = {'a': True, 'b': True}
+# dict2 = {'a': True, 'b': False}
+# print dict1.values()
 # total = [dict1, dict2]
 #
 #
@@ -39,3 +39,28 @@ print dict1.values()
 # print all(ret)
 # a = '/tmp/backup/'
 # print a.rfind('/') == (len(a) - 1), list(a)
+
+
+data = [{'blockOrd': 2, 'ord': 2}, {'blockOrd': 1, 'ord': 1}, {'blockOrd': 1, 'ord': 2}, {'blockOrd': 2, 'ord': 1}]
+
+print data
+def cmp(data1, data2):
+    print data1, data2
+    blockOrd1 = data1['blockOrd']
+    blockOrd2 = data2['blockOrd']
+    ord1 = data1['ord']
+    ord2 = data2['ord']
+    if blockOrd1 > blockOrd2:
+        return -1
+    elif blockOrd1 < blockOrd2:
+        return 1
+    elif blockOrd1 == blockOrd2:
+        if ord1 > ord2:
+            return -1
+        elif ord1 < ord2:
+            return 1
+        elif ord1 == ord2:
+            return 0
+
+data.sort(cmp=cmp, reverse=True)
+print data

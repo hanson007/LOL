@@ -217,7 +217,6 @@ class CheckNewTask(object):
         data = json.loads(jdata)
         self.nm_step = data.get('nm_step', [])
         self.data = data
-        print data
         self.error_msg = []
         self.nm_task = data.get('nm_task', {})
 
@@ -288,6 +287,30 @@ class CheckNewTask(object):
 
     def total_check(self):
         self.checkTaskName()
+        self.checkTaskStep()
+        status = 1 if self.error_msg else 0
+
+        return status, self.error_msg
+
+
+class CheckEditTask(CheckNewTask):
+    def __init__(self, request):
+        super(CheckEditTask, self).__init__(request)
+
+    def checkTaskName(self):
+        # 作业名称不能为空
+        taskName = self.nm_task.get('taskName', {})
+        if not taskName:
+            self.error_msg.append(u'作业名称不能为空')
+
+    def checkTaskId(self):
+        taskId = self.nm_task.get('taskId', '')
+        if not Nm_Task.objects.filter(pk=int(taskId)):
+            self.error_msg.append(u'作业ID不存在')
+
+    def total_check(self):
+        self.checkTaskName()
+        self.checkTaskId()
         self.checkTaskStep()
         status = 1 if self.error_msg else 0
 

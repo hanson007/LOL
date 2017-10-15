@@ -47,8 +47,8 @@ class Nm_StepInstance(models.Model):
     stepId = models.IntegerField(null=True, verbose_name=u'执行步骤id')
     taskInstanceId = models.ForeignKey(Nm_Instance, related_name="nm_instance_set")
     appId = models.IntegerField(null=True, verbose_name=u'业务id')
-    # 快速执行脚本时，执行脚本名称=脚本名称 + 时间
-    name = models.CharField(max_length=255, null=True, verbose_name=u'脚本名称')
+    # 快速执行脚本时，节点名称=脚本名称 + 时间
+    name = models.CharField(max_length=255, null=True, verbose_name=u'节点名称')
     # 步骤类型：1、执行脚本，2、传输文件，3、文本通知
     type = models.IntegerField(null=True, verbose_name=u'步骤类型')
     ord = models.IntegerField(null=True, verbose_name=u'小步骤执行的次序')
@@ -162,7 +162,7 @@ class Nm_Step(models.Model):
     serverSetId = models.CharField(max_length=255, null=True, verbose_name=u'服务器分组Id')
     # 目标机器的服务器IP，逗号分割，如果为空那么沿用作业的服务器IP
     ipList = models.CharField(max_length=255, null=True, verbose_name=u'目标机器的服务器IP')
-    scriptId = models.ForeignKey(Nm_Script, null=True, related_name='nm_script_set')
+    script = models.ForeignKey(Nm_Script, null=True, related_name='nm_script_set')
     scriptParam = models.CharField(max_length=255, null=True, verbose_name=u'执行脚本的参数')
     scriptTimeout = models.IntegerField(null=True, verbose_name=u'执行脚本的超时时间')
     # 文件传输的源文件。格式：[{"file":"/home/data/backup/2.war","serverSetId":"1002",account:"root"},

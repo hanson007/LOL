@@ -200,22 +200,16 @@ $(window).load(function() {
        }
     });
 
-
-{#    initFont($('#main-container').find("select[name='font']"));#}
-{#    init_account($('#main-container').find("select[name='account']"));#}
-{#    initEditorAction($('#main-container').find("pre[id^='editor']"));#}
-{#    init_script($('#main-container').find("select[name='script']"));#}
-{#    initTableSelected($('#main-container').find("table[data-name='table_selected']"));#}
-{#    initAddOrd();#}
-{#    ordUp();#}
-{#    ordDown();#}
-{#    blockUp();#}
-{#    blockDown();#}
-{#    ordDelete();#}
-{#    blockDelete();#}
-{#    addFileBlockOrd();#}
-{#    addScriptBlockOrd();#}
-{#    setScript();#}
+    initAddOrd();
+    ordUp();
+    ordDown();
+    blockUp();
+    blockDown();
+    ordDelete();
+    blockDelete();
+    addFileBlockOrd();
+    addScriptBlockOrd();
+    selectScript();
 });
 
 
@@ -223,9 +217,13 @@ $(window).load(function() {
  * save new task
  */
 $('#save').click(function () {
+    var curl = window.location.href.split('/');
+    var taskId = curl[curl.length -2];
     var data = getPageTaskData();
+    data.nm_task.taskId = taskId;
     var jData = JSON.stringify(data);
-    var url = '/job/saveNewTask/';
+    var url = '/job/editTask/';
+    console.log(data, taskId)
     $.ajax({
        type: "POST",
        url: url,
@@ -236,21 +234,12 @@ $('#save').click(function () {
                 var errorMsg = res.msg.join('<br>');
                 ajax_callback1(errorMsg);
            }
+           else{
+               var url = '/job/jobList/';
+               ajax_callback1(res.msg, url, true);
+           }
        }
     });
-});
-
-
-
-/*
-*ajax get callback
-*/
-function ajax_callback1(msg){
-    var index = layer.alert(msg, {
-        skin: 'layui-layer-molv' //样式类名
-    },function(){
-       layer.close(index)
-    });
-}
+})
 </script>
 {% endblock %}

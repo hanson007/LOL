@@ -163,26 +163,36 @@ function init_account($selector, val) {
  */
 function ModifyScriptType(editor, $script_type) {
     $script_type.click(function () {
-        var _type = $(this).val();
-        if (_type=='1'){
-            editor.setValue(multiline(shell_tmp));
-            editor.session.setMode("ace/mode/sh");
-        }
-       else {
-            editor.setValue(multiline(python_tmp));
-            editor.session.setMode("ace/mode/python");
-        }
-        editor.gotoLine(1);
+        loadScriptType(editor, $(this));
     });
 }
+
+/**
+ * load script type
+ */
+function loadScriptType(editor, $scriptType) {
+    var _type = $scriptType.val();
+    if (_type=='1'){
+        editor.setValue(multiline(shell_tmp));
+        editor.session.setMode("ace/mode/sh");
+    }
+   else {
+        editor.setValue(multiline(python_tmp));
+        editor.session.setMode("ace/mode/python");
+    }
+    editor.gotoLine(1);
+}
+
 
 
 /**
  * 初始化脚本选项
  */
-function init_script($selector) {
+function init_script($selector, val, isLoadDefault) {
     var url = '/business/get_script/';
     var index = layer.load();
+    var val = val || null;
+    var isLoadDefault = isLoadDefault || false;
     $.post(url, function (data) {
         var _data = $.parseJSON(data);
         var cont0 = "<option value=''>请选择</option>";
@@ -191,6 +201,10 @@ function init_script($selector) {
             var cont = "<option value='"+ v.id +"'>"+ v.name + "</option>";
             $selector.append(cont);
         });
+        if (isLoadDefault){//设置默认值
+            $selector.val(val);
+            loadScript($selector);
+        }
         $selector.chosen();
         layer.close(index);
     });
@@ -851,30 +865,39 @@ function blockDown() {
 
 
 /**
- * 设置脚本
+ * 选择脚本
  */
-function setScript() {
+function selectScript() {
     $('body').on('change', "#main-container select[name='script']", function() {
-        var url = '/business/get_edit_script/';
-        var script_id = $(this).val();
-        var editorId = $(this).parents(".form-group").siblings().find('pre').attr('id');
-        var editor = ace.edit(editorId);
-        $.post(url,{'id': script_id}, function (res) {
-            var _data = $.parseJSON(res);
-            // $('#script_name').val(_data.name);
-            editor.setValue(_data.content);
-            if (_data.TYPE=='1'){
-                editor.session.setMode("ace/mode/sh");
-            }
-            else {
-                editor.session.setMode("ace/mode/python");
-            }
-            editor.gotoLine(1);
-            editor.setReadOnly(true);
-            $("input:radio[name='script_type'][value='"+ _data.TYPE +"']").prop("checked", "checked");
-        });
+        loadScript($(this));
     });
 }
+
+
+/**
+ * 加载脚本
+ */
+function loadScript($scriptSelect) {
+    var url = '/business/get_edit_script/';
+    var script_id = $scriptSelect.val();
+    var editorId = $scriptSelect.parents(".form-group").siblings().find('pre').attr('id');
+    var editor = ace.edit(editorId);
+    var $ord = $scriptSelect.parents("form");
+    $.post(url,{'id': script_id}, function (res) {
+        var _data = $.parseJSON(res);
+        editor.setValue(_data.content);
+        if (_data.TYPE=='1'){
+            editor.session.setMode("ace/mode/sh");
+        }
+        else {
+            editor.session.setMode("ace/mode/python");
+        }
+        editor.gotoLine(1);
+        editor.setReadOnly(true);
+        $ord.find("input[name='script_type'][value='"+ _data.TYPE +"']").prop("checked", "checked");
+    });
+}
+
 
 
 /**
@@ -1017,8 +1040,6 @@ function loadTask(data) {
         }
         /* 添加节点 */
         loadOrd(step, $cont, blockOrd, ord);
-        console.log(step.blockOrd, step.type, step.type == 1)
-
 
         /* 将 “添加步骤标签” 和 “保存按钮” 挪到最后 */
         $cont.append($('#addScriptBlockOrd').parents("div .panel-default"));
@@ -1032,42 +1053,46 @@ function loadTask(data) {
  */
 function loadOrd(step, $cont, blockOrd, ord) {
         var $block = $cont.find("form[data-name='"+ blockOrd +"']");
-        var ordNum = $block.siblings("form[data-name='"+ ord +"']").length;
-        if (ordNum == 0){
-            var $addOrd = $block.siblings().find("button[data-name='addOrd']").parents('form');
-            if (step.type==1){
-                $addOrd.before($('#scriptOrdTemplate').html());
-                var $ord = $addOrd.prev();
-                init_script($ord.find("select[name='script']"));
-            }
-            else{
-                /*添加文件节点，并设置节点名称、文件、账户、已选机器*/
-                $addOrd.before($('#fileOrdTemplate').html());
-                $addOrd.prev().find("input[data-name='ordName']").val(step.name);
-                var $tableSelectedFile = $addOrd.prev().find("table[data-name='table_selected_file']");
-                initFileTableSelected($tableSelectedFile);
-                $tableSelectedFile.bootstrapTable('append', $.parseJSON(step.fileSource));
-                $addOrd.prev().find("input[data-name='fileTargetPath']").val(step.fileTargetPath);
-            }
-
-            var $account = $addOrd.prev().find("select[name='account']");
-            init_account($account, step.account);
-            var $tableSelected = $addOrd.prev().find("table[data-name='table_selected']");
-            initTableSelected($tableSelected);
-            $tableSelected.bootstrapTable('append', step.ipList);
-            $addOrd.prev().attr('data-name', ord);
-            console.log($account, step.account)
+        var $addOrd = $block.siblings().find("button[data-name='addOrd']").parents('form');
+        if (step.type==1){
+            /*添加脚本节点，加载账号、脚本、字体等等数据*/
+            $addOrd.before($('#scriptOrdTemplate').html());
+            var $ord = $addOrd.prev();
+            var editorId = blockOrd + '_' + step.ord;
+            $ord.find("pre").attr('id', editorId);
+            initEditorAction($ord.find("pre"));
+            init_script($ord.find("select[name='script']"), step.script_id, true);
+            initFont($ord.find("select[name='font']"));
+            $ord.find("input[data-name='scriptParam']").val(step.scriptParam);
         }
+        else{
+            /*添加文件节点，并设置节点名称、文件、账户、已选机器*/
+            $addOrd.before($('#fileOrdTemplate').html());
+            $addOrd.prev().find("input[data-name='ordName']").val(step.name);
+            var $tableSelectedFile = $addOrd.prev().find("table[data-name='table_selected_file']");
+            initFileTableSelected($tableSelectedFile);
+            $tableSelectedFile.bootstrapTable('append', $.parseJSON(step.fileSource));
+            $addOrd.prev().find("input[data-name='fileTargetPath']").val(step.fileTargetPath);
+        }
+        var $account = $addOrd.prev().find("select[name='account']");
+        init_account($account, step.account);
+        var $tableSelected = $addOrd.prev().find("table[data-name='table_selected']");
+        initTableSelected($tableSelected);
+        $tableSelected.bootstrapTable('append', step.ipList);
+        $addOrd.prev().attr('data-name', ord);
 }
 
 
 /**
  * ajax get callback
  */
-function ajax_callback1(msg){
+function ajax_callback1(msg, url, isJumpPage){
+    var url = url || null;
+    var isJumpPage = isJumpPage || false;
     var index = layer.alert(msg, {
         skin: 'layui-layer-molv' //样式类名
     },function(){
-       layer.close(index)
+       layer.close(index);
+       if (isJumpPage){window.location.href=url}
     });
 }

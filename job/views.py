@@ -15,12 +15,15 @@ from business.models import Account
 from django.shortcuts import render
 from django.contrib import auth
 import salt.client
+import logging
 import json
 import os
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+
+logger = logging.getLogger('job')
 
 # Create your views here.
 @login_required
@@ -56,7 +59,6 @@ class Run_Script_Help(object):
         self.scriptType = data.get('script_type', '')
         self.content = data.get('content', '')
         self.operator = data.get('operator', '')
-        self.content_list = self.content.split('\n')
         self.target = ' or '.join(['S@' + ip for ip in self.ipList])
 
         self.instance = Nm_Instance()
@@ -67,6 +69,8 @@ class Run_Script_Help(object):
             self.script_name = script.name
             self.content = script.content
             self.scriptType = script.TYPE
+
+        self.content_list = self.content.split('\n')
 
     def instance_start(self, name):
         # 作业实例 start
@@ -97,8 +101,8 @@ class Run_Script_Help(object):
     def ipList_start(self):
         # 作业实例目标机器
         for ip in self.ipList:
-            ipList = Nm_ipList()
-            ipList.stepInstance_id = self.step_instance
+            ipList = Nm_StepInstanceIpList()
+            ipList.stepInstance = self.step_instance
             ipList.ip = ip
             ipList.save()
 
@@ -120,12 +124,12 @@ class Run_Script_Help(object):
         self.step_instance.totalTime = (self.step_instance.endTime - self.step_instance.startTime).seconds
 
     def save_ret(self, ret):
-        # 保存结果，错误判断 is_error
+        # 保存结果，错误判断 is_error(True：执行报错，False：执行成功)
         server_help = Server_Help()
         servers = server_help.get_servers_dict()
         is_error = True
         for key, val in ret.items():
-            ipList = Nm_ipList.objects.get(stepInstance_id=self.step_instance, ip=servers[key])
+            ipList = Nm_StepInstanceIpList.objects.get(stepInstance=self.step_instance, ip=servers[key])
             if val['retcode'] == 0:
                 result = val['stdout']
             else:
@@ -251,7 +255,7 @@ class Run_fastPushfile_Help(Run_Script_Help):
         server_help = Server_Help()
         servers = server_help.get_servers_dict()
         for key, val in ret.items():
-            ipList = Nm_ipList.objects.get(stepInstance_id=self.step_instance, ip=servers[key])
+            ipList = Nm_StepInstanceIpList.objects.get(stepInstance_id=self.step_instance, ip=servers[key])
             ipList.result = val
             ipList.save()
 
@@ -271,7 +275,7 @@ class Run_fastPushfile_Help(Run_Script_Help):
 
 
 def run_fastPushfile_async(data):
-    # 异步快速运行脚本任务
+    # 异步推送文件
     rsh = Run_fastPushfile_Help(data)
     rsh.instance_start(rsh.task_name)
     rsh.stepInstance_start()
