@@ -16,7 +16,7 @@ from controller.core.access import *
 from celery import shared_task
 from models import *
 from cmdb.models import *
-from views import (run_script_async, Run_Script_Help)
+from views import (RunScriptHelp, PushFileHelp)
 from business.models import Account
 from django.shortcuts import render
 from django.contrib import auth
@@ -292,7 +292,7 @@ def runTask(request):
     nmStep = list(nmStep)
     nmStep.sort(cmp=Task.cmp, reverse=True)
     for d in nmStep:
-        print d['blockOrd'], d['ord']
+        print d['blockOrd'], d['ord'], d['type'], d['type']== 1
     runNmStepAsync(nmStep)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': u'成功'}))
@@ -316,52 +316,35 @@ def runNmStepAsync(nmStep):
             runNmStepPushFile(data)
 
 
-class RunNmStepScriptHelp(Run_Script_Help):
+class RunNmStepScriptHelp(RunScriptHelp):
     """
     执行脚本节点
     """
     def __init__(self, data):
-        self._id = data.get('id')
+        super(RunNmStepScriptHelp, self).__init__(data)
+        self.stepId = data.get('id')
         self.ipList = self.getIplist()
-        self.dt = Datetime_help()
-        self.sh = Salt_Help()
-        self.scriptParam = data.get('scriptParam', '')
-        self.scriptTimeout = data.get('scriptTimeout', '')
-        self.account = data.get('account', '')
-        self.script_id = data.get('script_id', '')
-        self.operator = data.get('operator', '')
+        self.target = self.getTarget(self.ipList)
         self.blockName = data.get('blockName', '')
         self.blockOrd = data.get('blockOrd', '')
         self.ord = data.get('ord', '')
-        self.target = ' or '.join(['S@' + ip for ip in self.ipList])
-
-        self.instance = Nm_Instance()
-        self.step_instance = Nm_StepInstance()
-
-        if self.script_id:
-            script = Nm_Script.objects.get(pk=int(self.script_id))
-            self.script_name = script.name
-            self.content = script.content
-            self.scriptType = script.TYPE
-
-        self.content_list = self.content.split('\n')
 
     def getIplist(self):
-        nmStepIpList = Nm_StepIplist.objects.filter(step=int(self._id))
+        nmStepIpList = Nm_StepIplist.objects.filter(step=int(self.stepId))
         ipList = [nsi.ip for nsi in nmStepIpList]
         return ipList
 
     def stepInstance_start(self):
         # 作业实例步骤 start
         self.step_instance.taskInstanceId = self.instance
-        self.step_instance.name = self.script_name
+        self.step_instance.name = self.script_name  # 节点名称=脚本名称
         self.step_instance.type = 1
         self.step_instance.ord = self.ord
         self.step_instance.blockOrd = self.blockOrd
         self.step_instance.blockName = self.blockName
         self.step_instance.account = self.account
         self.step_instance.scriptContent = self.content
-        self.step_instance.scriptType = 1 if self.scriptType == 'shell' else 4
+        self.step_instance.scriptType = self.scriptType
         self.step_instance.scriptParam = self.scriptParam
         self.step_instance.scriptTimeout = self.scriptTimeout
         self.step_instance.operator = self.operator
@@ -371,41 +354,44 @@ class RunNmStepScriptHelp(Run_Script_Help):
 
 
 def runNmStepScript(data):
+    """
+    运行脚本节点
+    :param data: {'nm_task':nm_task, 'nm_step': nm_step}
+    :return:
+    """
     rssh = RunNmStepScriptHelp(data)
+    logSubject = u'执行作业 %s ，运行脚本节点, 步骤名：%s，节点名: %s ' % (
+                    data['taskName'], rssh.blockName, rssh.script_name)
     rssh.instance_start(data['taskName'])
+    logger.info(logSubject + u'创建作业实例')
     rssh.stepInstance_start()
-    rssh.ipList_start()
-    ret = rssh.run_job()
+    logger.info(logSubject + u'创建步骤实例')
+    rssh.ipList_start(rssh.ipList)
+    logger.info(logSubject + (u'创建作业实例目标机器。ipList: %s' % rssh.ipList))
+    ret = rssh.run_job(rssh.target)
+    logger.info(logSubject + (u' 执行脚本结果 %s' % ret))
     rssh.instance_end()
+    logger.info(logSubject + u' 作业实例保存完成')
     rssh.stepInstance_end()
+    logger.info(logSubject + u' 步骤实例保存完成')
     is_error = rssh.save_ret(ret)
+    logger.info(logSubject + u' 保存执行结果')
     rssh.save_status(is_error)
+    logger.info(logSubject + u' 保存执行状态')
 
 
-class RunNmStepPushFileHelp(Run_Script_Help):
+class RunNmStepPushFileHelp(PushFileHelp):
     def __init__(self, data):
+        super(RunNmStepPushFileHelp, self).__init__(data)
         self._id = data.get('id')
         self.ipList = self.getIplist()
-        self.dt = Datetime_help()
-        self.sh = Salt_Help()
-        self.scriptTimeout = data.get('scriptTimeout', '')
-        self.account = data.get('account', '')
-        self.operator = data.get('operator', '')
+        self.target = self.getTarget(self.ipList)
+        self.fileSource = json.loads(data.get('fileSource', ''))
+        self.taskName = data.get('taskName', '')
         self.blockName = data.get('blockName', '')
         self.blockOrd = data.get('blockOrd', '')
         self.ord = data.get('ord', '')
-        self.target = ' or '.join(['S@' + ip for ip in self.ipList])
-
-        self.instance = Nm_Instance()
-        self.step_instance = Nm_StepInstance()
-
         self.name = data.get('name')  # ordName
-        self.taskName = data.get('taskName')
-        self.fileSource = json.loads(data.get('fileSource'))
-        self.fileTargetPath = data.get('fileTargetPath')
-        # 目标路径最后一位如果没有反斜线 /，那么就加一个
-        if not self.fileTargetPath.rfind('/') == (len(self.fileTargetPath) - 1):
-            self.fileTargetPath += '/'
 
     def stepInstance_start(self):
         # 作业实例步骤 start
@@ -429,66 +415,28 @@ class RunNmStepPushFileHelp(Run_Script_Help):
         ipList = [nsi.ip for nsi in nmStepIpList]
         return ipList
 
-    def run_job(self):
-        # 执行作业
-        rets = {}
-        for file in self.fileSource:
-            ret = self.sh.run_fastPushfile(self.target,
-                                           file['name'],
-                                           self.fileTargetPath,
-                                           self.account, self.scriptTimeout)
-            print 'job===>',ret
-            self.merge_results(rets, ret)
-        return rets
-
-    def merge_results(self, rets, ret):
-        """
-        将每台机器多个文件的传输结果合并为一个。
-        例如file1、file2 传输到master机器上返回两个结果{'master': v1}, {'master': v2}
-        将这两个结果合并为一个，保证每台机器只有一个结果
-        :param rets: {'master': m_v1+ m_v2, 'test': t_v1+t_v2, ... ...}
-        :param ret: [ {'master': m_v1, 'test': t_v1} ,{'master': m_v2, 'test': t_v2}, ... ... ]
-        :return:
-        """
-        for k, v in ret.items():
-            if k in rets:
-                rets[k] = rets[k] + '\n' + v
-            else:
-                rets[k] = v
-
-    def save_ret(self, ret):
-        # 保存结果，错误判断 is_error
-        server_help = Server_Help()
-        servers = server_help.get_servers_dict()
-        for key, val in ret.items():
-            ipList = Nm_StepInstanceIpList.objects.get(stepInstance_id=self.step_instance, ip=servers[key])
-            ipList.result = val
-            ipList.save()
-
-    def check_status(self):
-        # 利用md5检测传输文件是否成功，有一个失败，那么任务就算失败
-        rets = []
-        for file in self.fileSource:
-            # 获取文件的md5值
-            md5 = self.sh.get_file_md5(file['name'])
-            # 检测传输的文件md5值
-            ret = self.sh.check_file_md5(self.target,
-                                        file['name'],
-                                        self.fileTargetPath, md5)
-            rets.extend(ret.values())
-
-        return True if all(rets) else False
-
 
 def runNmStepPushFile(data):
     # 异步推送文件
     rsh = RunNmStepPushFileHelp(data)
+    file = [f['name'] for f in rsh.fileSource]
+    logSubject = u'执行作业 %s ，传送文件节点 步骤名：%s，节点名: %s, 文件：%s, ' % (
+                    data['taskName'], rsh.blockName, rsh.name, ' '.join(file))
     rsh.instance_start(rsh.taskName)
+    logger.info(logSubject + u'创建作业实例')
     rsh.stepInstance_start()
-    rsh.ipList_start()
-    rets = rsh.run_job()
+    logger.info(logSubject + u'创建步骤实例')
+    rsh.ipList_start(rsh.ipList)
+    logger.info(logSubject + (u'创建作业实例目标机器。ipList: %s' % rsh.ipList))
+    rets = rsh.run_job(rsh.target, rsh.fileSource)
+    logger.info(logSubject + (u' 执行结果 %s' % rets))
     rsh.instance_end()
+    logger.info(logSubject + u' 作业实例保存完成')
     rsh.stepInstance_end()
+    logger.info(logSubject + u' 步骤实例保存完成')
     rsh.save_ret(rets)
-    is_error = rsh.check_status()
+    logger.info(logSubject + u' 保存执行结果')
+    is_error = rsh.check_status(rsh.target, rsh.fileSource)
+    logger.info(logSubject + u' MD5检测传输文件')
     rsh.save_status(is_error)
+    logger.info(logSubject + u' 保存执行状态')
