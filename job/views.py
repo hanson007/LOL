@@ -117,7 +117,6 @@ class RunScriptHelp(RunTaskHelp):
     def ipList(self, val):
         return val
 
-
     def run_job(self, target):
         # 执行作业
         self.saltH.delete_old_file(self.saltH.file)
@@ -140,8 +139,6 @@ class RunScriptHelp(RunTaskHelp):
             ipList.result = result
             ipList.save()
         return is_error
-
-
 
 
 class FastRunScriptHelp(RunScriptHelp):
