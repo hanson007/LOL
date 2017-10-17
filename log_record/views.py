@@ -22,7 +22,6 @@ def get_taskInstance(request):
     data = Nm_Instance.objects.all().values()
     cur = Currency(request)
     data_str = [transfor(d) for d in data]
-    print data_str
     response = HttpResponse()
     response.write(json.dumps(data_str))
     return response

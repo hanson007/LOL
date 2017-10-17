@@ -16,7 +16,7 @@ from controller.core.access import *
 from celery import shared_task
 from models import *
 from cmdb.models import *
-from views import (RunScriptHelp, PushFileHelp)
+from views import (RunScriptHelp, PushFileHelp, NmInstanceHelp)
 from business.models import Account
 from django.shortcuts import render
 from django.contrib import auth
@@ -291,29 +291,36 @@ def runTask(request):
         data['taskName'] = nmTask.name
     nmStep = list(nmStep)
     nmStep.sort(cmp=Task.cmp, reverse=True)
-    for d in nmStep:
-        print d['blockOrd'], d['ord'], d['type'], d['type']== 1
-    runNmStepAsync(nmStep)
+    runNmStepAsync(nmStep, nmTask.name, cur.nowuser.username)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': u'成功'}))
     return response
 
 
 @shared_task()
-def runNmStepAsync(nmStep):
+def runNmStepAsync(nmStep, taskName, operator):
     """
     执行步骤、节点
     :param nmStep:
     :return:
     """
-    import pprint
-
+    nmInstance = NmInstanceHelp(taskName, operator)
+    nmInstance.start()
+    logger.info(u'执行作业 %s, 创建作业实例' % taskName)
+    error = []
     for data in nmStep:
-        # print pprint.pprint(data)
+        isStepError = False
         if data['type'] == 1:
-            runNmStepScript(data)
+            isStepError = runNmStepScript(data, nmInstance.instance)
         if data['type'] == 2:
-            runNmStepPushFile(data)
+            isStepError = runNmStepPushFile(data, nmInstance.instance)
+        error.append(isStepError)
+
+    isInstanceError = True if all(error) else False
+    nmInstance.end()
+    logger.info(u'执行作业 %s, 作业实例保存完成' % taskName)
+    nmInstance.save_status(isInstanceError)
+    logger.info(u'执行作业 %s, 作业实例状态保存完成，状态: %s' % (taskName, isInstanceError))
 
 
 class RunNmStepScriptHelp(RunScriptHelp):
@@ -334,9 +341,9 @@ class RunNmStepScriptHelp(RunScriptHelp):
         ipList = [nsi.ip for nsi in nmStepIpList]
         return ipList
 
-    def stepInstance_start(self):
+    def stepInstance_start(self, instance):
         # 作业实例步骤 start
-        self.step_instance.taskInstanceId = self.instance
+        self.step_instance.taskInstanceId = instance
         self.step_instance.name = self.script_name  # 节点名称=脚本名称
         self.step_instance.type = 1
         self.step_instance.ord = self.ord
@@ -353,31 +360,28 @@ class RunNmStepScriptHelp(RunScriptHelp):
         self.step_instance.save()
 
 
-def runNmStepScript(data):
+def runNmStepScript(data, instance):
     """
     运行脚本节点
     :param data: {'nm_task':nm_task, 'nm_step': nm_step}
     :return:
     """
     rssh = RunNmStepScriptHelp(data)
-    logSubject = u'执行作业 %s ，运行脚本节点, 步骤名：%s，节点名: %s ' % (
+    logSubject = u'执行作业 %s，运行脚本节点, 步骤名：%s，节点名: %s ' % (
                     data['taskName'], rssh.blockName, rssh.script_name)
-    rssh.instance_start(data['taskName'])
-    logger.info(logSubject + u'创建作业实例')
-    rssh.stepInstance_start()
+    rssh.stepInstance_start(instance)
     logger.info(logSubject + u'创建步骤实例')
     rssh.ipList_start(rssh.ipList)
     logger.info(logSubject + (u'创建作业实例目标机器。ipList: %s' % rssh.ipList))
     ret = rssh.run_job(rssh.target)
     logger.info(logSubject + (u' 执行脚本结果 %s' % ret))
-    rssh.instance_end()
-    logger.info(logSubject + u' 作业实例保存完成')
     rssh.stepInstance_end()
     logger.info(logSubject + u' 步骤实例保存完成')
     is_error = rssh.save_ret(ret)
     logger.info(logSubject + u' 保存执行结果')
     rssh.save_status(is_error)
     logger.info(logSubject + u' 保存执行状态')
+    return is_error
 
 
 class RunNmStepPushFileHelp(PushFileHelp):
@@ -393,9 +397,9 @@ class RunNmStepPushFileHelp(PushFileHelp):
         self.ord = data.get('ord', '')
         self.name = data.get('name')  # ordName
 
-    def stepInstance_start(self):
+    def stepInstance_start(self, instance):
         # 作业实例步骤 start
-        self.step_instance.taskInstanceId = self.instance
+        self.step_instance.taskInstanceId = instance
         self.step_instance.name = self.name
         self.step_instance.type = 2
         self.step_instance.ord = self.ord
@@ -416,22 +420,18 @@ class RunNmStepPushFileHelp(PushFileHelp):
         return ipList
 
 
-def runNmStepPushFile(data):
+def runNmStepPushFile(data, instance):
     # 异步推送文件
     rsh = RunNmStepPushFileHelp(data)
     file = [f['name'] for f in rsh.fileSource]
-    logSubject = u'执行作业 %s ，传送文件节点 步骤名：%s，节点名: %s, 文件：%s, ' % (
+    logSubject = u'执行作业 %s，传送文件节点 步骤名：%s，节点名: %s, 文件：%s, ' % (
                     data['taskName'], rsh.blockName, rsh.name, ' '.join(file))
-    rsh.instance_start(rsh.taskName)
-    logger.info(logSubject + u'创建作业实例')
-    rsh.stepInstance_start()
+    rsh.stepInstance_start(instance)
     logger.info(logSubject + u'创建步骤实例')
     rsh.ipList_start(rsh.ipList)
     logger.info(logSubject + (u'创建作业实例目标机器。ipList: %s' % rsh.ipList))
     rets = rsh.run_job(rsh.target, rsh.fileSource)
     logger.info(logSubject + (u' 执行结果 %s' % rets))
-    rsh.instance_end()
-    logger.info(logSubject + u' 作业实例保存完成')
     rsh.stepInstance_end()
     logger.info(logSubject + u' 步骤实例保存完成')
     rsh.save_ret(rets)
@@ -440,3 +440,4 @@ def runNmStepPushFile(data):
     logger.info(logSubject + u' MD5检测传输文件')
     rsh.save_status(is_error)
     logger.info(logSubject + u' 保存执行状态')
+    return is_error
