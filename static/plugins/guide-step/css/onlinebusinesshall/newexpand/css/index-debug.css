@@ -1,0 +1,150 @@
+.ui-container {}
+.ui-content {
+	margin: 0 auto;
+	width: 990px;
+}
+
+
+.page-path,
+.page-content {
+	margin-bottom: 10px;
+	padding: 10px;
+	background: #f6fafa;
+	border: 1px solid #e6e6e6;
+}
+
+.page-content {
+	padding: 0;
+	background: #fbfbfb;
+}
+.page-content-item {
+	margin-bottom: 10px;
+}
+.page-content-item-title {
+	padding: 10px;
+	background: #e0f5f1;
+	border-top: 1px solid #e6e6e6;
+	border-bottom: 1px solid #e6e6e6;
+	color: #009999;
+	font-size: 16px;
+	font-family: 微软雅黑;
+	font-style: italic;
+	font-weight: bold;
+}
+.page-content-item p {
+	padding: 10px 20px;
+}
+
+.ui-form {
+	margin: 0 0 20px 0;
+}
+.ui-form-item {
+	float: left;
+	height: 30px;
+	padding: 0 5px 10px 170px;
+}
+.ui-input {
+	padding: 5px 9px;
+}
+.page-content-item-label {
+	color: red;
+}
+
+.filelist {
+	float: left;
+	width: 300px;
+	margin: 0 10px 0 20px;
+}
+.fileinfo {
+	float: left;
+	width: 434px;
+	margin-right: 20px;
+}
+.ui-list-item {
+	list-style: none;
+}
+.ui-list-item-img {
+	float: left;
+	display: inline-block;
+	width: 22px;
+	height: 21px;
+	margin-right: 10px;
+	background: url(../image/all.png);
+}
+.filelist .ui-list-item-text {
+	float: left;
+	width: 250px;
+	height: 21px;
+	overflow:hidden;
+}
+.ui-list-item-progress {
+	float: left;
+	display: inline-block;
+	width: 220px;
+	height: 10px;
+	margin-top: 5px;
+	margin-left: 30px;
+	border: 1px solid #0099ff;
+}
+.ui-list-item-progress-percent {
+	float: left;
+	width: 0;
+	height: 10px;
+	background: #0099ff;
+}
+.ui-list-item-delete {
+	float: right;
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	margin-top: 5px;
+	background: url(../image/cancel.png) no-repeat;
+}
+
+.ui-form-item {
+	padding-left: 120px;
+}
+
+.ui-form-item .ui-input-text{
+	margin: 5px 0;
+}
+
+.ui-label {
+	width: 120px;
+	margin-left: -130px;
+	font-size: 12px;
+	font-family: 宋体;
+	color: #666666;
+	padding-top:3px;
+}
+
+.submit-btn,
+.reset-btn{
+	background-image: url(../image/btn.png);
+	background-repeat: no-repeat;
+}
+
+.table-btn {
+	text-align: center;
+}
+.submit-btn,
+.reset-btn {
+	width: 135px;
+	height: 37px;
+	border: none;
+	cursor: pointer;
+}
+
+.submit-btn {
+	margin-right: 20px;
+	background-position: 0 -32px;
+}
+
+.reset-btn {
+	margin-left: 20px;
+	background-position: 0 -69px;
+}
+.error-label{
+	text-align:left;
+	margin-left:0px;
+} 

@@ -25,7 +25,7 @@ urlpatterns = [
 
     url(r'^taskInstanceList/$', taskInstanceList),  # 任务实例列表
     url(r'^get_taskInstance/$', get_taskInstance),  # 获取任务实例数据
-    # url(r'^edit_account/$', edit_account),  # 编辑账户
+    url(r'^taskInstance/(?P<id>\d+)/$', taskInstance),  # 作业详情
     # url(r'^get_account/$', get_account),  # 账号信息
     # url(r'^delete_account/$', delete_account),  # 删除账户
 

@@ -195,9 +195,8 @@ function receiversFormatter(value, row, index) {
 */
 function subjectFormatter(value, row, index) {
     return [
-        "<div><a href='#' role='button' data-toggle='modal' onclick="+ '"' +"edit("
-        + row.id + ",'" + row.name + "','" + row.desc +
-        "')"+ '"' +" class='mod'>",
+        "<div><a href='/log_record/taskInstance/"+ row.id +"' role='button' data-toggle='modal'"
+        +" class='mod'>",
         value,
         '</a></div>'
     ].join('');

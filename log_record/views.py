@@ -20,7 +20,6 @@ def taskInstanceList(request):
 def get_taskInstance(request):
     # 获取任务实例列表
     data = Nm_Instance.objects.all().values()
-    cur = Currency(request)
     data_str = [transfor(d) for d in data]
     response = HttpResponse()
     response.write(json.dumps(data_str))
@@ -38,3 +37,9 @@ def transfor(d):
             dict1[k] = status_list[v]
 
     return dict1
+
+
+@login_required
+def taskInstance(request, id):
+    # 作业详情
+    return render_to_response('log_record/taskStepInstance.html', locals(), context_instance=RequestContext(request))
