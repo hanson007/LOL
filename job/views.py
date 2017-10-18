@@ -144,11 +144,22 @@ class RunScriptHelp(RunTaskHelp):
         is_error = True
         for key, val in ret.items():
             ipList = Nm_StepInstanceIpList.objects.get(stepInstance=self.step_instance, ip=servers[key])
-            if val['retcode'] == 0:
-                result = val['stdout']
-            else:
+            try:
+                if val['retcode'] == 0:
+                    result = val['stdout']
+                else:
+                    is_error = False
+                    result = val['stdout'] + '\n' + val['stderr']
+            except TypeError,e:
                 is_error = False
-                result = val['stdout'] + '\n' + val['stderr']
+                errorMsg = u'%s 执行 %s 脚本失败，返回结果类型错误' % (key, self.script_name)
+                result = val
+                logger.error(errorMsg)
+            except e:
+                is_error = False
+                errorMsg = u'%s 执行 %s 脚本失败，返回结果未知错误类型' % (key, self.script_name)
+                result = val
+                logger.error(errorMsg)
             ipList.result = result
             ipList.save()
         return is_error
