@@ -4,24 +4,14 @@
  * last update : 2015-05-27 15:23:16
  * author:zhengyong
  */
+
 (function (factory) {
     "use strict";
-    if (typeof define === 'function') {
-        // using CMD; register as anon module
-      define.cmd&&define('jquery-step', ['jquery'], function (require, exports, moudles) {
-            var $=require("jquery");
-            factory($);
-            return $;
-        });
-      define.amd&&define(['jquery'], factory);
-    } else {
-        // no CMD; invoke directly
-        factory( (typeof(jQuery) != 'undefined') ? jQuery : window.Zepto );
-    }
+    factory( (typeof(jQuery) != 'undefined') ? jQuery : window.Zepto );
 }
 
 (function($){
-  $.fn.step = function(options) { 
+  $.fn.step = function(options) {
       var opts = $.extend({}, $.fn.step.defaults, options);
       var size=this.find(".step-header li").length;
       var barWidth=opts.initStep<size?100/(2*size)+100*(opts.initStep-1)/size : 100;
@@ -56,14 +46,14 @@
           return false;
         }
         return this.goStep(curPage+1);
-      }
+      };
 
       this.preStep=function() {
         if (curPage<=1) {
           return false;
         }
         return this.goStep(curPage-1);
-      }
+      };
 
       this.goStep=function(page) {
         if (page ==undefined || isNaN(page) || page<0) {
@@ -92,15 +82,15 @@
             
         });
         return true;
-      }
+      };
       return this;
   };
    
   $.fn.step.defaults = {
       animate:true,
       speed:500,
-    initStep:1,
-    scrollTop:true
+      initStep:1,
+      scrollTop:true
   };
 
-}));  
+}));

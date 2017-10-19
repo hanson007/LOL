@@ -94,8 +94,8 @@ cursor:pointer;
     <div id="breadcrumb">
         <ul class="breadcrumb">
              <li><i class="fa fa-home"></i><a href="/"> Home</a></li>
-             <li>作业平台</li>
-             <li class="active">编辑作业</li>
+             <li>执行历史</li>
+             <li class="active">作业实例</li>
         </ul>
     </div><!--breadcrumb-->
 
@@ -119,10 +119,138 @@ cursor:pointer;
         <div class="row">
             <div class="col-md-10">
                 <div class="panel panel-default">
-                    123
+                    <div class="step-body" id="myStep">
 
 
 
+                        <div class="step-content">
+                            <div class="step-list">
+                                <div class="page-panel-title">
+                                        <h3 class="page-panel-title-left">作业步骤</h3>
+                                </div>
+                                <div class="intro-flow">
+                                    <div class="intro-list">
+                                        <div class="intro-list-right">
+                                            <span>1</span>
+                                            <table class="table table-hover table-striped">
+								<thead>
+									<tr>
+										<th>Task</th>
+										<th>Progress</th>
+										<th></th>
+										<th>Time</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>Bug Fixes</td>
+										<td>
+											<div class="progress progress-striped active" style="height:8px; margin:5px 0 0 0;">
+												<div class="progress-bar" style="width: 45%">
+													<span class="sr-only">45% Complete</span>
+												</div>
+											</div>
+										</td>
+										<td>45%</td>
+										<td><span class="badge badge-warning">2hr</span></td>
+									</tr>
+									<tr>
+										<td>Mobile Development</td>
+										<td>
+											<div class="progress progress-striped active" style="height:8px; margin:5px 0 0 0;">
+												<div class="progress-bar progress-bar-success" style="width: 61%">
+													<span class="sr-only">61% Complete</span>
+												</div>
+											</div>
+										</td>
+										<td>61%</td>
+										<td><span class="badge badge-warning">1hr</span></td>
+									</tr>
+									<tr>
+										<td>Unit Tesing</td>
+										<td>
+											<div class="progress progress-striped active" style="height:8px; margin:5px 0 0 0;">
+												<div class="progress-bar progress-bar-danger" style="width: 97%">
+													<span class="sr-only">97% Complete</span>
+												</div>
+											</div>
+										</td>
+										<td>97%</td>
+										<td><span class="badge badge-warning">5m</span></td>
+									</tr>
+									<tr>
+										<td>New Frontend Layout</td>
+										<td>
+											<div class="progress progress-striped active" style="height:8px; margin:5px 0 0 0;">
+												<div class="progress-bar progress-bar-warning" style="width: 18%">
+													<span class="sr-only">18% Complete</span>
+												</div>
+											</div>
+										</td>
+										<td>18%</td>
+										<td><span class="badge badge-warning">12hr</span></td>
+									</tr>
+								</tbody>
+							</table>
+                                            <div class="intro-list-content">
+                                                无需您出门，请备齐相关资料，并保持联系电话的畅通，我们会及时受理您的申请，与您预约进行现场堪察，届时会同步收取相关资料。若资料不齐全的，需要您亲自到实体营业厅补交。
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="intro-list intro-list-active">
+                                        <div class="intro-list-right">
+                                            <span>2</span>
+                                            <div class="intro-list-content">
+                                                根据实际现场堪察内容补充。
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="intro-list">
+                                        <div class="intro-list-right">
+                                            <span>3</span>
+                                            <div class="intro-list-content">
+                                                我局将就电网对您业务是否具备供电能力进行勘察，并向您回复相关情况。
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="intro-list">
+                                        <div class="intro-list-right">
+                                            <span>4</span>
+                                            <div class="intro-list-content">
+                                                我局将对受电工程进行竣工检验。
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="intro-list intro-list-active">
+                                        <div class="intro-list-right">
+                                            <span>4</span>
+                                            <div class="intro-list-content">
+                                                我局将与您预约上门签订供用电合同、装表接电的事宜，请保持电话申能并留意接收。为保障双方的合法权益，请业主在场签约（盖章）
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="intro-list">
+                                        <div class="intro-list-right">
+                                            <span>4</span>
+                                            <div class="intro-list-content">
+                                                您可以享受到安全可靠的电源 了。请在网厅进行注册，并绑定您的用户编号，以后您可以便捷地使用电费查询、电费缴纳、账单订阅等服务。
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="footer-btn">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div><!-- /panel -->
                 <div class="panel panel-default">
                     <div class="panel-body">
@@ -142,126 +270,7 @@ cursor:pointer;
 	</div><!-- /padding-md -->
 </div><!-- /main-container -->
 {% include 'job/taskTemplate.html' %}
-    3333
-<div class="step-body" id="myStep">
 
-	<div class="step-header" style="width:80%">
-		<ul>
-			<li><p>阅读流明</p></li>
-			<li><p>用电申请</p></li>
-			<li><p>完成</p></li>
-		</ul>
-	</div>
-	<div class="step-content">
-		<div class="step-list">
-			<div class="page-panel-title">
-					<h3 class="page-panel-title-left">流程说明</h3>
-					<h3 class="page-panel-title-right" >注：黄色为需要你配合的环节</h3>
-			</div>
-			<div class="intro-flow">
-				<div class="intro-list">
-					<div class="intro-list-left">
-						业务受理
-					</div>
-					<div class="intro-list-right">
-						<span>1</span>
-						<div class="intro-list-content">
-							无需您出门，请备齐相关资料，并保持联系电话的畅通，我们会及时受理您的申请，与您预约进行现场堪察，届时会同步收取相关资料。若资料不齐全的，需要您亲自到实体营业厅补交。
-						</div>
-					</div>
-				</div>
-
-
-				<div class="intro-list intro-list-active">
-					<div class="intro-list-left">
-						现场堪察
-					</div>
-					<div class="intro-list-right">
-						<span>2</span>
-						<div class="intro-list-content">
-							根据实际现场堪察内容补充。
-						</div>
-					</div>
-				</div>
-
-				<div class="intro-list">
-					<div class="intro-list-left">
-						现场堪察答复客户
-					</div>
-					<div class="intro-list-right">
-						<span>3</span>
-						<div class="intro-list-content">
-							我局将就电网对您业务是否具备供电能力进行勘察，并向您回复相关情况。
-						</div>
-					</div>
-				</div>
-
-				<div class="intro-list">
-					<div class="intro-list-left">
-						申报俊工检查
-					</div>
-					<div class="intro-list-right">
-						<span>4</span>
-						<div class="intro-list-content">
-							我局将对受电工程进行竣工检验。
-						</div>
-					</div>
-				</div>
-
-				<div class="intro-list intro-list-active">
-					<div class="intro-list-left">
-						供用电合同及装（换）计量装置
-					</div>
-					<div class="intro-list-right">
-						<span>4</span>
-						<div class="intro-list-content">
-							我局将与您预约上门签订供用电合同、装表接电的事宜，请保持电话申能并留意接收。为保障双方的合法权益，请业主在场签约（盖章）
-						</div>
-					</div>
-				</div>
-
-				<div class="intro-list intro-list-last">
-					<div class="intro-list-left">
-						完成
-					</div>
-					<div class="intro-list-right">
-						<span>4</span>
-						<div class="intro-list-content">
-							您可以享受到安全可靠的电源 了。请在网厅进行注册，并绑定您的用户编号，以后您可以便捷地使用电费查询、电费缴纳、账单订阅等服务。
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="footer-btn">
-				<div class="common-btn">
-					<a href="javascript:void(0);" id="applyBtn">马上申请</a>
-				</div>
-			</div>
-		</div>
-		<div class="step-list">
-			<div class="footer-btn">
-				<div class="common-btn">
-					<a href="javascript:void(0);" id="submitBtn">提交</a>
-				</div>
-			</div>
-
-		</div>
-		<div class="step-list">
-			<div class="apply-finish">
-				<div class="apply-finish-header">
-					<img src="/static/plugins/guide-step/images/success.png">
-					<div class="apply-finish-msg">恭喜您，提交成功！</div>
-				</div>
-				<div class="apply-finish-footer">
-					<p>尊敬的用户，您已提交成功，受理编号为<span id="proNo">LS23423432</span>。</p>
-					<p><a href="demo-step.html">查看单独demo</a></p>
-				</div>
-			</div>
-		</div>
-
-	</div>
-
-</div>
 {% endblock %}
 
 {% block footer_content %}
@@ -289,14 +298,22 @@ $(document).ready(function(){
     $("#para").mouseleave(function(){
         layer.closeAll()
   });
+
+
 });
+
 
 
 /**
  * 等待页面所有图片、js文件加载完再执行，否则ace执行失败
  */
 $(window).load(function() {
-    var curl = window.location.href.split('/');
+		var step= $("#myStep").step({
+			animate:true,
+			initStep:1,
+			speed:1000
+		});
+{% comment %}    var curl = window.location.href.split('/');
     var _id = curl[curl.length -2];
     var url = '/job/getTask/';
     $.ajax({
@@ -319,7 +336,7 @@ $(window).load(function() {
     blockDelete();
     addFileBlockOrd();
     addScriptBlockOrd();
-    selectScript();
+    selectScript();{% endcomment %}
 });
 
 
