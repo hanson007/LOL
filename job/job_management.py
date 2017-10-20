@@ -183,7 +183,7 @@ class Task(object):
         self.dtf = DataTransfer()
 
     def stepTransfor(self, d):
-        dict1 = self.dtf.commonTransfor1(d)
+        dict1 = self.dtf.common_transform1(d)
         ipList = self.getIpList(d['id'])
         dict1['ipList'] = ipList
 
@@ -195,7 +195,7 @@ class Task(object):
         ipList = []
         for sil in stepIpList:
             server = Server.objects.filter(ip=sil.ip).values()[0]
-            server = self.dtf.commonTransfor1(server)
+            server = self.dtf.common_transform1(server)
             ipList.append(server)
 
         return ipList

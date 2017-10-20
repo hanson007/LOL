@@ -41,26 +41,13 @@ client = salt.client.LocalClient()
 # print a.rfind('/') == (len(a) - 1), list(a)
 
 
-data = [{'blockOrd': 2, 'ord': 2}, {'blockOrd': 1, 'ord': 1}, {'blockOrd': 1, 'ord': 2}, {'blockOrd': 2, 'ord': 1}]
+a = 1
+arg = [1,2,3]
+kwargs = {'key1': 1, 'key2':2}
 
-print data
-def cmp(data1, data2):
-    print data1, data2
-    blockOrd1 = data1['blockOrd']
-    blockOrd2 = data2['blockOrd']
-    ord1 = data1['ord']
-    ord2 = data2['ord']
-    if blockOrd1 > blockOrd2:
-        return -1
-    elif blockOrd1 < blockOrd2:
-        return 1
-    elif blockOrd1 == blockOrd2:
-        if ord1 > ord2:
-            return -1
-        elif ord1 < ord2:
-            return 1
-        elif ord1 == ord2:
-            return 0
+def fun_var_kwargs(a, *arg, **kwargs):
+    print a
+    print arg
+    print kwargs
 
-data.sort(cmp=cmp, reverse=True)
-print data
+fun_var_kwargs(a, *arg, **kwargs)

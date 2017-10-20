@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from job.models import *
 from job.job_management import (Task)
 from controller.core.public import *
+from controller.conf.job import STATUS_TABLE
 import json
 # Create your views here.
 
@@ -51,18 +52,16 @@ def get_task_instance(request):
     # 获取作业实例
     cur = Currency(request)
     _id = cur.rq_post('taskInstanceId')
-    print _id
     dtf = DataTransfer()
+    custom = {'status': STATUS_TABLE}
     instance = Nm_Instance.objects.values().get(pk=int(_id))
     nm_stepset = Nm_StepInstance.objects.filter(taskInstanceId=instance['id']).values()
-    nm_step = [dtf.commonTransfor1(d) for d in nm_stepset]
+    nm_step = [dtf.custom_transform1(d, **custom) for d in nm_stepset]
     nm_step.sort(cmp=Task.cmp, reverse=True)
-    data = {'nm_task': dtf.commonTransfor1(instance), 'nm_step': nm_step}
+    data = {'nm_task': dtf.custom_transform1(instance, **custom),
+            'nm_step': nm_step}
     import pprint
     pprint.pprint(data)
-    # print data
-    # data = Nm_Instance.objects.all().values()
-    # data_str = [transfor(d) for d in data]
     response = HttpResponse()
     response.write(json.dumps(data))
     return response

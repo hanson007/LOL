@@ -98,10 +98,47 @@ class DataTransfer(object):
     def dateTimeToStr1(self, v):
         return v.strftime("%Y-%m-%d %H:%M:%S")
 
-    def commonTransfor1(self, d):
+    def common_transform1(self, d):
+        """
+        通用转换方式
+        只转换时间
+        :param d:
+        :return:
+        """
         dict1 = {}
         for k, v in d.items():
             if isinstance(v, datetime.datetime):
                 v = self.dateTimeToStr1(v)
             dict1[k] = v
+        return dict1
+
+    def custom_transform1(self, data, **custom):
+        """
+        自定义转换
+        :param data: 需要转换的字典
+                  {'key1': datetime.datetime(2017, 10, 20, 13, 44, 37, 575345)
+                   'key2': 2,
+                   ...
+                  }
+
+        :param custom:转换列表
+                     {key1:table1,
+                      key2:table2,
+                      ...}
+                     key:需要单独转换的key
+                     table:转换列表。如key2=2 ，table={2:u'成功', 3:u'失败'}
+
+        :return:{'k1': 2017-10-20 13:44:37,
+                 'k2': u'成功',
+                 ...
+                 }
+        """
+        dict1 = {}
+        for key, val in data.items():
+            if isinstance(val, datetime.datetime):
+                val = self.dateTimeToStr1(val)
+            if key in custom:
+                table = custom[key]
+                val = table[val]
+            dict1[key] = val
         return dict1
