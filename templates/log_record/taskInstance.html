@@ -101,7 +101,7 @@ cursor:pointer;
 
     <div class="padding-md">
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <form class="form-horizontal">
@@ -110,7 +110,7 @@ cursor:pointer;
                                     <strong>作业名称： </strong><span id="taskName"></span>
                                 </div>
                                 <div class="col-md-3">
-                                    <strong>执行结果： </strong><span id="taskStatus"></span>
+                                    <strong>执行结果： </strong><span id="taskStatus" class="label"></span>
                                 </div>
                                 <div class="col-md-3">
                                     <strong>启动人： </strong><span id="operator"></span>
@@ -135,7 +135,7 @@ cursor:pointer;
             </div>
         </div>
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="step-body" id="nm_step">
                         <div class="step-content">
@@ -215,7 +215,6 @@ function loadTaskInstance() {
         data: data,
         success: function (jres) {
             var res = $.parseJSON(jres);
-            console.log(res)
             loadData(res)
         }
     })
@@ -229,6 +228,15 @@ function loadData(data) {
     var nm_step = data.nm_step;
     $('#taskName').text(nm_task.name);
     $('#taskStatus').text(nm_task.status);
+    if (nm_task.status == '执行成功'){
+        $('#taskStatus').addClass('label-success');
+    }
+    else if (nm_task.status == '执行失败') {
+        $('#taskStatus').addClass('label-danger');
+    }
+    else{
+        $('#taskStatus').addClass('label-info');
+    }
     $('#operator').text(nm_task.operator);
     $('#startTime').text(nm_task.startTime);
     $('#endTime').text(nm_task.endTime);
@@ -317,7 +325,8 @@ function getColumns() {
         title: '总时间(s)'
     }, {
         field: 'status',
-        title: '状态'
+        title: '状态',
+        formatter: statusFormatter
     }, {
         title: '操作',
         formatter: operatorFormatter
@@ -331,11 +340,30 @@ function getColumns() {
  */
 function operatorFormatter(value, row, index) {
     return [
-        "<div><a href='/log_record/task_instance/"+ row.id +"' type='button' data-toggle='modal'"
-        +" class='btn btn-info btn-xs'>",
+        "<div><a href='/log_record/task_instance/"+ row.id +"' data-toggle='modal'"
+        +" class='primary-font login-link'>",
         '执行详情',
         '</a></div>'
     ].join('');
 }
+
+/**
+ * 状态格式化
+ */
+function statusFormatter(value, row, index) {
+    if (value=='执行成功'){
+        var _class = 'label label-success'
+    }
+    else if (value=='执行失败'){
+        var _class = 'label label-danger'
+    }
+    else{
+        var _class = 'label label-info'
+    }
+    return ["<span class='"+ _class +"'>" + value + "</span>"
+    ].join('');
+}
+
+
 </script>
 {% endblock %}
