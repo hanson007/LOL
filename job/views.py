@@ -293,18 +293,24 @@ class PushFileHelp(RunTaskHelp):
 
     def check_status(self, target, fileSource):
         # 利用md5检测传输文件是否成功，有一个失败，那么任务就算失败
-        rets = []
+        status = True
         for file in fileSource:
-            # 获取文件的md5值
-            md5 = self.saltH.get_file_md5(file['name'])
-            # 检测传输的文件md5值
+            # 获取源文件的md5值
+            md5, t = self.saltH.get_file_md5(file['name'])
+            # 检测目标文件md5值
             ret = self.saltH.check_file_md5(target,
                                         file['name'],
                                         self.fileTargetPath, md5)
-            rets.extend(ret.values())
+            for server, val in ret.items():
+                if isinstance(val, bool):
+                    if not val:
+                        status = False
+                else:
+                    msg = u"检测文件 '%s' md5值时异常，路径：%s 目标机器:%s，内容:%s" % \
+                           (file['name'], self.fileTargetPath, server, val)
+                    logger.error(msg)
 
-        return True if all(rets) else False
-
+        return status
 
 
 class FastPushFileHelp(PushFileHelp):
@@ -317,7 +323,6 @@ class FastPushFileHelp(PushFileHelp):
         self.ipList = data.get('ipList', '')
         self.target = self.getTarget(self.ipList)
         self.fileSource = data.get('fileSource', '')
-        print self.fileSource, type(self.fileSource)
 
     def stepInstance_start(self, instance):
         # 作业实例步骤 start

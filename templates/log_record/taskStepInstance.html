@@ -84,8 +84,6 @@ cursor:pointer;
 	<!-- Datepicker -->
     <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
     <link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
-    <link href="/static/plugins/guide-step/jquery-step/css/jquery.step.css" rel="stylesheet"/>
-    <link href="/static/plugins/guide-step/css/step.css" rel="stylesheet"/>
 {% endblock %}
 
 
@@ -95,7 +93,8 @@ cursor:pointer;
         <ul class="breadcrumb">
              <li><i class="fa fa-home"></i><a href="/"> Home</a></li>
              <li>作业执行历史</li>
-             <li class="active">作业实例</li>
+             <li>作业实例</li>
+             <li class="active">作业步骤实例</li>
         </ul>
     </div><!--breadcrumb-->
 
@@ -107,13 +106,16 @@ cursor:pointer;
                         <form class="form-horizontal">
                             <div class="form-group">
                                 <div class="col-md-4">
-                                    <strong>作业名称： </strong><span id="taskName"></span>
+                                    <strong>节点名称： </strong><span id="taskName"></span>
                                 </div>
                                 <div class="col-md-3">
                                     <strong>执行结果： </strong><span id="taskStatus" class="label"></span>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <strong>启动人： </strong><span id="operator"></span>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>节点类型： </strong><span id="type"></span>
                                 </div>
                             </div>
                         </form>
@@ -125,7 +127,7 @@ cursor:pointer;
                                 <div class="col-md-3">
                                     <strong>结束时间： </strong><span id="endTime"></span>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <strong>总耗时 (s)： </strong><span id="totalTime"></span>
                                 </div>
                             </div>
@@ -137,20 +139,23 @@ cursor:pointer;
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default">
-
-                    <div class="step-body" id="nm_step">
-                        <div class="step-content">
-                            <div class="step-list">
-                                <div class="page-panel-title">
-                                    <h3 class="page-panel-title-left">作业步骤</h3>
-                                </div>
-                                <div class="intro-flow">
-                                </div>
-                                <div class="footer-btn">
-                                </div>
+                    <div class="panel-heading">
+                    </div>
+                    <div class="panel-tab clearfix">
+                        <ul class="tab-bar">
+                            <li class="active"><a href="#home1" data-toggle="tab"><i class="fa fa-search"></i> 执行日志</a></li>
+                            <li><a href="#profile1" data-toggle="tab"><i class="fa fa-laptop"></i> 步骤详情</a></li>
+                        </ul>
+                    </div>
+                    <div class="panel-body">
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active" id="home1">
+                                <table class="table table-hover table-bordered NoNewline" data-name="ipList"></table>
+                            </div>
+                            <div class="tab-pane fade" id="profile1">
+                                <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.</p>
                             </div>
                         </div>
-
                     </div>
                 </div><!-- /panel -->
             </div><!-- /.col -->
@@ -158,23 +163,9 @@ cursor:pointer;
 	</div><!-- /padding-md -->
 </div><!-- /main-container -->
 
+
 <div id="stepTemplate" class="hide">
-    <div class="intro-list">
-        <div class="intro-list-right">
-            <span data-name="blockOrd">1</span>
-            <div class="intro-list-content">
-                <div class="ribbon-wrapper">
-                    <div class="ribbon-inner shadow-pulse">
-                    </div>
-                </div>
-                <div class="panel-heading">
-                    <label>步骤名称：</label>
-                    <span>停止服务</span>
-                </div>
-                <table class="table table-hover table-bordered NoNewline" data-name="table"></table>
-            </div>
-        </div>
-    </div>
+
 </div>
 {% endblock %}
 
@@ -189,16 +180,10 @@ cursor:pointer;
 <script src="/static/plugins/ace/ext-themelist.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/plugins/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/js/lol.js" type="text/javascript" charset="utf-8"></script>
-<script src="/static/plugins/guide-step/jquery-step/js/jquery.step.js" type="text/javascript" charset="utf-8"></script>
 <script>
 $(document).ready(function(){
     // 在这里写你的代码...
-    var step= $("#nm_step").step({
-        animate:true,
-        initStep:1,
-        speed:1000
-    });
-    loadTaskInstance();
+    initOrdTable($("table[data-name='ipList']"))
 });
 
 
@@ -296,7 +281,7 @@ function initOrdTable($table) {
         pageSize: 5,                       //每页的记录行数（*）
         pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
         search: true,                  //是否显示搜索 --前端搜索
-        columns:getColumns()
+        columns:serverColumns()
     });
 }
 
@@ -342,11 +327,11 @@ function getColumns() {
 
 
 /**
- * 超链接显示执行详情
+ * 超链接显示邮件标题
  */
 function operatorFormatter(value, row, index) {
     return [
-        "<div><a href='/log_record/taskStepInstance/"+ row.id +"' data-toggle='modal'"
+        "<div><a href='/log_record/task_instance/"+ row.id +"' data-toggle='modal'"
         +" class='primary-font login-link'>",
         '执行详情',
         '</a></div>'

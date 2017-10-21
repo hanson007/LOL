@@ -9,6 +9,8 @@ import os
 import salt.client
 from public import *
 from controller.conf.job import *
+import logging
+logger = logging.getLogger('job')
 
 
 class Salt_Help(object):
@@ -59,5 +61,11 @@ class Salt_Help(object):
         ret = client.cmd('S@%s' % MASTER, 'file.get_sum',
                          ['%s%s' % (UPLOAD_FILE_DIR, filename), 'md5'],
                          tgt_type='compound')
-
-        return ret.values()[0]
+        if ret:
+            md5 = ret.values()[0]
+            status = True
+        else:
+            md5 = ''
+            status = False
+            logger.error(u"源文件 '%s' 的md5值获取失败，请检查上传目录、saltMaster服务器IP" % filename)
+        return md5, status

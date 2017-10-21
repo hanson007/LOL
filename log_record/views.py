@@ -21,7 +21,7 @@ def taskInstanceList(request):
 @login_required
 def get_taskInstance_list(request):
     # 获取所有作业实例
-    data = Nm_Instance.objects.all().values()
+    data = Nm_Instance.objects.all().order_by('-createTime').values()
     data_str = [transfor(d) for d in data]
     response = HttpResponse()
     response.write(json.dumps(data_str))
@@ -65,3 +65,9 @@ def get_task_instance(request):
     response = HttpResponse()
     response.write(json.dumps(data))
     return response
+
+
+@login_required
+def taskStepInstance(request, id):
+    # 作业详情
+    return render_to_response('log_record/taskStepInstance.html', locals(), context_instance=RequestContext(request))
