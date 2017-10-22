@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^task_instance/(?P<id>\d+)/$', task_instance),  # 作业详情
     url(r'^get_task_instance/$', get_task_instance),  # 获取作业实例数据
     url(r'^taskStepInstance/(?P<id>\d+)/$', taskStepInstance),  # 作业实例步骤
-    # url(r'^delete_account/$', delete_account),  # 删除账户
+    url(r'^loadTaskStepInstance/$', loadTaskStepInstance),  # 加载作业实例步骤数据
 
     # url(r'^script/$', script),  # 脚本
 

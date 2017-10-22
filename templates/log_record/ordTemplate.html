@@ -1,0 +1,105 @@
+<div id="scriptOrdTemplate" class="hide"><!-- 脚本节点模板 -->
+    <form class="form-horizontal alert alert-warning" data-name="ord1">
+        <div class="form-group">
+            <label for="scriptLabel" class="col-lg-2 control-label pointer">脚本</label>
+            <div class="col-lg-3">
+                <p class="form-control-static" data-name="script"></p>
+            </div><!-- /.col -->
+            <div class="col-lg-2 oneline pointer"><!-- 缩略脚本参数 -->
+                <span></span>
+                <span></span>
+            </div>
+            <div class="col-lg-2">
+                <span></span>
+                <span></span>
+            </div><!-- 缩略账号 -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="account" class="col-lg-2 control-label">执行账户</label>
+            <div class="col-lg-10">
+                <p class="form-control-static" data-name="account"></p>
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">脚本内容</label>
+            <div class="col-lg-10">
+                <label class="label-radio inline">
+                    <input type="radio" name="script_type" value="1" checked="checked">
+                    <span class="custom-radio"></span>
+                    shell
+                </label>
+                <label class="label-radio inline">
+                    <input type="radio" name="script_type" value="4">
+                    <span class="custom-radio"></span>
+                    python
+                </label>
+                <select class="form-inline" name="font"></select>
+                <label class="label-radio inline">
+                    字体
+                </label>
+                <label class="label-radio inline">
+                    ESC键退出全屏
+                </label>
+                <button type="button" name="fullScreen" class="btn btn-default btn-xs">
+                    <i class="fa fa-crosshairs"></i> 全屏
+                </button>
+                <pre id="editor2" class="editor"></pre>
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">脚本参数</label>
+            <div class="col-lg-10">
+                <input type="text" class="form-control input-sm" data-name="scriptParam" placeholder="para">
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
+            <div class="col-lg-10">
+                <input type="text" class="form-control input-sm" data-name="scriptTimeout" placeholder="para" value="1000">
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+    </form>
+</div>
+<div id="fileOrdTemplate" class="hide"><!-- 文件节点模板 -->
+    <form class="form-horizontal alert alert-warning" data-name="ord1">
+        <div class="form-group">
+            <div class="col-lg-2 oneline pointer"><!-- 目标路径 -->
+                <span></span>
+                <span></span>
+            </div>
+            <div class="col-lg-2">
+                <span></span>
+                <span></span>
+            </div><!-- 缩略账号 -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">源文件</label>
+            <div class="col-lg-10">
+                <div class="table-responsive" id="table_selected_div">
+                    <table class="table table-hover table-bordered NoNewline" data-name="table_selected_file"></table>
+                </div><!-- /.padding-md -->
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">目标路径</label>
+            <div class="col-lg-10">
+                <input type="text" class="form-control input-sm" data-name="fileTargetPath" placeholder="path">
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">执行账户</label>
+            <div class="col-lg-10">
+                <p class="form-control-static" data-name="account"></p>
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+        <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">超时时间</label>
+            <div class="col-lg-10">
+                <input type="text" class="form-control input-sm" data-name="scriptTimeout" placeholder="para" value="1000">
+            </div><!-- /.col -->
+        </div><!-- /form-group -->
+    </form>
+</div>
+
+<!-- 执行日志 -->
+<div id="result" class="hide"></div>

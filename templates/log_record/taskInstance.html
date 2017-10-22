@@ -321,6 +321,9 @@ function getColumns() {
         field: 'name',
         title: '节点名称'
     }, {
+        field: 'ipCount',
+        title: '执行主机数'
+    }, {
         field: 'startTime',
         title: '开始时间'
     }, {
@@ -408,23 +411,24 @@ function loadRefreshData(data, intervalId){
     loadRefreshNmStep(nm_step);
     $('#taskStatus').text(nm_task.status);
     if (nm_task.status == '执行成功'){
-        $('#taskStatus').addClass('label-success');
+        $('#taskStatus').attr('class', 'label label-success');
         clearInterval(intervalId);
     }
     else if (nm_task.status == '执行失败') {
-        $('#taskStatus').addClass('label-danger');
+        $('#taskStatus').attr('class', 'label label-danger');
         clearInterval(intervalId);
     }
     else if (nm_task.status == '正在执行'){
-        $('#taskStatus').addClass('label-info');
+        $('#taskStatus').attr('class', 'label label-info');
     }
     else{
-        $('#taskStatus').addClass('label-primary');
+        $('#taskStatus').attr('class', 'label label-primary');
         clearInterval(intervalId);
     }
     $('#endTime').text(nm_task.endTime);
     $('#totalTime').text(nm_task.totalTime);
 }
+
 
 /**
  * 加载刷新的步骤数据
