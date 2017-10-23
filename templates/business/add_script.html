@@ -97,7 +97,7 @@ white-space: nowrap;
                             <div class="form-group">
                                 <label for="inputEmail1" class="col-lg-2 control-label">脚本名称</label>
                                 <div class="col-lg-10">
-                                    <input type="email" class="form-control input-sm" id="script_name" placeholder="name">
+                                    <input type="email" class="form-control input-sm" data-name="script_name" placeholder="name">
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
@@ -113,13 +113,16 @@ white-space: nowrap;
 										<span class="custom-radio"></span>
 										python
 									</label>
-                                    <select class="form-inline" id="font"></select>
+                                    <select class="form-inline" data-name="font"></select>
                                     <label class="label-radio inline">
 										字体
 									</label>
                                     <label class="label-radio inline">
-										ESC键全屏切换(光标放在文本框里)
+										ESC键退出全屏
 									</label>
+                                    <button type="button" name="fullScreen" class="btn btn-default btn-xs">
+                                        <i class="fa fa-crosshairs"></i> 全屏
+                                    </button>
                                     <pre id="editor"></pre>
 								</div><!-- /.col -->
                             </div><!-- /form-group -->
@@ -157,9 +160,9 @@ white-space: nowrap;
  *等待页面所有图片、js文件加载完再执行，否则ace执行失败
  */
 $(window).load(function() {
-    init_editor();
-    init_font();
-    set_editor_fullscreen();
+    initEditorAction($('#editor'));
+    initFont($('#main-container').find("select[data-name='font']"));
+    init_script($('#main-container').find("select[data-name='script_name']"))
 });
 
 $('#save').click(function () {
@@ -183,7 +186,8 @@ $('#save').click(function () {
 
 
 function get_data() {
-    var script_name = $('#script_name').val();
+    var script_name = $('#main-container').find("input[data-name='script_name']").val();
+    var editor = ace.edit('editor');
     var content = editor.getValue();
     var script_type = $("input:radio[name='script_type']:checked").val();
     var data = {

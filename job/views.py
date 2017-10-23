@@ -35,6 +35,11 @@ def script(request):
 @login_required
 @verification(Check_Task)
 def run_script(request):
+    """
+    快速执行脚本
+    :param request:
+    :return:
+    """
     cur = Currency(request)
     jdata = cur.rq_post('data')
     data = json.loads(jdata)
@@ -197,17 +202,29 @@ class FastRunScriptHelp(RunScriptHelp):
 @shared_task()
 def run_script_async(data):
     # 异步快速运行脚本任务
+
     rsh = FastRunScriptHelp(data)
     script_id = data['script_id']
     script = Nm_Script.objects.get(pk=int(script_id))
-    rsh.instance_start(script.name)
-    rsh.stepInstance_start()
+    nmInstance = NmInstanceHelp(script.name, data['operator'])
+    nmInstance.start()
+    logger.info(u'快速执行脚本 %s, 创建作业实例' % script.name)
+    rsh.stepInstance_start(nmInstance.instance)
+    logger.info(u'快速执行脚本 %s, 创建作业步骤实例' % script.name)
     rsh.ipList_start(rsh.ipList)
+    logger.info(u'快速执行脚本 %s, 创建作业实例目标机器 %s' % (script.name, data['ipList']))
     ret = rsh.run_job(rsh.target)
-    rsh.instance_end()
+    logger.info(u'快速执行脚本 %s, 执行结果 %s' % (script.name, ret))
     rsh.stepInstance_end()
+    logger.info(u'快速执行脚本 %s, 步骤示例保存完成' % script.name)
     is_error = rsh.save_ret(ret)
+    logger.info(u'快速执行脚本 %s, 保存作业步骤实例执行结果' % script.name)
     rsh.save_status(is_error)
+    logger.info(u'快速执行脚本 %s, 保存作业步骤实例例执行状态：%s' % (script.name, is_error))
+    nmInstance.end()
+    logger.info(u'快速执行脚本 %s, 作业实例保存完成' % script.name)
+    nmInstance.save_status(is_error)
+    logger.info(u'快速执行脚本 %s, 作业实例状态保存完成，状态: %s' % (script.name, is_error))
 
 
 @login_required
@@ -218,7 +235,7 @@ def fastPushfile(request):
 
 @login_required
 def fastPushfile_upload_file(request):
-    # 上传快速分发文件
+    # 上传分发文件
     fileobj = request.FILES.get('file', None)
     content = fileobj.readlines()
     with open('%s%s' % (UPLOAD_FILE_DIR, fileobj.name), 'a+') as f:

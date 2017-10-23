@@ -206,7 +206,8 @@ function get_columns() {
         formatter: subjectFormatter
     }, {
         field: 'TYPE',
-        title: '类型'
+        title: '类型',
+        formatter: scriptTypeFormatter
     }, {
         field: 'creater',
         title: '创建人'
@@ -227,12 +228,13 @@ function get_columns() {
 /*
 *超链接显示收件人
 */
-function receiversFormatter(value, row, index) {
-    return [
-        '<div class="text-overflow"><a href="#">',
-        value,
-        '</a></div>'
-    ].join('');
+function scriptTypeFormatter(value, row, index) {
+    if (value == 1){
+        return 'shell'
+    }
+    else if (value == 4){
+        return 'python'
+    }
 }
 
 

@@ -97,7 +97,7 @@ white-space: nowrap;
                             <div class="form-group">
                                 <label for="inputEmail1" class="col-lg-2 control-label">脚本名称</label>
                                 <div class="col-lg-10">
-                                    <input type="email" class="form-control input-sm" id="script_name" placeholder="name">
+                                    <input type="email" class="form-control input-sm" data-name="script_name" placeholder="name">
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
@@ -113,7 +113,7 @@ white-space: nowrap;
 										<span class="custom-radio"></span>
 										python
 									</label>
-                                    <select class="form-inline" id="font"></select>
+                                    <select class="form-inline" data-name="font"></select>
                                     <label class="label-radio inline">
 										字体
 									</label>
@@ -164,8 +164,11 @@ $(window).load(function() {
     var index = layer.load();
     $.post(url,{'id': script_id}, function (res) {
         var _data = $.parseJSON(res);
-        $('#script_name').val(_data.name);
-        init_editor();
+        $('#main-container').find("input[data-name='script_name']").val(_data.name);
+        initEditorAction($('#editor'));
+        initFont($('#main-container').find("select[data-name='font']"));
+        init_script($('#main-container').find("select[data-name='script_name']"));
+        var editor = ace.edit('editor');
         editor.setValue(_data.content);
         if (_data.TYPE=='1'){
             editor.session.setMode("ace/mode/sh");
@@ -204,7 +207,8 @@ function get_data() {
     var cur_url = window.location.href;
     var cur_url_array = cur_url.split('/');
     var script_id = cur_url_array[cur_url_array.length - 2];
-    var script_name = $('#script_name').val();
+    var script_name = $('#main-container').find("input[data-name='script_name']").val();
+    var editor = ace.edit('editor');
     var content = editor.getValue();
     var script_type = $("input:radio[name='script_type']:checked").val();
     var data = {

@@ -145,7 +145,7 @@ def edit_script(request):
     cur = Currency(request)
     jdata = cur.rq_post('data')
     data = json.loads(jdata)
-    obj = Nm_Script.objects.get(pk=int(data['id']))
+    obj = Nm_Script.objects.get(pk=int(data['script_id']))
     obj.name = data['script_name']
     obj.content = data['content']
     obj.TYPE = data['script_type']

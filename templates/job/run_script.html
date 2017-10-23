@@ -97,13 +97,13 @@ white-space: nowrap;
                             <div class="form-group">
                                 <label for="inputEmail1" class="col-lg-2 control-label">脚本</label>
                                 <div class="col-lg-10">
-                                    <select id="script" class="form-control chzn-select"></select>
+                                    <select name="script" class="form-control chzn-select"></select>
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
                                 <label for="inputPassword1" class="col-lg-2 control-label">执行账户</label>
                                 <div class="col-lg-10">
-									<select id="account" class="form-control chzn-select"></select>
+									<select data-name="account" class="form-control chzn-select"></select>
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
                             <div class="form-group">
@@ -112,7 +112,7 @@ white-space: nowrap;
 									<button type="button" id="add_server" class="btn btn-success btn-sm">选择服务器</button>
                                     <button type="button" id="delete" class="btn btn-success btn-sm">删除</button>
                                     <div class="table-responsive" id="table_selected_div">
-                                        <table class="table table-hover table-bordered NoNewline" id="table_selected"></table>
+                                        <table class="table table-hover table-bordered NoNewline" data-name="table_selected"></table>
                                     </div><!-- /.padding-md -->
                                 </div><!-- /.col -->
                             </div><!-- /form-group -->
@@ -129,7 +129,7 @@ white-space: nowrap;
 										<span class="custom-radio"></span>
 										python
 									</label>
-                                    <select class="form-inline" id="font"></select>
+                                    <select class="form-inline" data-name="font"></select>
                                     <label class="label-radio inline">
 										字体
 									</label>
@@ -181,38 +181,17 @@ white-space: nowrap;
 <script src="/static/plugins/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/js/lol.js" type="text/javascript" charset="utf-8"></script>
 <script>
-/*
-*等待页面所有图片、js文件加载完再执行，否则ace执行失败
-*/
-$(window).load(function() {
-    init_font();
-    init_account();
-    init_editor();
-    set_editor_fullscreen();
-    init_script();
-});
-
-
 /**
- *设置脚本
+ * 等待页面所有图片、js文件加载完再执行，否则ace执行失败
  */
-$('body').on('change', '#script', function() {
-    var url = '/business/get_edit_script/';
-    var script_id = $('#script').val();
-    $.post(url,{'id': script_id}, function (res) {
-        var _data = $.parseJSON(res);
-        $('#script_name').val(_data.name);
-        editor.setValue(_data.content);
-        if (_data.TYPE=='1'){
-            editor.session.setMode("ace/mode/sh");
-        }
-        else {
-            editor.session.setMode("ace/mode/python");
-        }
-        editor.gotoLine(1);
-        editor.setReadOnly(true);
-        $("input:radio[name='script_type'][value='"+ _data.TYPE +"']").prop("checked", "checked");
-    });
+$(window).load(function() {
+    initFont($('#main-container').find("select[data-name='font']"));
+    init_account($('#main-container').find("select[data-name='account']"));
+    initEditorAction($('#editor'));
+    init_script($('#main-container').find("select[name='script']"));
+    var $tableSelected = $('#main-container').find("table[data-name='table_selected']");
+    initTableSelected($tableSelected);
+    selectScript();
 });
 
 
@@ -221,23 +200,33 @@ $('body').on('change', '#script', function() {
  */
 $('#run_script').click(function () {
     var data = get_data();
+    console.log(data)
     var jdata = JSON.stringify(data);
     var url = '/job/run_script/';
-{#    var index = layer.load();#}
+    var index = layer.load();
     $.post(url, {'data': jdata}, function (res) {
         var _data = $.parseJSON(res);
+        var msg = '';
         if (_data.status==1){
-            var msg = _data.msg.join('<br>');
-            ajax_callback1(msg);
+            msg = _data.msg.join('<br>');
         }
-{#        layer.close(index);#}
+        else if (_data.status == 0){
+            msg = _data.msg.join('<br>');
+        }
+        else{
+            msg = '执行异常';
+        }
+        ajax_callback1(msg);
+        layer.close(index);
     });
 });
 
 function get_data() {
-    var script_id = $('#script').val();
-    var account = $('#account').val();
-    var server_data = $('#table_selected').bootstrapTable('getData');
+    var script_id = $('#main-container').find("select[name='script']").val();
+    var account = $('#main-container').find("select[data-name='account']").val();
+    var $tableSeleted = $('#main-container').find("table[data-name='table_selected']");
+    var server_data = $tableSeleted.bootstrapTable('getData');
+    var editor = ace.edit('editor');
     var content = editor.getValue();
     var scriptParam = $('#scriptParam').val();
     var scriptTimeout = $('#scriptTimeout').val();
@@ -260,149 +249,28 @@ function get_data() {
 }
 
 
-/*
-*脚本类型、模板选择
-*/
-$("input:radio[name='script_type']").click(function () {
-    var val = $(this).val();
-    if (val=='shell'){
-        editor.setValue(multiline(shell_tmp));
-        editor.session.setMode("ace/mode/sh");
-    }
-   else {
-        editor.setValue(multiline(python_tmp));
-        editor.session.setMode("ace/mode/python");
-    }
-    editor.gotoLine(1);
-});
-
-
-//得到查询的参数
-function queryParams(params) {
-    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
-        limit: params.limit,   //页面大小
-        offset: params.offset,  //页码
-        order: params.order,  //排序
-        time: $('#time').val(),
-        orderNum: $('#orderNum').val(),
-        createTime_start: $('#createTime_start').val(),
-        createTime_end: $('#createTime_end').val(),
-        database: "ygproperty",
-    };
-    return temp;
-}
-
-
-/*
-*初始化服务器选择表格
-*/
-function init_server_choice() {
-    $('#table_choice').bootstrapTable({
-        url: '/cmdb/get_index/',
-        pagination: true,                   //是否显示分页（*）
-        sortable: false,                     //是否启用排序
-        sortOrder: "asc",                   //排序方式
-        showColumns: true,
-        showRefresh: true,
-        clickToSelect: true,
-        uniqueId: "id",
-        queryParams: queryParams,           //传递参数（*）
-        sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
-        pageNumber: 1,                       //初始化加载第一页，默认第一页
-        pageSize: 10,                       //每页的记录行数（*）
-        pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-        search: true,                  //是否显示搜索 --前端搜索
-        columns:get_columns()
-    });
-}
-
-
-
-
-/*
-*将已选的服务器添加到已选表格
-*/
-$('#table_selected').bootstrapTable({
-    pagination: true,                   //是否显示分页（*）
-    sortable: false,                     //是否启用排序
-    sortOrder: "asc",                   //排序方式
-    showColumns: true,
-    showRefresh: true,
-    clickToSelect: true,
-    uniqueId: "id",
-    queryParams: queryParams,           //传递参数（*）
-    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
-    pageNumber: 1,                       //初始化加载第一页，默认第一页
-    pageSize: 5,                       //每页的记录行数（*）
-    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-    search: true,                  //是否显示搜索 --前端搜索
-    columns:get_columns()
-});
-
-
-
-/*
-*获取bootstraptable 的列columns
-*/
-function get_columns() {
-    var columns =[{
-         field: 'checkbox',
-         checkbox: true
-    },{
-        title: '序号',//标题  可不加
-        formatter: function (value, row, index) {
-            return index+1;
-            }
-    }, {
-        field: 'id',
-        title: 'ID',
-        visible: false
-    }, {
-        field: 'ip',
-        title: '服务器IP地址'
-    }, {
-        field: 'desc',
-        title: '描述'
-    }, {
-        field: 'creater',
-        title: '创建人'
-    }, {
-        field: 'createTime',
-        title: '创建时间'
-    }, {
-        field: 'ModifyUser',
-        title: '修改人'
-    }, {
-        field: 'ModifyTime',
-        title: '修改时间'
-    }];
-    return columns
-}
-
-
-
-
-/*
-*添加服务器到已选表格里
-*/
+/**
+ * 添加服务器到已选表格里
+ */
 function add() {
+    var $tableSeleted = $('#main-container').find("table[data-name='table_selected']");
     var choice_data = $('#table_choice').bootstrapTable('getSelections');
-    var selected_data = $('#table_selected').bootstrapTable('getData');
+    var selected_data = $tableSeleted.bootstrapTable('getData');
     var selected_id = [];
     $.each(selected_data, function (sk, selected_v) {
         selected_id.push(selected_v.id);
     });
     $.each(choice_data, function (k, choice_v) {
         if (selected_id.indexOf(choice_v.id) == -1){
-            $('#table_selected').bootstrapTable('append', choice_v);
+            $tableSeleted.bootstrapTable('append', choice_v);
         }
     });
 }
 
 
-/*
-*新增
-*/
+/**
+ * 新增
+ */
 $('#add_server').click(function () {
     init_server_choice();
      $('#table_choice_div').removeClass('hide');
@@ -427,107 +295,14 @@ $('#add_server').click(function () {
 });
 
 
-
-
-/*
-*脚本类型、模板选择
-*/
-$("input:radio[name='server']").click(function () {
-    var val = $(this).val();
-    if (val=='show_all'){
-        $('#table_selected').bootstrapTable('getRowsHidden',{show:true});
-    }
-
-   else if (val=='no_selected') {
-        var data = $('#table_selected').bootstrapTable('getSelections');
-        $.each(data,function (k,v) {
-            $('#table_selected').bootstrapTable('hideRow', {uniqueId: v.id})
-        });
-
-    }
-    else {
-        var all_data = $('#table_selected').bootstrapTable('getData');
-        $.each(all_data,function (k,v) {
-            $('#table_selected').bootstrapTable('hideRow', {uniqueId: v.id})
-        });
-    }
-});
-
-
 /*
 *删除
 */
 $('#delete').click(function () {
-    var data = $('#table_selected').bootstrapTable('getSelections');
+    var $tableSeleted = $('#main-container').find("table[data-name='table_selected']");
+    var data = $tableSeleted.bootstrapTable('getSelections');
     $.each(data, function (sk, v) {
-        $('#table_selected').bootstrapTable('removeByUniqueId', v.id);
-    });
-});
-
-
-/*
-*提交编辑的数据
-*/
-function post_edit() {
-    var id = $('#add_account').find("input[name='id']").val();
-    var name = $('#add_account').find("input[name='name']").val();
-    var desc = $('#add_account').find("textarea[name='desc']").val();
-    var url = '/business/edit_account/';
-    var data = {'id': id, 'name':name, 'desc':desc};
-    var index = layer.load();
-    $.post(url, data, function (msg) {
-        var _msg = $.parseJSON(msg);
-        layer.close(index);
-        layer.msg(_msg);
-        $('#table').bootstrapTable('refresh');
-    });
-}
-
-
-/*
-*编辑服务器
-*/
-function edit(id,name,desc) {
-    $('#add_account').find("input[name='id']").val(id);
-    $('#add_account').find("input[name='name']").val(name);
-    $('#add_account').find("textarea[name='desc']").val(desc);
-    $('#add_account').removeClass('hide');
-    //页面层
-    layer.open({
-      type: 1,
-      skin: 'layui-layer-rim', //加上边框
-      area: ['420px', '240px'], //宽高
-      content: $('#add_account')
-      ,btn: ['save', 'close']
-      ,yes: function(index1, layero){
-            post_edit(); //编辑
-            layer.close(index1);
-      }
-      ,btn2: function(index, layero){
-        //return false 开启该代码可禁止点击该按钮关闭
-      }
-      ,cancel: function(){
-        //右上角关闭回调
-      }
-    });
-}
-
-
-/*
-*提交编辑服务器的数据
-*/
-$('#edit_server').find("button[name='save']").click(function () {
-    var id = $('#edit_server').find("input[name='id']").val();
-    var ip = $('#edit_server').find("input[name='ip']").val();
-    var desc = $('#edit_server').find("textarea[name='desc']").val();
-    var url = '/cmdb/edit_server/';
-    var data = {'id':id, 'ip':ip, 'desc':desc};
-    var index = layer.load();
-    $.post(url, data, function (msg) {
-        var _msg = $.parseJSON(msg);
-        layer.close(index);
-        layer.msg(_msg);
-        $('#table').bootstrapTable('refresh');
+        $tableSeleted.bootstrapTable('removeByUniqueId', v.id);
     });
 });
 
