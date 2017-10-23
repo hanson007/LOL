@@ -282,16 +282,20 @@ def deleteTask(request):
 
 @login_required
 def runTask(request):
+    def _transfor(data):
+        data['operator'] = cur.nowuser.username
+        data['taskName'] = nmTask.name
+        return dtf.common_transform1(data)
     cur = Currency(request)
+    dtf = DataTransfer()
     taskId = cur.rq_post('taskId')
     nmTask = Nm_Task.objects.get(pk=int(taskId))
     nmStep = Nm_Step.objects.filter(taskId=nmTask).values()
-    for data in nmStep:
-        data['operator'] = cur.nowuser.username
-        data['taskName'] = nmTask.name
-    nmStep = list(nmStep)
+    nmStep = [_transfor(data) for data in nmStep]
+    # nmStep = list(nmStep)
     nmStep.sort(cmp=Task.cmp, reverse=True)
-    runNmStepAsync(nmStep, nmTask.name, cur.nowuser.username)
+    # runNmStepAsync(nmStep, nmTask.name, cur.nowuser.username)
+    runNmStepAsync.delay(nmStep, nmTask.name, cur.nowuser.username)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': u'成功'}))
     return response
@@ -380,7 +384,7 @@ def runNmStepScript(data, instance):
     is_error = rssh.save_ret(ret)
     logger.info(logSubject + u' 保存执行结果')
     rssh.save_status(is_error)
-    logger.info(logSubject + u' 保存执行状态')
+    logger.info(logSubject + (u' 保存执行状态 %s' % is_error))
     return is_error
 
 
@@ -439,5 +443,5 @@ def runNmStepPushFile(data, instance):
     is_error = rsh.check_status(rsh.target, rsh.fileSource)
     logger.info(logSubject + u' MD5检测传输文件')
     rsh.save_status(is_error)
-    logger.info(logSubject + u' 保存执行状态')
+    logger.info(logSubject + (u' 保存执行状态 %s' % is_error))
     return is_error

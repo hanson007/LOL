@@ -44,8 +44,8 @@ def run_script(request):
     jdata = cur.rq_post('data')
     data = json.loads(jdata)
     data['operator'] = cur.nowuser.username
-    # run_script_async.delay(data)
-    run_script_async(data)
+    run_script_async.delay(data)
+    # run_script_async(data)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': ['操作成功']}))
     return response
@@ -155,7 +155,7 @@ class RunScriptHelp(RunTaskHelp):
                 else:
                     is_error = False
                     result = val['stdout'] + '\n' + val['stderr']
-            except TypeError,e:
+            except TypeError:
                 is_error = False
                 errorMsg = u'%s 执行 %s 脚本失败，返回结果类型错误' % (key, self.script_name)
                 result = val
@@ -198,33 +198,32 @@ class FastRunScriptHelp(RunScriptHelp):
         self.step_instance.save()
 
 
-
 @shared_task()
 def run_script_async(data):
     # 异步快速运行脚本任务
 
     rsh = FastRunScriptHelp(data)
     script_id = data['script_id']
-    script = Nm_Script.objects.get(pk=int(script_id))
-    nmInstance = NmInstanceHelp(script.name, data['operator'])
+    nmScript = Nm_Script.objects.get(pk=int(script_id))
+    nmInstance = NmInstanceHelp(nmScript.name, data['operator'])
     nmInstance.start()
-    logger.info(u'快速执行脚本 %s, 创建作业实例' % script.name)
+    logger.info(u'快速执行脚本 %s, 创建作业实例' % nmScript.name)
     rsh.stepInstance_start(nmInstance.instance)
-    logger.info(u'快速执行脚本 %s, 创建作业步骤实例' % script.name)
+    logger.info(u'快速执行脚本 %s, 创建作业步骤实例' % nmScript.name)
     rsh.ipList_start(rsh.ipList)
-    logger.info(u'快速执行脚本 %s, 创建作业实例目标机器 %s' % (script.name, data['ipList']))
+    logger.info(u'快速执行脚本 %s, 创建作业实例目标机器 %s' % (nmScript.name, data['ipList']))
     ret = rsh.run_job(rsh.target)
-    logger.info(u'快速执行脚本 %s, 执行结果 %s' % (script.name, ret))
+    logger.info(u'快速执行脚本 %s, 执行结果 %s' % (nmScript.name, ret))
     rsh.stepInstance_end()
-    logger.info(u'快速执行脚本 %s, 步骤示例保存完成' % script.name)
+    logger.info(u'快速执行脚本 %s, 步骤示例保存完成' % nmScript.name)
     is_error = rsh.save_ret(ret)
-    logger.info(u'快速执行脚本 %s, 保存作业步骤实例执行结果' % script.name)
+    logger.info(u'快速执行脚本 %s, 保存作业步骤实例执行结果' % nmScript.name)
     rsh.save_status(is_error)
-    logger.info(u'快速执行脚本 %s, 保存作业步骤实例例执行状态：%s' % (script.name, is_error))
+    logger.info(u'快速执行脚本 %s, 保存作业步骤实例例执行状态：%s' % (nmScript.name, is_error))
     nmInstance.end()
-    logger.info(u'快速执行脚本 %s, 作业实例保存完成' % script.name)
+    logger.info(u'快速执行脚本 %s, 作业实例保存完成' % nmScript.name)
     nmInstance.save_status(is_error)
-    logger.info(u'快速执行脚本 %s, 作业实例状态保存完成，状态: %s' % (script.name, is_error))
+    logger.info(u'快速执行脚本 %s, 作业实例状态保存完成，状态: %s' % (nmScript.name, is_error))
 
 
 @login_required
@@ -253,7 +252,8 @@ def run_fastPushfile(request):
     jdata = cur.rq_post('data')
     data = json.loads(jdata)
     data['operator'] = cur.nowuser.username
-    run_fastPushfile_async(data)
+    # run_fastPushfile_async(data)
+    run_fastPushfile_async.delay(data)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': ['操作成功']}))
     return response
@@ -359,17 +359,29 @@ class FastPushFileHelp(PushFileHelp):
         self.step_instance.save()
 
 
-
+@shared_task()
 def run_fastPushfile_async(data):
     # 异步推送文件
     rsh = FastPushFileHelp(data)
-    # rsh.instance_start(rsh.taskName)
-    rsh.stepInstance_start()
+    nmInstance = NmInstanceHelp(data['task_name'], data['operator'])
+    nmInstance.start()
+    logger.info(u'快速传输文件，作业名称：%s, 创建作业实例' % data['task_name'])
+    rsh.stepInstance_start(nmInstance.instance)
+    logger.info(u'快速传输文件，作业名称：%s, 创建作业步骤实例' % data['task_name'])
     rsh.ipList_start(rsh.ipList)
+    logger.info(u'快速传输文件，作业名称：%s, 创建作业目标机器实例 %s' % (data['task_name'], data['ipList']))
     rets = rsh.run_job(rsh.target, rsh.fileSource)
-    # rsh.instance_end()
+    files = [f['name'] for f in data['fileSource']]
+    logger.info(u'快速传输文件，作业名称：%s, 传输文件 %s' % (data['task_name'], files))
+    nmInstance.end()
+    logger.info(u'快速传输文件，作业名称：%s, 保存作业实例时间' % data['task_name'])
     rsh.stepInstance_end()
+    logger.info(u'快速传输文件，作业名称：%s, 保存作业步骤实例时间' % data['task_name'])
     rsh.save_ret(rets)
+    logger.info(u'快速传输文件，作业名称：%s, 保存执行结果 %s' % (data['task_name'], rets))
     is_error = rsh.check_status(rsh.target, rsh.fileSource)
     rsh.save_status(is_error)
+    logger.info(u'快速传输文件，作业名称：%s, 保存步骤实例执行状态 %s' % (data['task_name'], is_error))
+    nmInstance.save_status(is_error)
+    logger.info(u'快速传输文件，作业名称：%s, 保存作业实例执行状态 %s' % (data['task_name'], is_error))
 

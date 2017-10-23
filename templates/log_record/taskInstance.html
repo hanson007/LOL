@@ -262,21 +262,29 @@ function loadNmStep(nm_step) {
             $introFlow.append($('#stepTemplate').html());
         }
         var $step = $introFlow.children().last();
-        $step.find("span[data-name='blockOrd']").text(v.blockOrd);
-        $step.find('.panel-heading').children('span').text(v.blockName);
-        if (v.type==1){/*设置节点类型(1.执行脚本 2.传输文件)*/
-            $step.find('.ribbon-wrapper').children().addClass('bg-success');
-            $step.find('.ribbon-wrapper').children().text('脚本');
-        }
-        else{
-            $step.find('.ribbon-wrapper').children().addClass('bg-info');
-            $step.find('.ribbon-wrapper').children().text('文件');
-        }
-        var $table = $step.find("table[data-name='table']");
-        initOrdTable($table);
-        $table.bootstrapTable('append', v);
+        loadNmStepData($step, v)
     })
 }
+
+/**
+ * 新增步骤时，加载步骤数据
+ */
+function loadNmStepData($step, v) {
+    $step.find("span[data-name='blockOrd']").text(v.blockOrd);
+    $step.find('.panel-heading').children('span').text(v.blockName);
+    if (v.type==1){/*设置节点类型(1.执行脚本 2.传输文件)*/
+        $step.find('.ribbon-wrapper').children().addClass('bg-success');
+        $step.find('.ribbon-wrapper').children().text('脚本');
+    }
+    else{
+        $step.find('.ribbon-wrapper').children().addClass('bg-info');
+        $step.find('.ribbon-wrapper').children().text('文件');
+    }
+    var $table = $step.find("table[data-name='table']");
+    initOrdTable($table);
+    $table.bootstrapTable('append', v);
+}
+
 
 
 /**
@@ -437,18 +445,25 @@ function loadRefreshNmStep(nm_step) {
     var $introFlow = $('#nm_step').find('.intro-flow');
     $.each(nm_step, function (k, v) {
         var $span = $introFlow.find("span:contains("+ v.blockOrd +")[data-name='blockOrd']");
-        var $table = $span.next().find("table[data-name='table']");
-        var data = $table.bootstrapTable('getData');
-        //更新状态 true 已更新，false 未更新。未更新代表有增量数据
-        var updateStatus = false;
-        $.each(data, function (index, row) {
-            if (row.id == v.id){
-                $table.bootstrapTable('updateRow', {index:index, row:v});
-                updateStatus = true;
+        if ($span.length==0){//如果没有步骤则添加步骤模板，有则不添加
+            $introFlow.append($('#stepTemplate').html());
+            var $step = $introFlow.children().last();
+            loadNmStepData($step, v);
+        }
+        else {//如果有步骤则刷新数据
+            var $table = $span.next().find("table[data-name='table']");
+            var data = $table.bootstrapTable('getData');
+            //更新状态 true 已更新，false 未更新。未更新代表有增量数据
+            var updateStatus = false;
+            $.each(data, function (index, row) {
+                if (row.id == v.id){
+                    $table.bootstrapTable('updateRow', {index:index, row:v});
+                    updateStatus = true;
+                }
+            });
+            if (updateStatus==false){//添加新数据
+                $table.bootstrapTable('append', v)
             }
-        });
-        if (updateStatus==false){//添加新数据
-            $table.bootstrapTable('append', v)
         }
     })
 }

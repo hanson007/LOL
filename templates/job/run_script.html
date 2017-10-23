@@ -196,7 +196,7 @@ $(window).load(function() {
 
 
 /**
- *运行脚本
+ * 运行脚本
  */
 $('#run_script').click(function () {
     var data = get_data();
@@ -220,6 +220,7 @@ $('#run_script').click(function () {
         layer.close(index);
     });
 });
+
 
 function get_data() {
     var script_id = $('#main-container').find("select[name='script']").val();
