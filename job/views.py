@@ -44,8 +44,8 @@ def run_script(request):
     jdata = cur.rq_post('data')
     data = json.loads(jdata)
     data['operator'] = cur.nowuser.username
-    run_script_async.delay(data)
-    # run_script_async(data)
+    # run_script_async.delay(data)
+    run_script_async(data)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': ['操作成功']}))
     return response
@@ -148,6 +148,10 @@ class RunScriptHelp(RunTaskHelp):
         servers = server_help.get_servers_dict()
         is_error = True
         for key, val in ret.items():
+            if key not in servers:
+                logger.error(u'主机名错误 %s %s' % (key, servers))
+                is_error = False
+                continue
             ipList = Nm_StepInstanceIpList.objects.get(stepInstance=self.step_instance, ip=servers[key])
             try:
                 if val['retcode'] == 0:
@@ -160,9 +164,9 @@ class RunScriptHelp(RunTaskHelp):
                 errorMsg = u'%s 执行 %s 脚本失败，返回结果类型错误' % (key, self.script_name)
                 result = val
                 logger.error(errorMsg)
-            except e:
+            except Exception as e:
                 is_error = False
-                errorMsg = u'%s 执行 %s 脚本失败，返回结果未知错误类型' % (key, self.script_name)
+                errorMsg = u'%s 执行 %s 脚本失败，返回结果未知错误类型 %s' % (key, self.script_name, e)
                 result = val
                 logger.error(errorMsg)
             ipList.result = result
