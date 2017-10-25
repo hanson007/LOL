@@ -1098,6 +1098,25 @@ function ajax_callback1(msg, url, isJumpPage){
     });
 }
 
+
+/**
+ * 状态格式化
+ */
+function statusFormatter(value, row, index) {
+    if (value=='执行成功'){
+        var _class = 'label label-success'
+    }
+    else if (value=='执行失败'){
+        var _class = 'label label-danger'
+    }
+    else{
+        var _class = 'label label-info'
+    }
+    return ["<span class='"+ _class +"'>" + value + "</span>"
+    ].join('');
+}
+
+
 /**
  * 作业状态转换表
  */

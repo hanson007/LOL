@@ -7,7 +7,8 @@ import salt.client
 
 client = salt.client.LocalClient()
 
-# ret = client.cmd('*', 'cmd.script', ['salt://test.sh'])
+ret = client.cmd('*', 'test.ping', tgt_type='compound')
+print ret
 # ret = client.cmd('*', 'cmd.script', ['salt://test.sh'])
 # ret = client.cmd('*', 'file.file_exists', ['/tmp/bootstrap-table-develop.zip'], tgt_type='compound')
 # ret = client.cmd('*', 'cp.get_file', ['salt://upload_file/bootstrap-table-develop.zip', '/tmp/bootstrap-table-develop.zip'])
@@ -40,14 +41,3 @@ client = salt.client.LocalClient()
 # a = '/tmp/backup/'
 # print a.rfind('/') == (len(a) - 1), list(a)
 
-
-a = 1
-arg = [1,2,3]
-kwargs = {'key1': 1, 'key2':2}
-
-def fun_var_kwargs(a, *arg, **kwargs):
-    print a
-    print arg
-    print kwargs
-
-fun_var_kwargs(a, *arg, **kwargs)

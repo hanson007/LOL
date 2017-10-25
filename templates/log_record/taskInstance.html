@@ -366,23 +366,6 @@ function operatorFormatter(value, row, index) {
 
 
 /**
- * 状态格式化
- */
-function statusFormatter(value, row, index) {
-    if (value=='执行成功'){
-        var _class = 'label label-success'
-    }
-    else if (value=='执行失败'){
-        var _class = 'label label-danger'
-    }
-    else{
-        var _class = 'label label-info'
-    }
-    return ["<span class='"+ _class +"'>" + value + "</span>"
-    ].join('');
-}
-
-/**
  * 刷新结果
  */
 function refresh_results(){

@@ -7,6 +7,7 @@ from public import *
 from business.models import *
 from cmdb.models import *
 from job.models import *
+from salt_operation import Salt_Help
 from django.http import HttpResponse
 from functools import wraps
 import json
@@ -58,6 +59,7 @@ class Check_Task(object):
         self.scriptParam = data.get('scriptParam', '')
         self.scriptTimeout = data.get('scriptTimeout', '')
         self.script_type = data.get('script_type', '')
+        self.saltH = Salt_Help()
 
     def check_script_id(self):
         # 检测脚本id
@@ -97,6 +99,9 @@ class Check_Task(object):
                 not_exists = [ip for ip in self.ipList if not Server.objects.filter(ip=ip).exists()]
                 if not_exists:
                     self.error_msg.append(u'%s 不存在' % ','.join(not_exists))
+                else:
+                    # 如果提交IP在cmdb里，则通过salt检测连通性
+                    self.test_ping()
 
     def check_script_type(self):
         # 检测脚本类型
@@ -110,6 +115,33 @@ class Check_Task(object):
         else:
             if not self.scriptTimeout.isdecimal():
                 self.error_msg.append(u'超时时间必须为十进制数')
+
+    def test_ping(self):
+        """
+        检测ip是否能够ping通(ipList里的IP肯定存在,已检测过.)
+        :param ipList:
+        :return:
+        """
+        target = self.saltH.getTarget(self.ipList)
+        rets = self.saltH.test_ping(target)
+        server_help = Server_Help()
+        servers = server_help.get_servers_dict2()
+        errorIp = []
+        errorPing = []
+        for ip in self.ipList:
+            hostname = servers[ip]
+            if hostname not in rets:
+                errorIp.append(ip)
+            else:
+                if not rets[hostname]:
+                    errorPing.append(ip)
+
+        if errorIp:
+            msg = u'服务器：%s，ip或主机名错误.' % '、'.join(errorIp)
+            self.error_msg.append(msg)
+        if errorPing:
+            msg = u'salt master无法ping通%s.' % '、'.join(errorPing)
+            self.error_msg.append(msg)
 
     def total_check(self):
         self.check_script_id()
@@ -160,14 +192,20 @@ class Check_fastPushfile(Check_Task):
 
 class Server_Help(object):
     def __init__(self):
-        pass
+        self.data = Server.objects.all().values()
 
-    def get_servers_dict(self):
+    def get_servers_dict1(self):
         # 获取作业实例目标机器，字典格式
-        servers_data = Server.objects.all().values()
         servers = {}
-        for dt in servers_data:
+        for dt in self.data:
             servers[dt['hostname']] = dt['ip']
+        return servers
+
+    def get_servers_dict2(self):
+        # 获取作业实例目标机器，字典格式
+        servers = {}
+        for dt in self.data:
+            servers[dt['ip']] = dt['hostname']
         return servers
 
 

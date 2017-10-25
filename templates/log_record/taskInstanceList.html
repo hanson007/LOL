@@ -100,6 +100,7 @@ white-space: nowrap;
 <script src='/static/template/js/bootstrap-datepicker.js'></script>
 <script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
 <script src='/static/template/js/chosen.jquery.min.js'></script>
+<script src="/static/js/lol.js" type="text/javascript" charset="utf-8"></script>
 <script>
 //得到查询的参数
 function queryParams(params) {
@@ -164,7 +165,8 @@ function get_columns() {
         title: '执行人'
     }, {
         field: 'status',
-        title: '任务状态'
+        title: '任务状态',
+        formatter: statusFormatter
     }, {
         field: 'startTime',
         title: '开始时间'
@@ -176,18 +178,6 @@ function get_columns() {
         title: '总耗时(s)'
     }];
     return columns
-}
-
-
-/*
-*超链接显示收件人
-*/
-function receiversFormatter(value, row, index) {
-    return [
-        '<div class="text-overflow"><a href="#">',
-        value,
-        '</a></div>'
-    ].join('');
 }
 
 

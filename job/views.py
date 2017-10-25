@@ -106,9 +106,6 @@ class RunTaskHelp(object):
             ipList.ip = ip
             ipList.save()
 
-    def getTarget(self, ipList):
-        return ' or '.join(['S@' + ip for ip in ipList])
-
     def save_status(self, is_error):
         # 保存执行状态(2:正在执行 3:成功 4:失败)
         status = 3 if is_error else 4
@@ -145,7 +142,7 @@ class RunScriptHelp(RunTaskHelp):
     def save_ret(self, ret):
         # 保存结果，错误判断 is_error(True：执行报错，False：执行成功)
         server_help = Server_Help()
-        servers = server_help.get_servers_dict()
+        servers = server_help.get_servers_dict1()
         is_error = True
         for key, val in ret.items():
             if key not in servers:
@@ -181,7 +178,7 @@ class FastRunScriptHelp(RunScriptHelp):
     def __init__(self, data):
         super(FastRunScriptHelp, self).__init__(data)
         self.ipList = data.get('ipList', '')
-        self.target = self.getTarget(self.ipList)
+        self.target = self.saltH.getTarget(self.ipList)
 
     def stepInstance_start(self, instance):
         # 作业实例步骤 start
@@ -306,7 +303,7 @@ class PushFileHelp(RunTaskHelp):
     def save_ret(self, rets):
         # 保存结果，错误判断 is_error
         server_help = Server_Help()
-        servers = server_help.get_servers_dict()
+        servers = server_help.get_servers_dict1()
         for key, val in rets.items():
             if key not in servers:
                 logger.error(u'主机名错误 %s %s' % (key, servers))
@@ -319,7 +316,7 @@ class PushFileHelp(RunTaskHelp):
         # 利用md5检测传输文件是否成功，有一个失败，那么任务就算失败
         status = True # 检测状态 True 成功 False 失败
         server_help = Server_Help()
-        servers = server_help.get_servers_dict()
+        servers = server_help.get_servers_dict1()
         for file in fileSource:
             # 获取源文件的md5值
             md5, t = self.saltH.get_file_md5(file['name'])
@@ -327,6 +324,7 @@ class PushFileHelp(RunTaskHelp):
             ret = self.saltH.check_file_md5(target,
                                         file['name'],
                                         self.fileTargetPath, md5)
+
             for hostname, val in ret.items():
                 if isinstance(val, bool):
                     if not val:
@@ -356,7 +354,7 @@ class FastPushFileHelp(PushFileHelp):
         super(FastPushFileHelp, self).__init__(data)
         self.taskName = data.get('task_name', '')
         self.ipList = data.get('ipList', '')
-        self.target = self.getTarget(self.ipList)
+        self.target = self.saltH.getTarget(self.ipList)
         self.fileSource = data.get('fileSource', '')
 
     def stepInstance_start(self, instance):

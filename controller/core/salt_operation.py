@@ -69,3 +69,16 @@ class Salt_Help(object):
             status = False
             logger.error(u"源文件 '%s' 的md5值获取失败，请检查上传目录、saltMaster服务器IP" % filename)
         return md5, status
+
+    def test_ping(self, target):
+        client = salt.client.LocalClient()
+        ret = client.cmd(target, 'test.ping', tgt_type='compound')
+        return ret
+
+    def getTarget(self, ipList):
+        """
+        获取以ip为组合的目标机器
+        :param ipList:[1.1.1.1, 1.1.1.2]
+        :return: 'S@1.1.1.1 or S@1.1.1.2'
+        """
+        return ' or '.join(['S@' + ip for ip in ipList])
