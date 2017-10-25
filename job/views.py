@@ -256,8 +256,8 @@ def run_fastPushfile(request):
     jdata = cur.rq_post('data')
     data = json.loads(jdata)
     data['operator'] = cur.nowuser.username
-    # run_fastPushfile_async(data)
-    run_fastPushfile_async.delay(data)
+    run_fastPushfile_async(data)
+    # run_fastPushfile_async.delay(data)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': ['操作成功']}))
     return response
@@ -308,13 +308,18 @@ class PushFileHelp(RunTaskHelp):
         server_help = Server_Help()
         servers = server_help.get_servers_dict()
         for key, val in rets.items():
+            if key not in servers:
+                logger.error(u'主机名错误 %s %s' % (key, servers))
+                continue
             ipList = Nm_StepInstanceIpList.objects.get(stepInstance_id=self.step_instance, ip=servers[key])
-            ipList.result = val
+            ipList.result = u'文件推送结果 ' + val
             ipList.save()
 
     def check_status(self, target, fileSource):
         # 利用md5检测传输文件是否成功，有一个失败，那么任务就算失败
-        status = True
+        status = True # 检测状态 True 成功 False 失败
+        server_help = Server_Help()
+        servers = server_help.get_servers_dict()
         for file in fileSource:
             # 获取源文件的md5值
             md5, t = self.saltH.get_file_md5(file['name'])
@@ -322,14 +327,23 @@ class PushFileHelp(RunTaskHelp):
             ret = self.saltH.check_file_md5(target,
                                         file['name'],
                                         self.fileTargetPath, md5)
-            for server, val in ret.items():
+            for hostname, val in ret.items():
                 if isinstance(val, bool):
                     if not val:
                         status = False
                 else:
                     msg = u"检测文件 '%s' md5值时异常，路径：%s 目标机器:%s，内容:%s" % \
-                           (file['name'], self.fileTargetPath, server, val)
+                           (file['name'], self.fileTargetPath, hostname, val)
+                    status = False
                     logger.error(msg)
+
+                if hostname not in servers:
+                    logger.error(u'主机名错误 %s %s' % (hostname, servers))
+                    continue
+                ipList = Nm_StepInstanceIpList.objects.get(stepInstance_id=self.step_instance, ip=servers[hostname])
+                md5CheckResult = [u'\n检测 %s 文件md5 ' % file['name'], u'结果:%s' % val, u' 状态:%s' % status]
+                ipList.result += ''.join(md5CheckResult)
+                ipList.save()
 
         return status
 

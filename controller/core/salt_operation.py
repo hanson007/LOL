@@ -52,7 +52,7 @@ class Salt_Help(object):
     def check_file_md5(self, target, filename, fileTargetPath, md5):
         client = salt.client.LocalClient()
         ret = client.cmd(target, 'file.check_hash',
-                         ['%s%s' % (fileTargetPath, filename), md5],
+                         ['%s%s' % (fileTargetPath, filename), 'md5:%s'% md5],
                          tgt_type='compound')
         return ret
 
