@@ -43,6 +43,20 @@ class Check_Task(object):
     error_msg 存放所有错误消息
     check_status 错误状态 1 错误，0 正常，主要用于前端的JavaScript进行判断
     total_check 启动所有检测，返回检测状态和错误消息
+    错误代码对照表
+    1:请选择脚本
+    2:脚本不存在
+    3:脚本名称不能为空
+    4:账号名称不存在
+    5:服务器1.1.1.1、1.1.1.2 ... ,没有该账号(必须先通过pingIP的检测)
+    6:提交的服务器不是一个列表
+    7:至少选择一台服务器
+    8:1.1.1.1 ... 服务器不存在
+    9:服务器：1.1.1.1 ...，ip或主机名错误
+    10:'salt master无法ping通1.1.1.1 ...
+    11:脚本类型错误
+    12:超时时间不能为空
+    13:超时时间必须为十进制数
     """
     def __init__(self, request):
         cur = Currency(request)
@@ -51,6 +65,7 @@ class Check_Task(object):
         data = json.loads(jdata)
         self.data = data
         self.error_msg = []
+        self.error_code = []
         self.script_name = data.get('script_name', '')
         self.script_id = data.get('script_id', '')
         self.account = data.get('account', '')

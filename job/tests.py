@@ -7,7 +7,7 @@ import salt.client
 
 client = salt.client.LocalClient()
 
-ret = client.cmd('*', 'test.ping', tgt_type='compound')
+ret = client.cmd('*', 'user.list_users', tgt_type='compound')
 print ret
 # ret = client.cmd('*', 'cmd.script', ['salt://test.sh'])
 # ret = client.cmd('*', 'file.file_exists', ['/tmp/bootstrap-table-develop.zip'], tgt_type='compound')

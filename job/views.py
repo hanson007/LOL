@@ -256,7 +256,7 @@ def run_fastPushfile(request):
     run_fastPushfile_async(data)
     # run_fastPushfile_async.delay(data)
     response = HttpResponse()
-    response.write(json.dumps({'status': 0, 'msg': ['操作成功']}))
+    response.write(json.dumps({'status': 0, 'msg': [u'操作成功']}))
     return response
 
 

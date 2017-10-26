@@ -194,9 +194,15 @@ class Task(object):
         stepIpList = Nm_StepIplist.objects.filter(step=step)
         ipList = []
         for sil in stepIpList:
-            server = Server.objects.filter(ip=sil.ip).values()[0]
-            server = self.dtf.common_transform1(server)
-            ipList.append(server)
+            serverQset = Server.objects.filter(ip=sil.ip)
+            if serverQset:
+                server = serverQset.values()[0]
+                server = self.dtf.common_transform1(server)
+                ipList.append(server)
+            else:
+                error_msg = u'作业名：%s，步骤名：%s，节点名：%s，目标服务器%s不在cmdb里。' % (
+                                step.taskId.name, step.blockName, step.name, sil.ip)
+                logger.error(error_msg)
 
         return ipList
 
@@ -292,10 +298,9 @@ def runTask(request):
     nmTask = Nm_Task.objects.get(pk=int(taskId))
     nmStep = Nm_Step.objects.filter(taskId=nmTask).values()
     nmStep = [_transfor(data) for data in nmStep]
-    # nmStep = list(nmStep)
     nmStep.sort(cmp=Task.cmp, reverse=True)
-    # runNmStepAsync(nmStep, nmTask.name, cur.nowuser.username)
-    runNmStepAsync.delay(nmStep, nmTask.name, cur.nowuser.username)
+    runNmStepAsync(nmStep, nmTask.name, cur.nowuser.username)
+    # runNmStepAsync.delay(nmStep, nmTask.name, cur.nowuser.username)
     response = HttpResponse()
     response.write(json.dumps({'status': 0, 'msg': u'成功'}))
     return response

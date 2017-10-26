@@ -10,7 +10,9 @@ from job.job_management import (Task)
 from controller.core.public import *
 from controller.conf.job import STATUS_TABLE
 import json
+import logging
 # Create your views here.
+logger = logging.getLogger('log_record')
 
 
 @login_required
@@ -87,11 +89,22 @@ def loadTaskStepInstance(request):
     cur = Currency(request)
     _id = cur.rq_post('stepId')
     dtf = DataTransfer()
-    nm_step = Nm_StepInstance.objects.values().get(pk=int(_id))
+    nm_stepQset = Nm_StepInstance.objects.filter(pk=int(_id))
+    nm_step = nm_stepQset.values().get(pk=int(_id))
     nm_step = dtf.common_transform1(nm_step)
     ipListQset = Nm_StepInstanceIpList.objects.filter(stepInstance=nm_step['id'])
     # 服务器信息
-    serverInfo = [dtf.common_transform1(Server.objects.values().get(ip=ip)) for ip in ipListQset]
+    serverInfo = []
+    for ipListObj in ipListQset:
+        serverQset = Server.objects.values().filter(ip=ipListObj.ip)
+        if serverQset:
+            serverInfo.append(dtf.common_transform1(serverQset.values()[0]))
+        else:
+            step = nm_stepQset[0]
+            error_msg = u'作业执行历史，作业名：%s，步骤名：%s，节点名：%s，目标服务器%s不在cmdb里。' % (
+                            step.taskInstanceId.name, step.blockName, step.name, ipListObj.ip)
+            logger.error(error_msg)
+            serverInfo.append({'ip': ipListObj.ip})
     # 执行结果
     ipList = [dtf.common_transform1(ip) for ip in ipListQset.values()]
     data = {'nm_step': nm_step, 'ipList': ipList, 'serverInfo': serverInfo}
