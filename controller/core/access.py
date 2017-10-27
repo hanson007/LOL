@@ -39,7 +39,7 @@ def verification(check_class):
 
 class Check_Task(object):
     """
-    检测新增周期任务提交的信息
+    检测快速执行脚本时提交的信息
     error_msg 存放所有错误消息
     check_status 错误状态 1 错误，0 正常，主要用于前端的JavaScript进行判断
     total_check 启动所有检测，返回检测状态和错误消息
@@ -47,22 +47,25 @@ class Check_Task(object):
     1:请选择脚本
     2:脚本不存在
     3:脚本名称不能为空
-    4:账号名称不存在
-    5:服务器1.1.1.1、1.1.1.2 ... ,没有该账号(必须先通过pingIP的检测)
-    6:提交的服务器不是一个列表
-    7:至少选择一台服务器
-    8:1.1.1.1 ... 服务器不存在
-    9:服务器：1.1.1.1 ...，ip或主机名错误
-    10:'salt master无法ping通1.1.1.1 ...
-    11:脚本类型错误
-    12:超时时间不能为空
-    13:超时时间必须为十进制数
+    4:账号名称不能为空
+    5:账号名称不存在
+    6:服务器1.1.1.1、1.1.1.2 ... ,没有该账号(必须先通过pingIP的检测)
+    7:提交的服务器不是一个列表
+    8:至少选择一台服务器
+    9:1.1.1.1 ... 服务器不存在
+    10:服务器：1.1.1.1 ...，ip或主机名错误
+    11:'salt master无法ping通1.1.1.1 ...
+    12:脚本类型错误
+    13:超时时间不能为空
+    14:超时时间必须为十进制数
     """
     def __init__(self, request):
         cur = Currency(request)
         rq_post = getattr(cur, 'rq_post')
         jdata = rq_post('data')
         data = json.loads(jdata)
+        self.saltH = Salt_Help()
+        self.serverH = Server_Help()
         self.data = data
         self.error_msg = []
         self.error_code = []
@@ -74,45 +77,69 @@ class Check_Task(object):
         self.scriptParam = data.get('scriptParam', '')
         self.scriptTimeout = data.get('scriptTimeout', '')
         self.script_type = data.get('script_type', '')
-        self.saltH = Salt_Help()
 
     def check_script_id(self):
         # 检测脚本id
         if not self.script_id or not str(self.script_id).isdigit():
+            self.error_code.append(1)
             self.error_msg.append(u'请选择脚本')
         else:
-            if not Nm_Script.objects.filter(pk=int(self.script_id)):
+            if not Nm_Script.objects.filter(pk=int(self.script_id)).exists():
+                self.error_code.append(2)
                 self.error_msg.append(u'脚本不存在')
 
     def check_script_name(self):
         # 检测脚本名称
         if not self.script_name:
+            self.error_code.append(3)
             self.error_msg.append(u'脚本名称不能为空')
 
     def check_account(self):
         # 检测运行账号
         if not self.account:
+            self.error_code.append(4)
             self.error_msg.append(u'账号名称不能为空')
         else:
             is_have = Account.objects.filter(name=self.account).exists()
             if not is_have:
+                self.error_code.append(5)
                 self.error_msg.append(u'账号名称不存在')
+
+    def checkServerAccount(self):
+        # 检测服务器账号
+        target = self.saltH.getTarget(self.ipList)
+        serverAccount = self.saltH.getServerAccount(target)
+        servers = self.serverH.get_servers_dict2()
+        status = True
+        error_ip = []
+        for ip in self.ipList:
+            hostname = servers[ip]
+            if self.account not in serverAccount[hostname]:
+                status = False
+                error_ip.append(ip)
+        if not status:
+            self.error_code.append(6)
+            self.error_msg.append(u'服务器%s不存在账号%s' % ('、'.join(error_ip), self.account))
 
     def check_content(self):
         # 检测脚本内容
         if not self.content:
+            self.error_code.append(6)
             self.error_msg.append(u'脚本内容不能为空')
 
     def check_ipList(self):
         # 检测需要运行脚本的服务器
         if not isinstance(self.ipList, list):
+            self.error_code.append(7)
             self.error_msg.append(u'提交的服务器不是一个列表')
         else:
             if not self.ipList:
+                self.error_code.append(8)
                 self.error_msg.append(u'至少选择一台服务器')
             else:
                 not_exists = [ip for ip in self.ipList if not Server.objects.filter(ip=ip).exists()]
                 if not_exists:
+                    self.error_code.append(9)
                     self.error_msg.append(u'%s 不存在' % ','.join(not_exists))
                 else:
                     # 如果提交IP在cmdb里，则通过salt检测连通性
@@ -121,14 +148,17 @@ class Check_Task(object):
     def check_script_type(self):
         # 检测脚本类型
         if self.script_type not in ['1', '4']:
+            self.error_code.append(10)
             self.error_msg.append(u'脚本类型错误')
 
     def check_script_timeout(self):
         # 检测脚本超时时间
         if not self.scriptTimeout:
+            self.error_code.append(11)
             self.error_msg.append(u'超时时间不能为空')
         else:
             if not self.scriptTimeout.isdecimal():
+                self.error_code.append(12)
                 self.error_msg.append(u'超时时间必须为十进制数')
 
     def test_ping(self):
@@ -152,9 +182,11 @@ class Check_Task(object):
                     errorPing.append(ip)
 
         if errorIp:
+            self.error_code.append(13)
             msg = u'服务器：%s，ip或主机名错误.' % '、'.join(errorIp)
             self.error_msg.append(msg)
         if errorPing:
+            self.error_code.append(14)
             msg = u'salt master无法ping通%s.' % '、'.join(errorPing)
             self.error_msg.append(msg)
 
@@ -163,6 +195,9 @@ class Check_Task(object):
         self.check_account()
         self.check_ipList()
         self.check_script_timeout()
+        # 如果目标服务器ip或者主机名测试通过、账号不为空、账号表里有该账号则开始检测服务器账号
+        if not [code for code in self.error_code if code in [4,5,7,8,9,13,14]]:
+            self.checkServerAccount()
         status = 1 if self.error_msg else 0
 
         return status, self.error_msg
@@ -170,7 +205,7 @@ class Check_Task(object):
 
 class Check_fastPushfile(Check_Task):
     """
-    检测修改周期任务提交的信息
+    检测快速推送文件提交的信息
     """
     def __init__(self, request):
         super(Check_fastPushfile, self).__init__(request)
@@ -200,6 +235,9 @@ class Check_fastPushfile(Check_Task):
         self.check_account()
         self.check_ipList()
         self.check_script_timeout()
+        # 如果目标服务器ip或者主机名测试通过、账号不为空、账号表里有该账号则开始检测服务器账号
+        if not [code for code in self.error_code if code in [4,5,7,8,9,13,14]]:
+            self.checkServerAccount()
         status = 1 if self.error_msg else 0
 
         return status, self.error_msg
@@ -263,6 +301,9 @@ class Check_EditScript(Check_AddScript):
 
 
 class CheckNewTask(object):
+    """
+    检测新增作业时提交的信息
+    """
     def __init__(self, request):
         cur = Currency(request)
         rq_post = getattr(cur, 'rq_post')
@@ -318,7 +359,7 @@ class CheckNewTask(object):
             self.error_msg.append(u'步骤%s,节点%s的 目标机器 不能为空' % (blockOrd, ord))
         else:
             for _id in ipList:
-                if not Server.objects.filter(pk=int(_id)):
+                if not Server.objects.filter(pk=int(_id)).exists():
                     self.error_msg.append(u'步骤%s,节点%s的 目标机器 不存在' % (blockOrd, ord))
 
         if not scriptTimeout or not scriptTimeout.isdigit():
@@ -347,6 +388,9 @@ class CheckNewTask(object):
 
 
 class CheckEditTask(CheckNewTask):
+    """
+    检测编辑作业时提交的信息
+    """
     def __init__(self, request):
         super(CheckEditTask, self).__init__(request)
 

@@ -17,6 +17,7 @@ class Salt_Help(object):
     # salt 通用操作
     def __init__(self):
         self.dth = Datetime_help()
+        self.client = salt.client.LocalClient()
         self.write_file = getattr(Currency, 'write_file')
 
     def delete_old_file(self, file):
@@ -34,15 +35,13 @@ class Salt_Help(object):
         self.write_file('/srv/salt/%s' % file, content)
 
     def run_script(self, target, file, scriptParam, account, timeout):
-        client = salt.client.LocalClient()
-        ret = client.cmd(target, 'cmd.script',
+        ret = self.client.cmd(target, 'cmd.script',
                          ['salt://%s' % file, scriptParam, 'runas=%s' % account, 'timeout=%s' % timeout],
                          tgt_type='compound')
         return ret
 
     def run_fastPushfile(self, target, filename, fileTargetPath, account, timeout):
-        client = salt.client.LocalClient()
-        ret = client.cmd(target, 'cp.get_file',
+        ret = self.client.cmd(target, 'cp.get_file',
                          ['%s%s' % (SALT_UPLOAD_FILE, filename),
                           '%s%s' % (fileTargetPath, filename),
                           'runas=%s' % account, 'timeout=%s' % timeout],
@@ -50,15 +49,13 @@ class Salt_Help(object):
         return ret
 
     def check_file_md5(self, target, filename, fileTargetPath, md5):
-        client = salt.client.LocalClient()
-        ret = client.cmd(target, 'file.check_hash',
+        ret = self.client.cmd(target, 'file.check_hash',
                          ['%s%s' % (fileTargetPath, filename), 'md5:%s'% md5],
                          tgt_type='compound')
         return ret
 
     def get_file_md5(self, filename):
-        client = salt.client.LocalClient()
-        ret = client.cmd('S@%s' % MASTER, 'file.get_sum',
+        ret = self.client.cmd('S@%s' % MASTER, 'file.get_sum',
                          ['%s%s' % (UPLOAD_FILE_DIR, filename), 'md5'],
                          tgt_type='compound')
         if ret:
@@ -71,8 +68,7 @@ class Salt_Help(object):
         return md5, status
 
     def test_ping(self, target):
-        client = salt.client.LocalClient()
-        ret = client.cmd(target, 'test.ping', tgt_type='compound')
+        ret = self.client.cmd(target, 'test.ping', tgt_type='compound')
         return ret
 
     def getTarget(self, ipList):
@@ -82,3 +78,6 @@ class Salt_Help(object):
         :return: 'S@1.1.1.1 or S@1.1.1.2'
         """
         return ' or '.join(['S@' + ip for ip in ipList])
+
+    def getServerAccount(self, target):
+        return self.client.cmd(target, 'user.list_users', tgt_type='compound')
