@@ -195,8 +195,8 @@ class Check_Task(object):
         self.check_account()
         self.check_ipList()
         self.check_script_timeout()
-        # 如果目标服务器ip或者主机名测试通过、账号不为空、账号表里有该账号则开始检测服务器账号
-        if not [code for code in self.error_code if code in [4,5,7,8,9,13,14]]:
+        # 如果目标服务器ip、主机名测试通过、账号不为空、账号表里有该账号则开始检测服务器账号
+        if not [code for code in self.error_code if code in [4, 5, 7, 8, 9, 13, 14]]:
             self.checkServerAccount()
         status = 1 if self.error_msg else 0
 
@@ -235,8 +235,8 @@ class Check_fastPushfile(Check_Task):
         self.check_account()
         self.check_ipList()
         self.check_script_timeout()
-        # 如果目标服务器ip或者主机名测试通过、账号不为空、账号表里有该账号则开始检测服务器账号
-        if not [code for code in self.error_code if code in [4,5,7,8,9,13,14]]:
+        # 如果目标服务器ip、主机名测试通过、账号不为空、账号表里有该账号则开始检测服务器账号
+        if not [code for code in self.error_code if code in [4, 5, 7, 8, 9, 13, 14]]:
             self.checkServerAccount()
         status = 1 if self.error_msg else 0
 
@@ -412,3 +412,5 @@ class CheckEditTask(CheckNewTask):
         status = 1 if self.error_msg else 0
 
         return status, self.error_msg
+
+

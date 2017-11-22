@@ -286,7 +286,106 @@ def deleteTask(request):
     return response
 
 
+class Run_before_task_detection(object):
+    """
+    运行任务前检查
+    错误码
+    1 服务器无法平通
+    2 服务器没有运行账号
+    """
+    def __init__(self, request):
+        self.cur = Currency(request)
+        self.dtf = DataTransfer()
+        self.error_msg = []
+        self.error_code = []
+        self.error_account_ip = {}
+        self.error_ping_ip = []
+        self.saltH = Salt_Help()
+        self.serverH = Server_Help()
+
+    def _transfor(self, data, nmTask):
+        data['operator'] = self.cur.nowuser.username
+        data['taskName'] = nmTask.name
+        return self.dtf.common_transform1(data)
+
+    def total_check(self):
+        _status = 0
+        taskId = self.cur.rq_post('taskId')
+        nmTask = Nm_Task.objects.get(pk=int(taskId))
+        nmStep = Nm_Step.objects.filter(taskId=nmTask).values()
+        nmStep = [self._transfor(data, nmTask) for data in nmStep]
+        nmStep.sort(cmp=Task.cmp, reverse=True)
+        for ordData in nmStep:
+            self.checkOrd(ordData)
+
+        if self.error_account_ip:
+            _status = 1
+            for ip, error_account in self.error_account_ip.items():
+                msg = u'服务器%s没有账号%s' % (ip, '、'.join(error_account))
+                self.error_msg.append(msg)
+        if self.error_ping_ip:
+            _status = 1
+            msg = u'服务器%s 无法平通或者ip、主机名错误.' % '、'.join(self.error_ping_ip)
+            self.error_msg.append(msg)
+        return _status, self.error_msg
+
+    def checkOrd(self, ordData):
+        account = ordData.get('account', '')
+        stepId = ordData.get('id')
+        ipList = self.getIplist(stepId)
+
+        self.test_ping(ipList)
+        if 1 not in self.error_code:
+            self.checkServerAccount(ipList, account)
+
+    def checkServerAccount(self, ipList, account):
+        # 检测服务器账号
+        target = self.saltH.getTarget(ipList)
+        serverAccount = self.saltH.getServerAccount(target)
+        servers = self.serverH.get_servers_dict2()
+        for ip in ipList:
+            hostname = servers[ip]
+            if account not in serverAccount[hostname]:
+                if 2 not in self.error_code:
+                    self.error_code.append(2)
+                if ip in self.error_account_ip:
+                    if account not in self.error_account_ip[ip]:
+                        self.error_account_ip[ip].append(account)
+                else:
+                    self.error_account_ip[ip] = [account]
+
+    def getIplist(self, stepId):
+        nmStepIpList = Nm_StepIplist.objects.filter(step=int(stepId))
+        ipList = [nsi.ip for nsi in nmStepIpList]
+        return ipList
+
+    def test_ping(self, ipList):
+        """
+        检测ip是否能够ping通(ipList里的IP肯定存在,已检测过.)
+        :param ipList:
+        :return:
+        """
+        def _set_error():
+            if ip not in self.error_ping_ip:
+                self.error_ping_ip.append(ip)
+            if 1 not in self.error_code:
+                self.error_code.append(1)
+
+        target = self.saltH.getTarget(ipList)
+        rets = self.saltH.test_ping(target)
+        server_help = Server_Help()
+        servers = server_help.get_servers_dict2()
+        for ip in ipList:
+            hostname = servers[ip]
+            if hostname not in rets:
+                _set_error()
+            else:
+                if not rets[hostname]:
+                    _set_error()
+
+
 @login_required
+@verification(Run_before_task_detection)
 def runTask(request):
     def _transfor(data):
         data['operator'] = cur.nowuser.username
@@ -450,3 +549,4 @@ def runNmStepPushFile(data, instance):
     rsh.save_status(is_error)
     logger.info(logSubject + (u' 保存执行状态 %s' % is_error))
     return is_error
+
