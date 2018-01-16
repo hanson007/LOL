@@ -131,7 +131,6 @@ def MyMkDir(_dir):
 
 
 LOG_FILE_DIR = os.path.join(BASE_DIR, 'logs')
-print(LOG_FILE_DIR)
 MyMkDir(LOG_FILE_DIR)
 
 STATIC_URL = '/static/'
