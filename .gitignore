@@ -116,6 +116,7 @@ people/upload
 change/upload
 
 # log
+logs/*
 *.log
 
 # out

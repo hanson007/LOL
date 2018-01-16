@@ -131,6 +131,7 @@ def MyMkDir(_dir):
 
 
 LOG_FILE_DIR = os.path.join(BASE_DIR, 'logs')
+print(LOG_FILE_DIR)
 MyMkDir(LOG_FILE_DIR)
 
 STATIC_URL = '/static/'
@@ -173,37 +174,37 @@ LOGGING = {
         'job_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '%s%s' % (LOG_FILE_DIR, 'job.log'),
+            'filename': os.path.join(LOG_FILE_DIR, 'job.log'),
             'formatter': 'standard',
         },
         'business_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '%s%s' % (LOG_FILE_DIR, 'business.log'),
+            'filename': os.path.join(LOG_FILE_DIR, 'business.log'),
             'formatter': 'standard',
         },
         'log_record_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '%s%s' % (LOG_FILE_DIR, 'log_record.log'),
+            'filename': os.path.join(LOG_FILE_DIR, 'log_record.log'),
             'formatter': 'standard',
         },
         'cmdb_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '%s%s' % (LOG_FILE_DIR, 'cmdb.log'),
+            'filename': os.path.join(LOG_FILE_DIR, 'cmdb.log'),
             'formatter': 'standard',
         },
         'scheduled_tasks_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '%s%s' % (LOG_FILE_DIR, 'scheduled_tasks.log'),
+            'filename': os.path.join(LOG_FILE_DIR, 'scheduled_tasks.log'),
             'formatter': 'standard',
         },
         'business_query_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '%s%s' % (LOG_FILE_DIR, 'business_query.log'),
+            'filename': os.path.join(LOG_FILE_DIR, 'business_query.log'),
             'formatter': 'standard',
         },
     },
