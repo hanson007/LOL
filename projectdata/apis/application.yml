@@ -1,0 +1,705 @@
+借款端:
+  name: '借款端'
+  code: 'loan_online'
+  EnvIronMent: ['UAT', "PRD"]
+  Applications:
+    cos:
+      code: tomcat-cos
+      name: tomcat-cos
+      HostsData: {'PRD': ["172.16.3.45", "172.16.3.46"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZXDKD/tomcat/${Name}"
+        CODE_DIR: "webapps/cos"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/YGZXDKD/tomcat/tomcat-cos/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/cosdba_cos.git"
+
+    loan_server:
+      code: loan_server
+      name: loan_server
+      HostsData: {'PRD': ["172.16.3.44"]}
+      AppData:
+        BIN_DIR: "/data/service/loan_online/${Name}"
+        CODE_DIR: "webapps/lo-server"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/YGZXDKD/tomcat/tomcat-lo-server/"
+        giturl: "http://YgzxWrite:flOds6yUn4Et5Oar@git.yingu.com/YGZX/loan_online_loan_server.git"
+
+    loan-consumer:
+      code: loan-consumer
+      name: loan-consumer
+      HostsData: {'PRD': ["172.16.3.44"]}
+      AppData:
+        BIN_DIR: "/data/service/loan_online/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/loan_online/loan-consumer/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/loan-consumer.git"
+
+    loan_online:
+      code: loan_online
+      name: loan_online
+      HostsData: {'PRD': ["172.16.3.44"]}
+      AppData:
+        BIN_DIR: "/data/service/loan_online/${Name}"
+        CODE_DIR: "webapps/loan_online"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/service/loan_online/loan_online/"
+        giturl: "http://YgzxWrite:flOds6yUn4Et5Oar@git.yingu.com/YGZX/loan_online_loan_online.git"
+信审:
+  name: '普城信审'
+  code: 'xspt'
+  EnvIronMent: ['UAT', "PRD"]
+  Applications:
+    tomcat-xspt-web_schedule_flase:
+      code: tomcat-xspt-web_schedule_flase
+      name: tomcat-xspt-web_schedule_flase
+      HostsData: {'PRD': ["172.16.3.57","172.16.3.58"]}
+      AppData:
+        BIN_DIR: "/data/service/PCXS/tomcat/${Name}"
+        CODE_DIR: "webapps/loan"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/PCXS/tomcat/tomcat-xspt-web01/"
+        giturl: "http://YgzxWrite:flOds6yUn4Et5Oar@git.yingu.com/430/tomcat-xspt-web.git"
+
+    tomcat-xspt-jk:
+      code: tomcat-xspt-jk
+      name: tomcat-xspt-jk
+      HostsData: {'PRD': ["172.16.3.57","172.16.3.58"]}
+      AppData:
+        BIN_DIR: "/data/service/PCXS/tomcat/${Name}"
+        CODE_DIR: "webapps/masterdata"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/PCXS/tomcat/tomcat-xspt-jk01/"
+        giturl: "http://YgzxWrite:flOds6yUn4Et5Oar@git.yingu.com/430/tomcat-xspt-jk.git"
+
+    tomcat-xspt-web:
+      code: tomcat-xspt-web
+      name: tomcat-xspt-web
+      HostsData: {'PRD': ["172.16.3.59"]}
+      AppData:
+        BIN_DIR: "/data/service/PCXS/tomcat/${Name}"
+        CODE_DIR: "webapps/loan"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/PCXS/tomcat/tomcat-xspt-web01/"
+        giturl: "http://YgzxWrite:flOds6yUn4Et5Oar@git.yingu.com/430/tomcat-xspt-web.git"
+债券匹配:
+  name: '债券匹配'
+  code: 'zqpp'
+  EnvIronMent: ['UAT', "PRD"]
+  Applications:
+    claim-web:
+      code: claim-web
+      name: claim-web
+      HostsData: {'PRD': ["172.24.165.34"]}
+      AppData:
+        BIN_DIR: "/data/service/credit_matching/${Name}"
+        CODE_DIR: "webapps/ROOT"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/service/credit_matching/claim-web/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/credit_matching_tomcat_claim-web.git"
+银谷在线:
+  name: '银谷在线'
+  code: 'YGZX'
+  EnvIronMent: ['UAT', "PRD"]
+  Applications:
+    data-acquire-service:
+      code: data-acquire-service
+      name: data-acquire-service
+      HostsData: {'PRD': ["172.24.133.53"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/data-acquire-service/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/data-acquire-service.git"
+
+    file-download:
+      code: file-download
+      name: file-download
+      HostsData: {'PRD': ["172.16.6.21", "172.16.6.22"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/file-download/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/file-download.git"
+
+    file-job:
+      code: file-job
+      name: file-job
+      HostsData: {'PRD': ["172.16.6.22"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/file-job/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/file-job.git"
+
+    file-query:
+      code: file-query
+      name: file-query
+      HostsData: {'PRD': ["172.16.6.21", "172.16.6.22", "172.16.3.5"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/file-query/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/file-query.git"
+
+    file-store:
+      code: file-store
+      name: file-store
+      HostsData: {'PRD': ["172.16.3.30","172.16.6.21", "172.16.3.5", "172.16.3.47", "172.16.3.48", "172.16.3.49", "172.16.3.50", "172.16.3.51", "172.16.3.52", "172.16.3.53", "172.16.3.54"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/file-store/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/file-store.git"
+
+    file-task:
+      code: file-task
+      name: file-task
+      HostsData: {'PRD': ["172.16.6.21", "172.16.6.22", "172.16.3.49", "172.16.3.50", "172.16.3.51", "172.16.3.52", "172.16.3.53", "172.16.3.54"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/file-task/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/file-task.git"
+
+    file-taskimg:
+      code: file-taskimg
+      name: file-taskimg
+      HostsData: {'PRD': ["172.16.6.21", "172.16.6.22", "172.16.3.47", "172.16.3.48", "172.16.3.50", "172.16.3.51", "172.16.21.62", "172.16.21.63", "172.16.21.64", "172.16.21.65"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/file-taskimg/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/file-taskimg.git"
+
+    file-tasklending:
+      code: file-tasklending
+      name: file-tasklending
+      HostsData: {'PRD': ["172.16.6.21", "172.16.6.22", "172.16.3.49", "172.16.3.50", "172.16.3.51", "172.16.3.52", "172.16.3.53", "172.16.3.54"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/file-tasklending/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-file-tasklending.git"
+
+    file-tool:
+      code: file-tool
+      name: file-tool
+      HostsData: {'PRD': ["172.16.6.21", "172.16.6.22"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/file-tool/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-file-tool.git"
+
+    pay-bindingcard:
+      code: pay-bindingcard
+      name: pay-bindingcard
+      HostsData: {'PRD': ["172.16.3.24", "172.16.3.23"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-bindingcard/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-bindingcard.git"
+
+    pay-buy:
+      code: pay-buy
+      name: pay-buy
+      HostsData: {'PRD': ["172.16.3.23", "172.16.3.24", "172.16.3.47","172.16.21.62", "172.16.21.63"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-buy/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-buy.git"
+
+    pay-charge:
+      code: pay-charge
+      name: pay-charge
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21","172.16.21.62", "172.16.21.63"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-charge/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-charge.git"
+
+    pay-query:
+      code: pay-query
+      name: pay-query
+      HostsData: {'PRD': ["172.16.3.23", "172.16.3.24","172.16.21.62", "172.16.21.63"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-query/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-query.git"
+
+    pay-repayment:
+      code: pay-repayment
+      name: pay-repayment
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-repayment/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-repayment.git"
+
+    pay-syn-account:
+      code: pay-syn-account
+      name: pay-syn-account
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21","172.16.21.62", "172.16.21.63"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-syn-account/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-syn-account.git"
+
+    pay-third-bindingcard:
+      code: pay-third-bindingcard
+      name: pay-third-bindingcard
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.23"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-third-bindingcard/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-third-bindingcard.git"
+
+    pay-third-buy:
+      code: pay-third-buy
+      name: pay-third-buy
+      HostsData: {'PRD': ["172.16.3.23", "172.16.3.24","172.16.21.64", "172.16.21.65"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-third-buy/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-third-buy.git"
+
+    pay-third-charge:
+      code: pay-third-charge
+      name: pay-third-charge
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21","172.16.21.64", "172.16.21.65"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-third-charge/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-third-charge.git"
+
+    pay-third-repayment:
+      code: pay-third-repayment
+      name: pay-third-repayment
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-third-repayment/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-third-repayment.git"
+
+    pay-third-repayment-freeze:
+      code: pay-third-repayment-freeze
+      name: pay-third-repayment-freeze
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-third-repayment-freeze/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-third-repayment-freeze.git"
+
+    pay-third-syn-account:
+      code: pay-third-syn-account
+      name: pay-third-syn-account
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-third-syn-account/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-third-syn-account.git"
+
+    pay-third-transfer:
+      code: pay-third-transfer
+      name: pay-third-transfer
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-third-transfer/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-third-transfer.git"
+
+    pay-third-withdraw:
+      code: pay-third-withdraw
+      name: pay-third-withdraw
+      HostsData: {'PRD': ["172.16.3.23", "172.16.3.24"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-third-withdraw/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-third-withdraw.git"
+
+    pay-transfer:
+      code: pay-transfer
+      name: pay-transfer
+      HostsData: {'PRD': ["172.16.3.23", "172.16.3.24"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-transfer/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-transfer.git"
+
+    pay-withdraw:
+      code: pay-withdraw
+      name: pay-withdraw
+      HostsData: {'PRD': ["172.16.3.23", "172.16.3.24"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/pay-withdraw/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-pay-withdraw.git"
+
+    yingu-gateway-zuul:
+      code: yingu-gateway-zuul
+      name: yingu-gateway-zuul
+      HostsData: {'PRD': ["172.16.3.47", "172.16.3.48"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-gateway-zuul/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/yingu-gateway-zuul.git"
+
+    yingu-hystrix-dashboard:
+      code: yingu-hystrix-dashboard
+      name: yingu-hystrix-dashboard
+      HostsData: {'PRD': ["172.16.3.20"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-hystrix-dashboard/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/yingu-hystrix-dashboard.git"
+
+    yingu-hystrix-turbine:
+      code: yingu-hystrix-turbine
+      name: yingu-hystrix-turbine
+      HostsData: {'PRD': ["172.16.3.21"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-hystrix-turbine/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/yingu-hystrix-turbine.git"
+
+    yingu-provider-activity:
+      code: yingu-provider-activity
+      name: yingu-provider-activity
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21","172.16.21.64", "172.16.21.65"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-provider-activity/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-yingu-provider-activity.git"
+
+    yingu-provider-data:
+      code: yingu-provider-data
+      name: yingu-provider-data
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-provider-data/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/yingu-provider-data.git"
+
+    yingu-provider-p2m:
+      code: yingu-provider-p2m
+      name: yingu-provider-p2m
+      HostsData: {'PRD':  ["172.16.3.20", "172.16.3.21","172.16.3.23", "172.16.3.24","172.16.3.47", "172.16.3.48","172.16.21.62", "172.16.21.63","172.16.21.64", "172.16.21.65"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-provider-p2m/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-yingu-provider-p2m.git"
+
+    yingu-provider-sequence:
+      code: yingu-provider-sequence
+      name: yingu-provider-sequence
+      HostsData: {'PRD': ["172.16.3.23", "172.16.3.24"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-provider-sequence/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-yingu-provider-sequence.git"
+
+    yingu-provider-sms:
+      code: yingu-provider-sms
+      name: yingu-provider-sms
+      HostsData: {'PRD': ["172.16.3.20", "172.16.3.21","172.16.21.64", "172.16.21.65"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-provider-sms/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-yingu-provider-sms.git"
+
+    yingu-provider-task:
+      code: yingu-provider-task
+      name: yingu-provider-task
+      HostsData: {'PRD': ["172.16.3.23"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-provider-task/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-yingu-provider-task.git"
+
+    yingu-provider-user:
+      code: yingu-provider-user
+      name: yingu-provider-user
+      HostsData: {'PRD': ["172.16.3.23", "172.16.3.24","172.16.3.47", "172.16.3.48","172.16.3.49", "172.16.3.48","172.16.21.62", "172.16.21.63","172.16.21.64", "172.16.21.65"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/yingu-provider-user/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-yingu-provider-user.git"
+
+    admin-data-service:
+      code: admin-data-service
+      name: admin-data-service
+      HostsData: {'PRD': ["172.16.3.30"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/admin-data-service/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/admin-data-service.git"
+
+    admin-external-service:
+      code: admin-external-service
+      name: admin-external-service
+      HostsData: {'PRD': ["172.16.3.30"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/admin-external-service/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/admin-external-service.git"
+
+    admin-market-center:
+      code: admin-market-center
+      name: admin-market-center
+      HostsData: {'PRD': ["172.16.3.30"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/admin-market-center/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/admin-market-center.git"
+
+    admin-service:
+      code: admin-service
+      name: admin-service
+      HostsData: {'PRD': ["172.16.3.30"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/admin-service/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/dubbo-admin-service.git"
+
+    admin-task:
+      code: admin-task
+      name: admin-task
+      HostsData: {'PRD': ["172.16.3.30"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/dubbo/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh"
+        Bin_Stop: "sh stop.sh"
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/dubbo/admin-task/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/admin-task.git"
+
+    tomcat-admin-center:
+      code: tomcat-admin-center
+      name: tomcat-admin-center
+      HostsData: {'PRD': ["172.16.3.9"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/tomcat/${Name}"
+        CODE_DIR: "webapps/ROOT"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/YGZX/tomcat/tomcat-admin-center/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/tomcat-admin-center.git"
+
+    tomcat-admin-center-op:
+      code: tomcat-admin-center-op
+      name: tomcat-admin-center-op
+      HostsData: {'PRD': ["172.16.3.30"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/tomcat/${Name}"
+        CODE_DIR: ""
+        Bin_Start: "sh start.sh "
+        Bin_Stop: "sh stop.sh "
+        Bin_Config: ""
+        Log_Path: "/data/logs/YGZX/tomcat/admin-center-op/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/tomcat-admin-center-op.git"
+
+    tomcat-jr-web:
+      code: tomcat-jr-web
+      name: tomcat-jr-web
+      HostsData: {'PRD': ["172.16.3.9"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/tomcat/${Name}"
+        CODE_DIR: "webapps/ROOT"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/YGZX/tomcat/tomcat-jr-web/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/tomcat-jr-web.git"
+
+    tomcat-jr-sso:
+      code: tomcat-jr-sso
+      name: tomcat-jr-sso
+      HostsData: {'PRD': ["172.16.3.9"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/tomcat/${Name}"
+        CODE_DIR: "webapps/ROOT"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/tomcat-sso/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/tomcat-jr-sso.git"
+
+    tomcat-jr-mobile:
+      code: tomcat-jr-mobile
+      name: tomcat-jr-mobile
+      HostsData: {'PRD': ["172.16.3.9"]}
+      AppData:
+        BIN_DIR: "/data/service/YGZX/tomcat/${Name}"
+        CODE_DIR: "webapps/ROOT"
+        Bin_Start: "sh ./bin/startup.sh "
+        Bin_Stop: "sh ./bin/StopTomcat.sh "
+        Bin_Config: "sh ./bin/config.sh"
+        Log_Path: "/data/logs/YGZX/tomcat/tomcat-jr-mobile/"
+        giturl: "http://YgzxReadOnly:vIa3hiar7eY0queG@git.yingu.com/YGZX/tomcat-jr-mobile.git"
