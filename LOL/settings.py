@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -27,7 +26,6 @@ SECRET_KEY = 'ee-i1kqnx9=pc317dz2kr#54p@m@svtt)*!x=qjg^6ci(saa!j'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -76,18 +74,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'LOL.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'lol',                      # Or path to database file if using sqlite3.
-        'USER': 'root',                      # Not used with sqlite3.
-        'PASSWORD': '123.com',                  # Not used with sqlite3.
-        'HOST': '127.0.0.1',                              # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '3306',                      # Set to empty string for default. Not used with sqlite3.
-        #'OPTIONS': {"init_command": "SET foreign_key_checks = 0;",},
+        'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'lol',  # Or path to database file if using sqlite3.
+        'USER': 'root',  # Not used with sqlite3.
+        'PASSWORD': 'my-secret-pw',  # Not used with sqlite3.
+        'HOST': '127.0.0.1',  # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '3306',  # Set to empty string for default. Not used with sqlite3.
+        # 'OPTIONS': {"init_command": "SET foreign_key_checks = 0;",},
     }
 }
 # DATABASES = {
@@ -116,7 +113,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
@@ -130,8 +126,8 @@ USE_L10N = True
 
 USE_TZ = False
 
-
 import djcelery
+
 djcelery.setup_loader()
 CELERY_TIMEZONE = 'Asia/Shanghai'
 CELERY_ENABLE_UTC = False
@@ -142,9 +138,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERYD_MAX_TASKS_PER_CHILD = 3 #  每个worker最多执行3个任务就会被销毁，可防止内存泄露
-
-
+CELERYD_MAX_TASKS_PER_CHILD = 3  # 每个worker最多执行3个任务就会被销毁，可防止内存泄露
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
@@ -155,15 +149,14 @@ STATICFILES_DIRS = [
 ]
 LOGIN_REDIRECT_URL = '/index/'
 
-
 LOG_FILE_DIR = os.path.join(BASE_DIR, "log/")
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
     'formatters': {
         'standard': {
-                'format': '%(levelname)s %(asctime)s %(message)s'
-                },
+            'format': '%(levelname)s %(asctime)s %(message)s'
+        },
     },
     'filters': {
     },
@@ -171,31 +164,31 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-            'formatter':'standard',
+            'formatter': 'standard',
         },
         'job_handler': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
-            'filename':'%s%s' % (LOG_FILE_DIR, 'job.log'),
-            'formatter':'standard',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '%s%s' % (LOG_FILE_DIR, 'job.log'),
+            'formatter': 'standard',
         },
         'business_handler': {
-            'level':'DEBUG',
-                   'class':'logging.handlers.RotatingFileHandler',
-            'filename':'%s%s' % (LOG_FILE_DIR, 'business.log'),
-            'formatter':'standard',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '%s%s' % (LOG_FILE_DIR, 'business.log'),
+            'formatter': 'standard',
         },
         'log_record_handler': {
-            'level':'DEBUG',
-                   'class':'logging.handlers.RotatingFileHandler',
-            'filename':'%s%s' % (LOG_FILE_DIR, 'log_record.log'),
-            'formatter':'standard',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '%s%s' % (LOG_FILE_DIR, 'log_record.log'),
+            'formatter': 'standard',
         },
         'cmdb_handler': {
-            'level':'DEBUG',
-                   'class':'logging.handlers.RotatingFileHandler',
-            'filename':'%s%s' % (LOG_FILE_DIR, 'cmdb.log'),
-            'formatter':'standard',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '%s%s' % (LOG_FILE_DIR, 'cmdb.log'),
+            'formatter': 'standard',
         },
         'scheduled_tasks_handler': {
             'level': 'DEBUG',
@@ -204,10 +197,10 @@ LOGGING = {
             'formatter': 'standard',
         },
         'business_query_handler': {
-            'level':'DEBUG',
-                   'class':'logging.handlers.RotatingFileHandler',
-            'filename':'%s%s' % (LOG_FILE_DIR, 'business_query.log'),
-            'formatter':'standard',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '%s%s' % (LOG_FILE_DIR, 'business_query.log'),
+            'formatter': 'standard',
         },
     },
     'loggers': {
@@ -216,25 +209,25 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'job':{
+        'job': {
             'handlers': ['job_handler'],
             'level': 'INFO',
             'propagate': False
         },
-         'business':{
+        'business': {
             'handlers': ['business_handler'],
             'level': 'INFO',
-                          'propagate': False
+            'propagate': False
         },
-         'log_record':{
+        'log_record': {
             'handlers': ['log_record_handler'],
             'level': 'INFO',
-                          'propagate': False
+            'propagate': False
         },
-         'cmdb':{
+        'cmdb': {
             'handlers': ['cmdb_handler'],
             'level': 'INFO',
-                          'propagate': False
+            'propagate': False
         },
         'scheduled_tasks': {
             'handlers': ['scheduled_tasks_handler'],
