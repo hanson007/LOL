@@ -123,3 +123,5 @@ change/upload
 
 # pid
 *.pid
+# 排除本地垃圾内容
+./docker-base/data/*
