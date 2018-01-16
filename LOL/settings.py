@@ -87,13 +87,6 @@ DATABASES = {
         # 'OPTIONS': {"init_command": "SET foreign_key_checks = 0;",},
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -126,6 +119,27 @@ USE_L10N = True
 
 USE_TZ = False
 
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
+###################非django默认内容###########################
+
+
+def MyMkDir(_dir):
+    if not os.path.exists(_dir):
+        os.mkdir(_dir)
+
+
+LOG_FILE_DIR = os.path.join(BASE_DIR, 'logs')
+MyMkDir(LOG_FILE_DIR)
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+LOGIN_REDIRECT_URL = '/index/'
+
+############################################
 import djcelery
 
 djcelery.setup_loader()
@@ -139,17 +153,7 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERYD_MAX_TASKS_PER_CHILD = 3  # 每个worker最多执行3个任务就会被销毁，可防止内存泄露
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
-
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-LOGIN_REDIRECT_URL = '/index/'
-
-LOG_FILE_DIR = os.path.join(BASE_DIR, "log/")
+############################################
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -241,3 +245,9 @@ LOGGING = {
         },
     }
 }
+##############################################
+try:
+    from .settings_dev import *
+except Exception as e:
+    print e.message
+    print u"=" * 20 + u'正式环境' + u"=" * 20
